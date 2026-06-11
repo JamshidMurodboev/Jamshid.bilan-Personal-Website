@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import UniversityCard from '@/components/universities/UniversityCard';
 import UniversityFilters from '@/components/universities/UniversityFilters';
 import type { University } from '@/types';
@@ -22,20 +23,17 @@ const SAMPLE_UNIVERSITIES: University[] = [
   },
 ];
 
-export default function UniversitiesPage() {
+export default function UniversitiesPage({ params: { locale } }: { params: { locale: string } }) {
+  setRequestLocale(locale);
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Universitetlar</h1>
-        <p className="text-gray-600 mb-8">To'lov asosida xorijiy universitetlar katalogi</p>
+        <p className="text-gray-600 mb-8">Tolov asosida xorijiy universitetlar katalogi</p>
         <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="lg:w-64 flex-shrink-0">
-            <UniversityFilters />
-          </aside>
+          <aside className="lg:w-64 flex-shrink-0"><UniversityFilters /></aside>
           <div className="flex-1 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {SAMPLE_UNIVERSITIES.map((u) => (
-              <UniversityCard key={u.id} university={u} />
-            ))}
+            {SAMPLE_UNIVERSITIES.map((u) => <UniversityCard key={u.id} university={u} />)}
           </div>
         </div>
       </div>
