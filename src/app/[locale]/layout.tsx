@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   },
 };
 
+export function generateStaticParams() {
+  return [{ locale: 'uz' }, { locale: 'ru' }, { locale: 'en' }];
+}
+
 export default async function LocaleLayout({
   children,
   params: { locale },
