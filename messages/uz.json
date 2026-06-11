@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "home": "Bosh sahifa",
+    "scholarships": "Grantlar",
+    "universities": "Universitetlar",
+    "results": "Natijalar",
+    "news": "Yangiliklar",
+    "blog": "Blog",
+    "contact": "Bog'lanish"
+  },
+  "hero": {
+    "headline": "Xorijda o'qish orzuingizmi?",
+    "subheadline": "To'liq grant va stipendiyali universitetlarga qabul bo'lishda sizga yordam beraman. 100+ talabaga muvaffaqiyatli ko'maklashganman.",
+    "cta": "Telegram orqali bog'laning",
+    "ctaWhatsApp": "WhatsApp orqali bog'laning"
+  },
+  "about": {
+    "title": "Men haqimda",
+    "body": "Türkiye Bursları to'liq grantini shaxsan qozonganman va 5 ta talabaga ham shu grantni olishda yordam berdim. 100+ talabani Turkiyadagi universitetlarga qabul qildirdim. Endi butun dunyo bo'ylab to'liq grantlarga yo'naltirishni kengaytirmoqdaman.",
+    "credentials": [
+      "Türkiye Bursları granti laureati",
+      "5 ta to'liq grant g'olibi mentori",
+      "100+ talabaga universitetga kirish bo'yicha ko'mak"
+    ]
+  },
+  "stats": {
+    "fullRide": "To'liq grant g'oliblari",
+    "admissions": "Universitetga qabul",
+    "countries": "Mamlakatlar",
+    "years": "Faollik yillari"
+  },
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "search": "Qidirish",
+    "filter": "Filtrlash",
+    "readMore": "Batafsil",
+    "viewAll": "Hammasini ko'rish",
+    "apply": "Ariza topshirish",
+    "open": "Ochiq",
+    "closed": "Yopiq",
+    "comingSoon": "Tez kunda"
+  },
+  "contact": {
+    "title": "Bog'lanish",
+    "subtitle": "Savol va murojaatlaringiz uchun quyidagi kanallar orqali bog'laning.",
+    "form": {
+      "name": "To'liq ism",
+      "email": "Email",
+      "phone": "Telefon (ixtiyoriy)",
+      "subject": "Mavzu",
+      "message": "Xabar",
+      "submit": "Yuborish",
+      "subjects": {
+        "scholarship": "Grant bo'yicha savol",
+        "university": "Universitetga qabul",
+        "general": "Umumiy savol"
+      }
+    }
+  },
+  "footer": {
+    "rights": "Barcha huquqlar himoyalangan."
+  }
+}

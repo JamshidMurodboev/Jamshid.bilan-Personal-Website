@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "home": "Home",
+    "scholarships": "Scholarships",
+    "universities": "Universities",
+    "results": "Results",
+    "news": "News",
+    "blog": "Blog",
+    "contact": "Contact"
+  },
+  "hero": {
+    "headline": "Dream of studying abroad?",
+    "subheadline": "I help Uzbek students win fully-funded scholarships and gain admission to universities worldwide. Helped 100+ students.",
+    "cta": "Contact on Telegram",
+    "ctaWhatsApp": "Contact on WhatsApp"
+  },
+  "about": {
+    "title": "About Me",
+    "body": "I personally won the fully-funded Türkiye Bursları scholarship and mentored 5 students to win the same. Helped 100+ students secure admissions to universities in Turkey. Now expanding reach to full-ride scholarships worldwide.",
+    "credentials": [
+      "Türkiye Bursları scholarship recipient",
+      "Mentor to 5 full-ride scholarship winners",
+      "Helped 100+ students gain university admission"
+    ]
+  },
+  "stats": {
+    "fullRide": "Full-ride winners",
+    "admissions": "University admissions",
+    "countries": "Countries",
+    "years": "Years active"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "search": "Search",
+    "filter": "Filter",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "apply": "Apply now",
+    "open": "Open",
+    "closed": "Closed",
+    "comingSoon": "Coming Soon"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Get in touch via your preferred channel.",
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send message",
+      "subjects": {
+        "scholarship": "Scholarship inquiry",
+        "university": "University admission",
+        "general": "General question"
+      }
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}
