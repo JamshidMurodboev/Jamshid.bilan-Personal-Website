@@ -2,53 +2,7 @@
 import { useState, useMemo } from 'react';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
-import type { Scholarship } from '@/types';
-
-const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
-  {
-    id: '1',
-    title: 'Turkiye Burslari',
-    country: 'Turkiya',
-    university: 'Barcha davlat universitetlari',
-    coverage: ['tuition', 'housing', 'stipend', 'flights'],
-    eligibility: '18-30 yosh, bakalavriat yoki magistratura',
-    deadline: '2025-02-20',
-    difficulty: 4,
-    tip: "Motivatsiya xatiga alohida e'tibor bering.",
-    application_url: 'https://turkiyeburslari.gov.tr',
-    status: 'open',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Chevening Scholarship',
-    country: 'Buyuk Britaniya',
-    coverage: ['tuition', 'housing', 'stipend', 'flights'],
-    eligibility: '2+ yil ish tajribasi, magistratura',
-    deadline: '2024-11-05',
-    difficulty: 5,
-    tip: 'Liderlik tajribangizni aniq misollar bilan ifodalang.',
-    application_url: 'https://chevening.org',
-    status: 'closed',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'DAAD Scholarship',
-    country: 'Germaniya',
-    coverage: ['tuition', 'stipend'],
-    eligibility: 'Bakalavriat yoki magistratura talabalari',
-    deadline: '2025-10-15',
-    difficulty: 3,
-    tip: "Nemis tili sertifikati bo'lsa kuchli ustunlik.",
-    application_url: 'https://daad.de',
-    status: 'open',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-];
+import { SAMPLE_SCHOLARSHIPS } from '@/lib/data';
 
 export default function ScholarshipsPage() {
   const [search, setSearch] = useState('');

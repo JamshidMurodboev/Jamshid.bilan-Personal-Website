@@ -1,27 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import UniversityCard from '@/components/universities/UniversityCard';
 import UniversityFilters from '@/components/universities/UniversityFilters';
-import type { University } from '@/types';
-
-const SAMPLE_UNIVERSITIES: University[] = [
-  {
-    id: '1',
-    name: 'Istanbul University',
-    country: 'Turkiya',
-    city: 'Istanbul',
-    tuition_min: 500,
-    tuition_max: 2000,
-    currency: 'USD',
-    programs: ['Tibbiyot', 'Muhandislik', 'Iqtisodiyot', 'Huquq'],
-    language_of_instruction: 'Turk tili',
-    requirements: 'YLS/SAT natijasi, til sertifikati',
-    deadline: '2025-05-01',
-    website_url: 'https://istanbul.edu.tr',
-    status: 'accepting',
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  },
-];
+import { SAMPLE_UNIVERSITIES } from '@/lib/data';
 
 export default function UniversitiesPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
