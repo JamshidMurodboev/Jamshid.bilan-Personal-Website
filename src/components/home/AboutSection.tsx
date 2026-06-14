@@ -24,19 +24,11 @@ export default function AboutSection() {
         <div className="flex justify-center">
           <div className="relative w-64 h-80 rounded-2xl overflow-hidden shadow-xl border-4 border-white dark:border-gray-700">
             <Image
-              src="/images/jamshid.jpg"
+              src="/copy_0659112A-3990-4AFC-A553-6B9CF1B3E78C.jpeg"
               alt="Jamshid Murodboev"
               fill
               className="object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-teal-50 dark:bg-gray-800">
-              <div className="w-24 h-24 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 text-4xl font-bold mb-3">
-                J
-              </div>
-              <p className="font-semibold text-gray-800 dark:text-white text-sm">Jamshid Murodboev</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Ta'lim maslahatchisi</p>
-            </div>
           </div>
         </div>
       </div>
