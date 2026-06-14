@@ -10,15 +10,12 @@ const STATS = [
 export default function StatsBanner() {
   const t = useTranslations('stats');
   return (
-    <section className="bg-teal-700 text-white py-12 px-4">
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+    <section className="bg-teal-700 dark:bg-teal-900 text-white py-12 px-4">
+      <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
         {STATS.map((s) => (
-          <div
-            key={s.key}
-            className="bg-white/10 rounded-2xl px-6 py-8 text-center border border-white/20 hover:bg-white/20 transition"
-          >
-            <div className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">{s.value}</div>
-            <div className="text-teal-200 text-sm font-medium uppercase tracking-wide">{t(s.key as Parameters<typeof t>[0])}</div>
+          <div key={s.key} className="bg-white/10 rounded-xl p-4">
+            <div className="text-3xl font-bold">{s.value}</div>
+            <div className="text-teal-200 text-sm mt-1 uppercase tracking-wide">{t(s.key as any)}</div>
           </div>
         ))}
       </div>

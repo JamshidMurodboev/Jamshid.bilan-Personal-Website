@@ -9,9 +9,9 @@ const SAMPLE_POSTS: BlogPost[] = [
 export default function BlogPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Blog va Maslahatlar</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Blog va Maslahatlar</h1>
         <div className="grid gap-6 sm:grid-cols-2">
           {SAMPLE_POSTS.map((p) => <BlogCard key={p.id} post={p} />)}
         </div>

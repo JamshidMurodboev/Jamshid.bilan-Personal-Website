@@ -3,6 +3,7 @@ import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
 import StatsBanner from '@/components/home/StatsBanner';
 import TeaserSection from '@/components/home/TeaserSection';
+import HomeContactSection from '@/components/home/HomeContactSection';
 
 export default function HomePage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
@@ -12,6 +13,7 @@ export default function HomePage({ params: { locale } }: { params: { locale: str
       <StatsBanner />
       <AboutSection />
       <TeaserSection />
+      <HomeContactSection />
     </>
   );
 }
