@@ -1,7 +1,11 @@
+'use client';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import ContactModal from '@/components/shared/ContactModal';
 
 export default function HeroSection() {
   const t = useTranslations('hero');
+  const [open, setOpen] = useState(false);
   return (
     <section className="bg-gradient-to-br from-teal-800 to-teal-600 text-white py-24 px-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
@@ -15,22 +19,18 @@ export default function HeroSection() {
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{t('headline')}</h1>
         <p className="text-lg md:text-xl text-teal-100 mb-8 max-w-2xl mx-auto">{t('subheadline')}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="https://t.me/jamshid_bilan"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setOpen(true)}
             className="bg-white text-teal-800 px-8 py-3 rounded-xl font-semibold hover:bg-teal-50 transition"
           >
             {t('cta')}
-          </a>
-          <a
-            href="https://wa.me/905052250893"
-            target="_blank"
-            rel="noopener noreferrer"
+          </button>
+          <button
+            onClick={() => setOpen(true)}
             className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/10 transition"
           >
             {t('ctaWhatsApp')}
-          </a>
+          </button>
         </div>
       </div>
       <div className="absolute bottom-0 left-0 right-0">
@@ -38,6 +38,7 @@ export default function HeroSection() {
           <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-[#faf7f2] dark:fill-gray-950" />
         </svg>
       </div>
+      <ContactModal isOpen={open} onClose={() => setOpen(false)} />
     </section>
   );
 }

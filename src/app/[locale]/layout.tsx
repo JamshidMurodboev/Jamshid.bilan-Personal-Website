@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react';
 import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { AuthProvider } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
@@ -53,9 +54,11 @@ export default async function LocaleLayout({
       </head>
       <body className={`${inter.className} bg-[#faf7f2] dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <AuthProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </AuthProvider>
         </NextIntlClientProvider>
         <Analytics />
       </body>
