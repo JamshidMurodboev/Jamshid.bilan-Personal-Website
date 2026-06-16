@@ -81,7 +81,9 @@
     "apply": "Apply now",
     "open": "Open",
     "closed": "Closed",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "back": "Back",
+    "notFound": "Not found"
   },
   "contact": {
     "title": "Contact",

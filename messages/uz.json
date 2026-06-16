@@ -81,7 +81,9 @@
     "apply": "Ariza topshirish",
     "open": "Ochiq",
     "closed": "Yopiq",
-    "comingSoon": "Tez kunda"
+    "comingSoon": "Tez kunda",
+    "back": "Orqaga qaytish",
+    "notFound": "Topilmadi"
   },
   "contact": {
     "title": "Bog'lanish",
