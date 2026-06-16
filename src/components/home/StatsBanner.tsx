@@ -1,9 +1,9 @@
 import { useTranslations } from 'next-intl';
 
 const STATS = [
-  { key: 'fullRide', value: '5+' },
+  { key: 'fullRide', value: '10+' },
   { key: 'admissions', value: '100+' },
-  { key: 'countries', value: '10+' },
+  { key: 'countries', value: '20+' },
   { key: 'years', value: '4+' },
 ];
 

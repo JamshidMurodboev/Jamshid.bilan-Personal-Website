@@ -110,6 +110,7 @@ function AvatarMenu() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslations('auth');
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -156,10 +157,12 @@ export default function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const { user } = useAuth();
+  const tAuth = useTranslations('auth');
   const [open, setOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ open: boolean; tab: 'signin' | 'signup' }>({ open: false, tab: 'signin' });
 
   const links = [
+    { href: `/${locale}#about`, label: t('about') },
     { href: `/${locale}/scholarships`, label: t('scholarships') },
     { href: `/${locale}/universities`, label: t('universities') },
     { href: `/${locale}/results`, label: t('results') },
@@ -173,7 +176,7 @@ export default function Header() {
       <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link href={`/${locale}`} className="font-bold text-teal-700 dark:text-teal-400 text-lg">
-            Jamshid Murodboev
+            Jamshid.bilan
           </Link>
 
           <nav className="hidden md:flex items-center gap-5">
@@ -196,11 +199,11 @@ export default function Header() {
                   <button
                     onClick={() => setAuthModal({ open: true, tab: 'signin' })}
                     className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-teal-700 dark:hover:text-teal-400 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                  >Kirish</button>
+                  >{tAuth('signIn')}</button>
                   <button
                     onClick={() => setAuthModal({ open: true, tab: 'signup' })}
                     className="text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white px-3 py-1.5 rounded-lg transition"
-                  >Ro'yxatdan o'tish</button>
+                  >{tAuth('signUp')}</button>
                 </div>
               )}
             </div>
@@ -213,7 +216,7 @@ export default function Header() {
               <button
                 onClick={() => setAuthModal({ open: true, tab: 'signin' })}
                 className="text-sm font-medium text-teal-700 dark:text-teal-400 px-2 py-1.5"
-              >Kirish</button>
+              >{tAuth('signIn')}</button>
             )}
             <button
               className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -243,11 +246,11 @@ export default function Header() {
                 <button
                   onClick={() => { setOpen(false); setAuthModal({ open: true, tab: 'signin' }); }}
                   className="flex-1 text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                >Kirish</button>
+                >{tAuth('signIn')}</button>
                 <button
                   onClick={() => { setOpen(false); setAuthModal({ open: true, tab: 'signup' }); }}
                   className="flex-1 text-sm font-semibold bg-teal-700 text-white py-2 rounded-lg hover:bg-teal-800 transition"
-                >Ro'yxatdan o'tish</button>
+                >{tAuth('signUp')}</button>
               </div>
             )}
           </div>

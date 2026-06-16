@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Bosh sahifa",
+    "about": "Men haqimda",
     "scholarships": "Grantlar",
     "universities": "Universitetlar",
     "results": "Natijalar",
@@ -9,14 +10,14 @@
     "contact": "Bog'lanish"
   },
   "hero": {
-    "headline": "Xorijda o'qish orzuingizmi?",
-    "subheadline": "To'liq grant va stipendiyali universitetlarga qabul bo'lishda sizga yordam beraman. 100+ talabaga muvaffaqiyatli ko'maklashganman.",
+    "headline": "Xorijda o'qish orzuyingizmi?",
+    "subheadline": "Chet elda to'liq grant yoki kontrakt asosida ta'lim olishingizdan boshidan oxirigacha professional yordam beraman.",
     "cta": "Telegram orqali bog'laning",
     "ctaWhatsApp": "WhatsApp orqali bog'laning"
   },
   "about": {
     "title": "Men haqimda",
-    "body": "Türkiye Burslari to'liq grantini shaxsan o'zim yutganman va 10dan ortiq talabaga ham shu grantni olishda yordam berganman. 100+ talabani Turkiyadagi universitetlarga qabul qildirdim. Endi butun dunyo bo'ylab to'liq grantlarga yo'naltirishni kengaytirmoqdaman.",
+    "body": "Türkiye Burslari to'liq grantini shaxsan o'zim 2023-yili yutganman va 10dan ortiq talabaga bu va boshqa to'liq grantlarni yutishda yordam berganman. 100+ talabani Turkiyadagi universitetlarga kirishga ko'maklashdim. Endi esa siz kabi bilimga chanqoq talabalarga butun dunyo bo'ylab eng yaxshi grantlar yutishga va universitetlarga kirishga yordam bermoqchiman.",
     "credentials": [
       "Türkiye Burslari granti g'olibi",
       "10dan ortiq to'liq grant g'olibi mentori",
@@ -27,7 +28,48 @@
     "fullRide": "To'liq grant g'oliblari",
     "admissions": "Universitetga qabul",
     "countries": "Mamlakatlar",
-    "years": "Faollik yillari"
+    "years": "Yillik tajriba"
+  },
+  "sections": {
+    "servicesTitle": "Bizning xizmatlarimiz",
+    "newsTitle": "Yangiliklar"
+  },
+  "teasers": {
+    "scholarships": { "title": "Grantlar", "desc": "To'liq moliyalashtirilgan grant dasturlari" },
+    "universities": { "title": "Universitetlar", "desc": "To'lov asosida xorijiy universitetlar" },
+    "results": { "title": "Natijalar", "desc": "Muvaffaqiyatli talabalar" },
+    "blog": { "title": "Blog", "desc": "Foydali maslahatlar va qo'llanmalar" }
+  },
+  "auth": {
+    "signIn": "Kirish",
+    "signUp": "Ro'yxatdan o'tish",
+    "email": "Email",
+    "password": "Parol",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "fullName": "To'liq ism",
+    "dob": "Tug'ilgan sana",
+    "photo": "Rasm",
+    "signInBtn": "Kirish",
+    "signUpBtn": "Ro'yxatdan o'tish",
+    "invalidCredentials": "Email yoki parol noto'g'ri",
+    "emailExists": "Bu email allaqachon ro'yxatdan o'tgan",
+    "nameRequired": "Ism kiritilmagan",
+    "dobRequired": "Tug'ilgan sana kiritilmagan",
+    "error": "Xatolik yuz berdi",
+    "confirmTitle": "Ma'lumotlarni tasdiqlang",
+    "confirmName": "Ism",
+    "confirmDob": "Tug'ilgan sana",
+    "confirmEmail": "Email",
+    "back": "Orqaga",
+    "confirm": "Tasdiqlash",
+    "verifyTitle": "Emailni tasdiqlang",
+    "verifyDesc": "Emailingizga 6 xonali kod yuborildi. Kodni kiriting:",
+    "verifyCode": "Tasdiqlash kodi",
+    "verifyBtn": "Tasdiqlash",
+    "resend": "Kodni qayta yuborish",
+    "verifyError": "Noto'g'ri yoki eskirgan kod",
+    "sendingCode": "Kod yuborilmoqda...",
+    "verifying": "Tekshirilmoqda..."
   },
   "common": {
     "loading": "Yuklanmoqda...",

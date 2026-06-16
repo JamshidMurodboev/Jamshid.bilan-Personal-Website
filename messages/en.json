@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Home",
+    "about": "About",
     "scholarships": "Scholarships",
     "universities": "Universities",
     "results": "Results",
@@ -10,13 +11,13 @@
   },
   "hero": {
     "headline": "Dream of studying abroad?",
-    "subheadline": "I help Uzbek students win fully-funded scholarships and gain admission to universities worldwide. Helped 100+ students.",
+    "subheadline": "I'll guide you every step of the way — from choosing a fully-funded scholarship or contract university to getting your acceptance letter.",
     "cta": "Contact on Telegram",
     "ctaWhatsApp": "Contact on WhatsApp"
   },
   "about": {
     "title": "About Me",
-    "body": "I personally won the fully-funded Türkiye Burslari scholarship and mentored more than 10 students to win the same. Helped 100+ students secure admissions to universities in Turkey. Now expanding reach to full-ride scholarships worldwide.",
+    "body": "In 2023 I personally won the fully-funded Türkiye Burslari scholarship and helped more than 10 students win this and other full-ride scholarships. I've also helped 100+ students gain admission to universities in Turkey. Now I want to help driven students like you win the best scholarships and get into universities around the world.",
     "credentials": [
       "Türkiye Burslari scholarship recipient",
       "Mentor to more than 10 full-ride scholarship winners",
@@ -27,7 +28,48 @@
     "fullRide": "Full-ride winners",
     "admissions": "University admissions",
     "countries": "Countries",
-    "years": "Years active"
+    "years": "Years of experience"
+  },
+  "sections": {
+    "servicesTitle": "Our Services",
+    "newsTitle": "News"
+  },
+  "teasers": {
+    "scholarships": { "title": "Scholarships", "desc": "Fully-funded scholarship programs" },
+    "universities": { "title": "Universities", "desc": "Contract-based universities abroad" },
+    "results": { "title": "Results", "desc": "Successful students" },
+    "blog": { "title": "Blog", "desc": "Useful tips and guides" }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Register",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "fullName": "Full name",
+    "dob": "Date of birth",
+    "photo": "Photo",
+    "signInBtn": "Sign in",
+    "signUpBtn": "Create account",
+    "invalidCredentials": "Invalid email or password",
+    "emailExists": "This email is already registered",
+    "nameRequired": "Name is required",
+    "dobRequired": "Date of birth is required",
+    "error": "An error occurred",
+    "confirmTitle": "Review your details",
+    "confirmName": "Name",
+    "confirmDob": "Date of birth",
+    "confirmEmail": "Email",
+    "back": "Back",
+    "confirm": "Confirm",
+    "verifyTitle": "Verify your email",
+    "verifyDesc": "We sent a 6-digit code to your email. Enter it below:",
+    "verifyCode": "Verification code",
+    "verifyBtn": "Verify",
+    "resend": "Resend code",
+    "verifyError": "Invalid or expired code",
+    "sendingCode": "Sending code...",
+    "verifying": "Verifying..."
   },
   "common": {
     "loading": "Loading...",

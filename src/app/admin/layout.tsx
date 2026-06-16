@@ -17,6 +17,7 @@ const navLinks = [
   { href: '/admin/news', label: 'Yangiliklar' },
   { href: '/admin/blog', label: 'Blog' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
+  { href: '/admin/about', label: 'Men haqimda' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -72,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="text-teal-700 font-bold text-lg">Admin Panel</div>
               {userEmail && <div className="text-gray-500 text-xs mt-1 truncate">{userEmail}</div>}
             </div>
-            <nav className="flex-1 p-3 space-y-1">
+            <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
               {navLinks.map((link) => {
                 const isActive = link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href)
                 return (
