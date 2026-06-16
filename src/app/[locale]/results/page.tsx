@@ -1,4 +1,5 @@
 import { setRequestLocale } from 'next-intl/server';
+import { createClient } from '@/lib/supabase/server';
 import StudentCard from '@/components/results/StudentCard';
 import type { StudentResult, Stats } from '@/types';
 
@@ -8,8 +9,39 @@ const RESULTS: StudentResult[] = [
   { id: '2', first_name: 'Malika', award_type: 'scholarship', award_name: 'Turkiye Burslari', year: 2022, quote: 'Grant olish mumkin ekan!', country: 'Turkiya', display_order: 2, created_at: '2024-01-01T00:00:00Z' },
 ];
 
-export default function ResultsPage({ params: { locale } }: { params: { locale: string } }) {
+// Maps a DB row from `student_results` into the legacy StudentResult shape expected by StudentCard.
+// DB has no award_type/award_name/display_order columns (it links via scholarship_id/university_id FKs
+// instead), so award_name falls back to a generic degree label and display_order to insertion order.
+function mapDbResult(row: any, index: number): StudentResult {
+  const degreeLabels: Record<string, string> = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
+  return {
+    id: String(row.id),
+    first_name: row.student_name,
+    photo_url: row.photo_url ?? undefined,
+    award_type: row.scholarship_id ? 'scholarship' : 'university',
+    award_name: degreeLabels[row.degree_level] ?? row.degree_level,
+    year: row.year,
+    quote: row.testimonial ?? undefined,
+    country: row.country,
+    display_order: index + 1,
+    created_at: row.created_at,
+  };
+}
+
+export default async function ResultsPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
+
+  let results: StudentResult[] = RESULTS;
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase.from('student_results').select('*').order('created_at', { ascending: false });
+    if (!error && data && data.length > 0) {
+      results = data.map(mapDbResult);
+    }
+  } catch {
+    // keep sample fallback
+  }
+
   return (
     <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +60,7 @@ export default function ResultsPage({ params: { locale } }: { params: { locale: 
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Muvaffaqiyat tarihlari</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {RESULTS.map((r) => <StudentCard key={r.id} result={r} />)}
+          {results.map((r) => <StudentCard key={r.id} result={r} />)}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
 import type { Scholarship } from '@/types';
@@ -10,17 +11,51 @@ const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
   { id: '3', title: 'DAAD Scholarship', country: 'Germaniya', coverage: ['tuition', 'stipend'], eligibility: 'Bakalavriat yoki magistratura', deadline: '2025-10-15', difficulty: 3, tip: "Nemis tili sertifikati bo'lsa kuchli ustunlik.", application_url: 'https://daad.de', status: 'open', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
 ];
 
+// Maps a DB row from `scholarships` table into the legacy Scholarship shape expected by ScholarshipCard.
+// DB status values are 'open'|'closed'|'upcoming'; UI only has color/label mappings for 'open'|'closed'|'coming_soon',
+// so 'upcoming' is normalized to 'coming_soon' here for display purposes.
+function mapDbScholarship(row: any): Scholarship {
+  return {
+    id: String(row.id),
+    title: row.title,
+    country: row.country,
+    university: row.university ?? undefined,
+    coverage: row.coverage ?? [],
+    eligibility: row.eligibility ?? '',
+    deadline: row.deadline ?? '',
+    difficulty: row.difficulty ?? 1,
+    tip: row.tip ?? undefined,
+    application_url: row.application_url ?? '',
+    status: row.status === 'upcoming' ? 'coming_soon' : row.status,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
 export default function ScholarshipsPage() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [status, setStatus] = useState('');
+  const [scholarships, setScholarships] = useState<Scholarship[]>(SAMPLE_SCHOLARSHIPS);
 
-  const filtered = useMemo(() => SAMPLE_SCHOLARSHIPS.filter((s) => {
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('scholarships')
+      .select('*')
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setScholarships(data.map(mapDbScholarship));
+        }
+      });
+  }, []);
+
+  const filtered = useMemo(() => scholarships.filter((s) => {
     const matchSearch = s.title.toLowerCase().includes(search.toLowerCase()) || s.country.toLowerCase().includes(search.toLowerCase());
     const matchCountry = !country || s.country === country;
     const matchStatus = !status || s.status === status;
     return matchSearch && matchCountry && matchStatus;
-  }), [search, country, status]);
+  }), [scholarships, search, country, status]);
 
   return (
     <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
