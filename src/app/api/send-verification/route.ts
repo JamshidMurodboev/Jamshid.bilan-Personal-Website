@@ -14,6 +14,11 @@ export async function POST(req: NextRequest) {
   if (!rawEmail) return NextResponse.json({ error: 'Email required' }, { status: 400 });
   const email = rawEmail.trim().toLowerCase();
 
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not set');
+    return NextResponse.json({ error: 'Email service not configured (missing RESEND_API_KEY)' }, { status: 500 });
+  }
+
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
@@ -24,6 +29,7 @@ export async function POST(req: NextRequest) {
     .insert({ email, code, expires_at: expiresAt });
 
   if (insertError) {
+    console.error('Supabase insert error:', insertError);
     return NextResponse.json({ error: 'Failed to save token' }, { status: 500 });
   }
 
@@ -42,7 +48,8 @@ export async function POST(req: NextRequest) {
   });
 
   if (emailError) {
-    return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    console.error('Resend error:', emailError);
+    return NextResponse.json({ error: `Failed to send email: ${emailError.message || JSON.stringify(emailError)}` }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
