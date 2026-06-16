@@ -3,34 +3,13 @@ import { useState, useMemo, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
-import type { Scholarship } from '@/types';
+import type { Scholarship } from '@/lib/supabase/types';
 
 const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
   { id: '1', title: 'Turkiye Burslari', country: 'Turkiya', university: 'Barcha davlat universitetlari', coverage: ['tuition', 'housing', 'stipend', 'flights'], eligibility: '18-30 yosh', deadline: '2025-02-20', difficulty: 4, tip: "Motivatsiya xatiga alohida e'tibor bering.", application_url: 'https://turkiyeburslari.gov.tr', status: 'open', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
   { id: '2', title: 'Chevening Scholarship', country: 'Buyuk Britaniya', coverage: ['tuition', 'housing', 'stipend', 'flights'], eligibility: '2+ yil ish tajribasi', deadline: '2024-11-05', difficulty: 5, tip: 'Liderlik tajribangizni aniq misollar bilan ifodalang.', application_url: 'https://chevening.org', status: 'closed', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
   { id: '3', title: 'DAAD Scholarship', country: 'Germaniya', coverage: ['tuition', 'stipend'], eligibility: 'Bakalavriat yoki magistratura', deadline: '2025-10-15', difficulty: 3, tip: "Nemis tili sertifikati bo'lsa kuchli ustunlik.", application_url: 'https://daad.de', status: 'open', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
 ];
-
-// Maps a DB row from `scholarships` table into the legacy Scholarship shape expected by ScholarshipCard.
-// DB status values are 'open'|'closed'|'upcoming'; UI only has color/label mappings for 'open'|'closed'|'coming_soon',
-// so 'upcoming' is normalized to 'coming_soon' here for display purposes.
-function mapDbScholarship(row: any): Scholarship {
-  return {
-    id: String(row.id),
-    title: row.title,
-    country: row.country,
-    university: row.university ?? undefined,
-    coverage: row.coverage ?? [],
-    eligibility: row.eligibility ?? '',
-    deadline: row.deadline ?? '',
-    difficulty: row.difficulty ?? 1,
-    tip: row.tip ?? undefined,
-    application_url: row.application_url ?? '',
-    status: row.status === 'upcoming' ? 'coming_soon' : row.status,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-  };
-}
 
 export default function ScholarshipsPage() {
   const [search, setSearch] = useState('');
@@ -39,15 +18,9 @@ export default function ScholarshipsPage() {
   const [scholarships, setScholarships] = useState<Scholarship[]>(SAMPLE_SCHOLARSHIPS);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('scholarships')
-      .select('*')
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          setScholarships(data.map(mapDbScholarship));
-        }
-      });
+    createClient().from('scholarships').select('*').then(({ data, error }) => {
+      if (!error && data && data.length > 0) setScholarships(data as Scholarship[]);
+    });
   }, []);
 
   const filtered = useMemo(() => scholarships.filter((s) => {

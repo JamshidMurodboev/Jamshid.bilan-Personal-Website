@@ -31,7 +31,7 @@ export default function ScholarshipFilters({ search, onSearch, country, onCountr
             <option value="">Hammasi</option>
             <option value="open">Ochiq</option>
             <option value="closed">Yopiq</option>
-            <option value="coming_soon">Tez kunda</option>
+            <option value="upcoming">Kelayotgan</option>
           </select>
         </div>
       </div>

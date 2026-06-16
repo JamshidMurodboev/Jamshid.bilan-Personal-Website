@@ -1,56 +1,36 @@
 import { setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import StudentCard from '@/components/results/StudentCard';
-import type { StudentResult, Stats } from '@/types';
+import type { StudentResult } from '@/lib/supabase/types';
 
-const STATS: Stats = { id: '1', students_helped: 105, full_ride_winners: 5, countries_count: 10, years_active: 4 };
-const RESULTS: StudentResult[] = [
-  { id: '1', first_name: 'Aziz', award_type: 'scholarship', award_name: 'Turkiye Burslari', year: 2023, quote: 'Jamshid akaning yordami bilan orzuimga yetdim!', country: 'Turkiya', display_order: 1, created_at: '2024-01-01T00:00:00Z' },
-  { id: '2', first_name: 'Malika', award_type: 'scholarship', award_name: 'Turkiye Burslari', year: 2022, quote: 'Grant olish mumkin ekan!', country: 'Turkiya', display_order: 2, created_at: '2024-01-01T00:00:00Z' },
+const SAMPLE_RESULTS: StudentResult[] = [
+  { id: '1', student_name: 'Aziz Karimov', degree_level: 'bachelor', year: 2023, country: 'Turkiya', testimonial: 'Jamshid akaning yordami bilan orzuimga yetdim!', created_at: '2024-01-01T00:00:00Z' },
+  { id: '2', student_name: 'Malika Yusupova', degree_level: 'master', year: 2022, country: 'Turkiya', testimonial: 'Grant olish mumkin ekan!', created_at: '2024-01-01T00:00:00Z' },
 ];
-
-// Maps a DB row from `student_results` into the legacy StudentResult shape expected by StudentCard.
-// DB has no award_type/award_name/display_order columns (it links via scholarship_id/university_id FKs
-// instead), so award_name falls back to a generic degree label and display_order to insertion order.
-function mapDbResult(row: any, index: number): StudentResult {
-  const degreeLabels: Record<string, string> = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
-  return {
-    id: String(row.id),
-    first_name: row.student_name,
-    photo_url: row.photo_url ?? undefined,
-    award_type: row.scholarship_id ? 'scholarship' : 'university',
-    award_name: degreeLabels[row.degree_level] ?? row.degree_level,
-    year: row.year,
-    quote: row.testimonial ?? undefined,
-    country: row.country,
-    display_order: index + 1,
-    created_at: row.created_at,
-  };
-}
 
 export default async function ResultsPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
 
-  let results: StudentResult[] = RESULTS;
+  let results: StudentResult[] = SAMPLE_RESULTS;
   try {
     const supabase = createClient();
     const { data, error } = await supabase.from('student_results').select('*').order('created_at', { ascending: false });
-    if (!error && data && data.length > 0) {
-      results = data.map(mapDbResult);
-    }
-  } catch {
-    // keep sample fallback
-  }
+    if (!error && data && data.length > 0) results = data as StudentResult[];
+  } catch {}
+
+  const studentsHelped = results.length;
+  const countriesCount = new Set(results.map((r) => r.country)).size;
+  const years = new Set(results.map((r) => r.year));
+  const yearsActive = years.size > 0 ? Math.max(1, new Date().getFullYear() - Math.min(...years) + 1) : 1;
 
   return (
     <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Talaba', value: STATS.students_helped },
-            { label: "To'liq grant", value: STATS.full_ride_winners },
-            { label: 'Mamlakat', value: STATS.countries_count },
-            { label: 'Yil', value: STATS.years_active },
+            { label: 'Talaba', value: studentsHelped },
+            { label: 'Mamlakat', value: countriesCount },
+            { label: 'Yil', value: yearsActive },
           ].map((s) => (
             <div key={s.label} className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
               <div className="text-4xl font-bold text-teal-700 dark:text-teal-400">{s.value}+</div>

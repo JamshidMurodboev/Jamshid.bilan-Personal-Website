@@ -1,32 +1,11 @@
 import { setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import NewsCard from '@/components/news/NewsCard';
-import type { NewsPost } from '@/types';
+import type { NewsPost } from '@/lib/supabase/types';
 
 const SAMPLE_NEWS: NewsPost[] = [
-  { id: '1', title: 'Turkiye Burslari 2025 arizalari boshlandi', slug: 'turkiye-burslari-2025', category: 'deadline_alert', content: '', status: 'published', published_at: '2024-12-01T00:00:00Z', created_by: 'jamshid', created_at: '2024-12-01T00:00:00Z' },
+  { id: '1', title_uz: 'Turkiye Burslari 2025 arizalari boshlandi', body_uz: "Turkiye Burslari 2025-yil arizalarini qabul qilishni boshladi. Muddatlarni o'tkazib yubormang.", published: true, published_at: '2024-12-01T00:00:00Z', created_at: '2024-12-01T00:00:00Z', updated_at: '2024-12-01T00:00:00Z' },
 ];
-
-// Maps a DB row from `news_posts` into the legacy NewsPost shape expected by NewsCard.
-// Uses locale-specific title_${locale}/body_${locale} columns, falling back to the uz columns.
-// DB has no slug/category/created_by columns: a slug is synthesized from the id since NewsCard
-// links to /news/{slug}, and category defaults to 'personal_update' (closest generic label).
-function mapDbNewsPost(row: any, locale: string): NewsPost {
-  const title = row[`title_${locale}`] || row.title_uz;
-  const body = row[`body_${locale}`] || row.body_uz || '';
-  return {
-    id: String(row.id),
-    title,
-    slug: String(row.id),
-    cover_image_url: row.cover_url ?? undefined,
-    category: 'personal_update',
-    content: body,
-    status: 'published',
-    published_at: row.published_at ?? undefined,
-    created_by: 'jamshid',
-    created_at: row.created_at,
-  };
-}
 
 export default async function NewsPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
@@ -34,17 +13,9 @@ export default async function NewsPage({ params: { locale } }: { params: { local
   let news: NewsPost[] = SAMPLE_NEWS;
   try {
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from('news_posts')
-      .select('*')
-      .eq('published', true)
-      .order('published_at', { ascending: false });
-    if (!error && data && data.length > 0) {
-      news = data.map((row) => mapDbNewsPost(row, locale));
-    }
-  } catch {
-    // keep sample fallback
-  }
+    const { data, error } = await supabase.from('news_posts').select('*').eq('published', true).order('published_at', { ascending: false });
+    if (!error && data && data.length > 0) news = data as NewsPost[];
+  } catch {}
 
   return (
     <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
