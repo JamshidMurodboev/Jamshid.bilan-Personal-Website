@@ -30,6 +30,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   const [suLoading, setSuLoading] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  const verifyLockRef = useRef(false);
+  const confirmLockRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,6 +40,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setSiError('');
       setSuError('');
       setVerifyCode('');
+      verifyLockRef.current = false;
+      confirmLockRef.current = false;
     }
   }, [initialTab, isOpen]);
 
@@ -59,6 +63,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   }
 
   async function handleConfirm() {
+    if (confirmLockRef.current) return;
+    confirmLockRef.current = true;
     setSuLoading(true);
     setSuError('');
     try {
@@ -68,32 +74,46 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ email: suEmail, name: suName }),
       });
       const data = await res.json();
-      if (!res.ok) { setSuError(data.error || t('error')); setSuLoading(false); return; }
+      if (!res.ok) { setSuError(data.error || t('error')); setSuLoading(false); confirmLockRef.current = false; return; }
       setStep('verify');
     } catch {
       setSuError(t('error'));
     }
     setSuLoading(false);
+    confirmLockRef.current = false;
   }
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
+    if (verifyLockRef.current) return;
+    verifyLockRef.current = true;
     setSuLoading(true);
     setSuError('');
+
+    let verified = false;
     try {
       const res = await fetch('/api/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: suEmail, code: verifyCode }),
       });
-      if (!res.ok) { setSuError(t('verifyError')); setSuLoading(false); return; }
-      const err = signup(suName, suDob, suEmail, suPass, suPhoto || undefined);
-      if (err) { setSuError(err); setSuLoading(false); return; }
-      onClose();
+      verified = res.ok;
     } catch {
-      setSuError(t('error'));
+      verified = false;
     }
+
+    if (!verified) {
+      setSuError(t('verifyError'));
+      setSuLoading(false);
+      verifyLockRef.current = false;
+      return;
+    }
+
+    const err = signup(suName, suDob, suEmail, suPass, suPhoto || undefined);
     setSuLoading(false);
+    verifyLockRef.current = false;
+    if (err) { setSuError(err); return; }
+    onClose();
   }
 
   async function handleResend() {
@@ -245,6 +265,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
                 type="text"
                 required
                 maxLength={6}
+                disabled={suLoading}
                 value={verifyCode}
                 onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))}
                 className={`${inputCls} text-center text-2xl tracking-widest`}
