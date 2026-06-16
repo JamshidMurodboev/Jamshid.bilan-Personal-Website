@@ -20,8 +20,8 @@ export default async function ResultsPage({ params: { locale } }: { params: { lo
 
   const studentsHelped = results.length;
   const countriesCount = new Set(results.map((r) => r.country)).size;
-  const years = new Set(results.map((r) => r.year));
-  const yearsActive = years.size > 0 ? Math.max(1, new Date().getFullYear() - Math.min(...years) + 1) : 1;
+  const years = results.map((r) => r.year);
+  const yearsActive = years.length > 0 ? Math.max(1, new Date().getFullYear() - Math.min(...years) + 1) : 1;
 
   return (
     <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
