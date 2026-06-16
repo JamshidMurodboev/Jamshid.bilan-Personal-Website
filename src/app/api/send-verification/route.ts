@@ -10,16 +10,18 @@ const supabase = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
-  const { email, name } = await req.json();
-  if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
+  const { email: rawEmail, name } = await req.json();
+  if (!rawEmail) return NextResponse.json({ error: 'Email required' }, { status: 400 });
+  const email = rawEmail.trim().toLowerCase();
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
   await supabase.from('verification_tokens').delete().eq('email', email);
 
   const { error: insertError } = await supabase
     .from('verification_tokens')
-    .insert({ email, code });
+    .insert({ email, code, expires_at: expiresAt });
 
   if (insertError) {
     return NextResponse.json({ error: 'Failed to save token' }, { status: 500 });
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
         <h2 style="color: #0f766e; margin-bottom: 8px;">Salom, ${name}!</h2>
         <p style="color: #374151;">Ro'yxatdan o'tishni tasdiqlash uchun quyidagi kodni kiriting:</p>
         <div style="font-size: 40px; font-weight: bold; letter-spacing: 10px; color: #0f766e; text-align: center; padding: 24px 0; background: #f0fdfa; border-radius: 12px; margin: 16px 0;">${code}</div>
-        <p style="color: #6b7280; font-size: 13px;">Kod 10 daqiqa davomida amal qiladi. Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring.</p>
+        <p style="color: #6b7280; font-size: 13px;">Kod 30 daqiqa davomida amal qiladi. Agar siz ro'yxatdan o'tmagan bo'lsangiz, bu xabarni e'tiborsiz qoldiring.</p>
       </div>
     `,
   });

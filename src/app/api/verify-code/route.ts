@@ -7,10 +7,12 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { email, code } = await req.json();
-  if (!email || !code) {
+  const { email: rawEmail, code: rawCode } = await req.json();
+  if (!rawEmail || !rawCode) {
     return NextResponse.json({ error: 'Email and code required' }, { status: 400 });
   }
+  const email = rawEmail.trim().toLowerCase();
+  const code = rawCode.trim();
 
   const { data, error } = await supabase
     .from('verification_tokens')
