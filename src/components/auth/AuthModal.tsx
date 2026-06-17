@@ -49,6 +49,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
+    if (!siEmail.trim() || !siPass) { setSiError(t('invalidCredentials')); return; }
     const err = login(siEmail, siPass);
     if (err) { setSiError(t('invalidCredentials')); return; }
     onClose();
@@ -58,6 +59,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     e.preventDefault();
     if (!suName.trim()) { setSuError(t('nameRequired')); return; }
     if (!suDob) { setSuError(t('dobRequired')); return; }
+    if (suPass.length < 6) { setSuError(t('error')); return; }
     setSuError('');
     setStep('confirm');
   }
@@ -137,6 +139,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   }
 
   const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500';
+  const errInputCls = 'w-full border border-red-400 dark:border-red-500 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500';
 
   const showTabs = tab === 'signin' || step === 'form';
 
@@ -171,11 +174,11 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
           <form onSubmit={handleSignIn} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('email')}</label>
-              <input type="email" required value={siEmail} onChange={e => setSiEmail(e.target.value)} className={inputCls} />
+              <input type="email" required value={siEmail} onChange={e => setSiEmail(e.target.value)} className={siError ? errInputCls : inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('password')}</label>
-              <input type="password" required value={siPass} onChange={e => setSiPass(e.target.value)} className={inputCls} />
+              <input type="password" required value={siPass} onChange={e => setSiPass(e.target.value)} className={siError ? errInputCls : inputCls} />
             </div>
             <button type="button" className="text-xs text-teal-600 dark:text-teal-400 hover:underline">{t('forgotPassword')}</button>
             {siError && <p className="text-red-500 text-sm">{siError}</p>}

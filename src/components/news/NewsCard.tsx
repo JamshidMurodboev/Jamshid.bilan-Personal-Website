@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import type { NewsPost } from '@/lib/supabase/types';
+import { formatDate } from '@/lib/format';
 
 export default function NewsCard({ post }: { post: NewsPost }) {
   const locale = useLocale();
@@ -13,7 +14,7 @@ export default function NewsCard({ post }: { post: NewsPost }) {
     >
       <h3 className="font-semibold text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition">{title}</h3>
       <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3">{body}</p>
-      {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(post.published_at).toLocaleDateString()}</span>}
+      {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(post.published_at)}</span>}
     </Link>
   );
 }

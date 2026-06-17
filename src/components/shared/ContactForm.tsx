@@ -15,8 +15,12 @@ function buildMessage(name: string, dob: string, cert: string, score: string, ta
   );
 }
 
-const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
+const baseInputCls = 'w-full border rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
+const okBorder = 'border-gray-300 dark:border-gray-600';
+const errBorder = 'border-red-400 dark:border-red-500 focus:ring-red-500';
 const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1';
+
+type FieldErrors = Partial<Record<'name' | 'dob' | 'cert' | 'score' | 'target' | 'other', string>>;
 
 export default function ContactForm() {
   const { user } = useAuth();
@@ -26,7 +30,7 @@ export default function ContactForm() {
   const [score, setScore] = useState('');
   const [target, setTarget] = useState('');
   const [other, setOther] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     if (user) {
@@ -36,13 +40,19 @@ export default function ContactForm() {
   }, [user]);
 
   function validate() {
-    if (!name.trim()) { setError('Ism kiritilmagan'); return false; }
-    if (!dob) { setError("Tug'ilgan sana kiritilmagan"); return false; }
-    if (!cert) { setError('Til sertifikati tanlanmagan'); return false; }
-    if (!target) { setError('Grant yoki universitet tanlanmagan'); return false; }
-    if (target === 'other' && !other.trim()) { setError('Boshqa variant kiritilmagan'); return false; }
-    setError('');
-    return true;
+    const e: FieldErrors = {};
+    if (!name.trim()) e.name = 'Ism kiritilmagan';
+    if (!dob) e.dob = "Tug'ilgan sana kiritilmagan";
+    if (!cert) e.cert = 'Til sertifikati tanlanmagan';
+    if (cert && cert !== 'None' && !score.trim()) e.score = 'Ball kiritilmagan';
+    if (!target) e.target = 'Grant yoki universitet tanlanmagan';
+    if (target === 'other' && !other.trim()) e.other = 'Boshqa variant kiritilmagan';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function inputCls(field: keyof FieldErrors) {
+    return `${baseInputCls} ${errors[field] ? errBorder : okBorder}`;
   }
 
   function open(url: string) {
@@ -54,28 +64,32 @@ export default function ContactForm() {
     <div className="space-y-4">
       <div>
         <label className={labelCls}>To'liq ism *</label>
-        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ismingiz" className={inputCls} />
+        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ismingiz" className={inputCls('name')} />
+        {errors.name && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.name}</p>}
       </div>
       <div>
         <label className={labelCls}>Tug'ilgan sana *</label>
-        <input type="date" value={dob} onChange={e => setDob(e.target.value)} className={inputCls} />
+        <input type="date" value={dob} onChange={e => setDob(e.target.value)} className={inputCls('dob')} />
+        {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
       </div>
       <div>
         <label className={labelCls}>Til sertifikati *</label>
-        <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); }} className={inputCls}>
+        <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); }} className={inputCls('cert')}>
           <option value="">Tanlang...</option>
           {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? "Yo'q" : c}</option>)}
         </select>
+        {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}
       </div>
       {cert && cert !== 'None' && (
         <div>
           <label className={labelCls}>Ball *</label>
-          <input type="text" value={score} onChange={e => setScore(e.target.value)} placeholder="Masalan: 6.5" className={inputCls} />
+          <input type="text" value={score} onChange={e => setScore(e.target.value)} placeholder="Masalan: 6.5" className={inputCls('score')} />
+          {errors.score && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.score}</p>}
         </div>
       )}
       <div>
         <label className={labelCls}>Grant yoki Universitet *</label>
-        <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls}>
+        <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
           <option value="">Tanlang...</option>
           <optgroup label="Grantlar">
             {SCHOLARSHIPS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -85,14 +99,15 @@ export default function ContactForm() {
           </optgroup>
           <option value="other">Boshqa...</option>
         </select>
+        {errors.target && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.target}</p>}
       </div>
       {target === 'other' && (
         <div>
           <label className={labelCls}>Boshqa variant</label>
-          <input type="text" value={other} onChange={e => setOther(e.target.value)} placeholder="Grant yoki universitet nomini kiriting" className={inputCls} />
+          <input type="text" value={other} onChange={e => setOther(e.target.value)} placeholder="Grant yoki universitet nomini kiriting" className={inputCls('other')} />
+          {errors.other && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.other}</p>}
         </div>
       )}
-      {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
       <div className="grid grid-cols-2 gap-3 pt-2">
         <button
           onClick={() => open('https://t.me/jamshid_bilan?text=')}

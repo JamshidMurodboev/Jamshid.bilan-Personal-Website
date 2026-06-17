@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         setLoading(false)
       }
     })
-  }, [pathname])
+  }, [pathname, router])
 
   async function handleSignOut() {
     const supabase = createClient()

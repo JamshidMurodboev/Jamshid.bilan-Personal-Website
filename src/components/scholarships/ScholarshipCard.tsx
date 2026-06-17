@@ -1,4 +1,5 @@
 import type { Scholarship } from '@/lib/supabase/types';
+import { formatDate } from '@/lib/format';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -32,7 +33,7 @@ export default function ScholarshipCard({ scholarship: s }: { scholarship: Schol
           <span className="text-gray-400 dark:text-gray-500 text-xs ml-1">qiyinlik</span>
         </div>
       )}
-      {s.deadline && <p className="text-xs text-gray-500 dark:text-gray-400">Muddati: {new Date(s.deadline).toLocaleDateString('uz-UZ')}</p>}
+      {s.deadline && <p className="text-xs text-gray-500 dark:text-gray-400">Muddati: {formatDate(s.deadline)}</p>}
       {s.tip && <p className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-2 rounded-lg">💡 {s.tip}</p>}
       {s.application_url && (
         <a

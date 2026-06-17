@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { StudentResult } from '@/lib/supabase/types';
 
 const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
@@ -7,7 +8,7 @@ export default function StudentCard({ result: r }: { result: StudentResult }) {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
       <div className="flex items-center gap-3 mb-3">
         {r.photo_url ? (
-          <img src={r.photo_url} alt={r.student_name} className="w-12 h-12 rounded-full object-cover" />
+          <Image src={r.photo_url} alt={r.student_name} width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
         ) : (
           <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-lg">
             {r.student_name[0]}

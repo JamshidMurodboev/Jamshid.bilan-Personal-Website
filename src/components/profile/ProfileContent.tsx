@@ -26,7 +26,7 @@ export default function ProfileContent() {
       setDob(user.dob);
       setPhoto(user.photoDataUrl || '');
     }
-  }, [user, mounted]);
+  }, [user, mounted, locale, router]);
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
