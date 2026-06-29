@@ -3,19 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --brand-teal: #0d7377;
-  --brand-cream: #faf7f2;
-  --brand-gold: #d4a017;
+  --bg: #f0f9f8;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --heading: #0f172a;
+  --body-text: #334155;
+  --muted: #64748b;
+  --badge-bg: #ccfbf1;
+  --badge-text: #0f766e;
+  --primary: #0d9488;
+  --secondary: #0f766e;
+}
+
+.dark {
+  --bg: #0d1117;
+  --card-bg: #161b22;
+  --card-border: #21262d;
+  --heading: #e6edf3;
+  --body-text: #8b949e;
+  --muted: #8b949e;
+  --badge-bg: #0d2d2a;
+  --badge-text: #2dd4bf;
+  --primary: #2dd4bf;
+  --secondary: #0d9488;
 }
 
 body {
-  background-color: var(--brand-cream);
-  color: #1a1a1a;
-}
-
-.dark body {
-  background-color: #0f172a;
-  color: #f1f5f9;
+  background-color: var(--bg);
+  color: var(--body-text);
 }
 
 /* Ensure inputs are always visible */

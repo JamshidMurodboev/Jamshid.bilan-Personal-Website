@@ -48,7 +48,7 @@ export default function ProfileContent() {
   const initials = user.fullName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12 px-4">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12 px-4">
       <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Profil</h1>
         <form onSubmit={save} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5">

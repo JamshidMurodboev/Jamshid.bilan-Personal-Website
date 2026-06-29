@@ -11,8 +11,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          teal: '#0d7377',
-          cream: '#faf7f2',
+          teal: '#0d9488',
+          tealDark: '#0f766e',
+          cream: '#f0f9f8',
           gold: '#d4a017',
         },
       },

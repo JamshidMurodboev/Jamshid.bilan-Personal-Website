@@ -11,7 +11,6 @@ export default function AdminDashboard() {
     { label: 'Grantlar', count: 0, href: '/admin/scholarships' },
     { label: 'Universitetlar', count: 0, href: '/admin/universities' },
     { label: 'Yangiliklar', count: 0, href: '/admin/news' },
-    { label: 'Blog postlar', count: 0, href: '/admin/blog' },
     { label: 'Talaba natijalari', count: 0, href: '/admin/results' },
     { label: 'Yangi murojaatlar', count: 0, href: '/admin/inquiries' },
   ])
@@ -20,11 +19,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
-      const [s, u, n, b, r, i] = await Promise.all([
+      const [s, u, n, r, i] = await Promise.all([
         supabase.from('scholarships').select('id', { count: 'exact', head: true }),
         supabase.from('universities').select('id', { count: 'exact', head: true }),
         supabase.from('news_posts').select('id', { count: 'exact', head: true }),
-        supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
         supabase.from('student_results').select('id', { count: 'exact', head: true }),
         supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
       ])
@@ -32,7 +30,6 @@ export default function AdminDashboard() {
         { label: 'Grantlar', count: s.count ?? 0, href: '/admin/scholarships' },
         { label: 'Universitetlar', count: u.count ?? 0, href: '/admin/universities' },
         { label: 'Yangiliklar', count: n.count ?? 0, href: '/admin/news' },
-        { label: 'Blog postlar', count: b.count ?? 0, href: '/admin/blog' },
         { label: 'Talaba natijalari', count: r.count ?? 0, href: '/admin/results' },
         { label: 'Yangi murojaatlar', count: i.count ?? 0, href: '/admin/inquiries' },
       ])

@@ -6,12 +6,12 @@
     "universities": "Universitetlar",
     "results": "Natijalar",
     "news": "Yangiliklar",
-    "blog": "Blog",
     "contact": "Bog'lanish"
   },
   "hero": {
+    "badge": "Grantlar Bo'yicha Mentor",
     "headline": "Xorijda o'qish orzuyingizmi?",
-    "subheadline": "Chet elda to'liq grant yoki kontrakt asosida ta'lim olishingizdan boshidan oxirigacha professional yordam beraman.",
+    "subheadline": "Chet elda to'liq grant yoki kontrakt asosida ta'lim olishingizda boshidan oxirigacha professional yordam beraman.",
     "cta": "Telegram orqali bog'laning",
     "ctaWhatsApp": "WhatsApp orqali bog'laning"
   },
@@ -27,18 +27,14 @@
   "stats": {
     "fullRide": "To'liq grant g'oliblari",
     "admissions": "Universitetga qabul",
-    "countries": "Mamlakatlar",
+    "countries": "Davlatga Sayohat",
     "years": "Yillik tajriba"
   },
-  "sections": {
-    "servicesTitle": "Bizning xizmatlarimiz",
-    "newsTitle": "Yangiliklar"
-  },
-  "teasers": {
-    "scholarships": { "title": "Grantlar", "desc": "To'liq moliyalashtirilgan grant dasturlari" },
-    "universities": { "title": "Universitetlar", "desc": "To'lov asosida xorijiy universitetlar" },
-    "results": { "title": "Natijalar", "desc": "Muvaffaqiyatli talabalar" },
-    "blog": { "title": "Blog", "desc": "Foydali maslahatlar va qo'llanmalar" }
+  "homeSections": {
+    "scholarships": { "title": "Grantlar", "subtitle": "To'liq Qoplanadigan Grant Dasturlari" },
+    "universities": { "title": "Universitetlar", "subtitle": "To'lov asosida xorijiy universitetlar" },
+    "results": { "title": "Natijalar", "subtitle": "Natijalar" },
+    "news": { "title": "Yangiliklar", "subtitle": "Yangiliklar" }
   },
   "auth": {
     "signIn": "Kirish",
@@ -69,7 +65,9 @@
     "resend": "Kodni qayta yuborish",
     "verifyError": "Noto'g'ri yoki eskirgan kod",
     "sendingCode": "Kod yuborilmoqda...",
-    "verifying": "Tekshirilmoqda..."
+    "verifying": "Tekshirilmoqda...",
+    "profile": "Profil",
+    "logout": "Chiqish"
   },
   "common": {
     "loading": "Yuklanmoqda...",
@@ -88,6 +86,7 @@
   "contact": {
     "title": "Bog'lanish",
     "subtitle": "Savol va murojaatlaringiz uchun quyidagi kanallar orqali bog'laning.",
+    "autoNote": "Ma'lumotlaringizni kiriting — xabar avtomatik tuziladi",
     "form": {
       "name": "To'liq ism",
       "email": "Email",
@@ -103,6 +102,7 @@
     }
   },
   "footer": {
-    "rights": "Barcha huquqlar himoyalangan."
+    "rights": "Barcha huquqlar himoyalangan.",
+    "follow": "Bizni kuzating"
   }
 }

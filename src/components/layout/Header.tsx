@@ -142,11 +142,11 @@ function AvatarMenu() {
             href={`/${locale}/profile`}
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-          >Profil</Link>
+          >{t('profile')}</Link>
           <button
             onClick={() => { logout(); setOpen(false); router.push(`/${locale}`); }}
             className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-          >Chiqish</button>
+          >{t('logout')}</button>
         </div>
       )}
     </div>
@@ -167,15 +167,14 @@ export default function Header() {
     { href: `/${locale}/universities`, label: t('universities') },
     { href: `/${locale}/results`, label: t('results') },
     { href: `/${locale}/news`, label: t('news') },
-    { href: `/${locale}/blog`, label: t('blog') },
     { href: `/${locale}/contact`, label: t('contact') },
   ];
 
   return (
     <>
-      <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
+      <header className="bg-white/90 dark:bg-[#0d1117]/90 dark:backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link href={`/${locale}`} className="font-bold text-teal-700 dark:text-teal-400 text-lg">
+          <Link href={`/${locale}`} className="font-bold text-[#0d9488] dark:text-[#2dd4bf] text-lg">
             Jamshid.bilan
           </Link>
 

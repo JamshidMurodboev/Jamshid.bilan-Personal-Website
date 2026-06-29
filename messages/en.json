@@ -6,12 +6,12 @@
     "universities": "Universities",
     "results": "Results",
     "news": "News",
-    "blog": "Blog",
     "contact": "Contact"
   },
   "hero": {
+    "badge": "Scholarships Mentor",
     "headline": "Dream of studying abroad?",
-    "subheadline": "I'll guide you every step of the way — from choosing a fully-funded scholarship or contract university to getting your acceptance letter.",
+    "subheadline": "I provide professional guidance from start to finish for studying abroad on a full scholarship or contract basis.",
     "cta": "Contact on Telegram",
     "ctaWhatsApp": "Contact on WhatsApp"
   },
@@ -27,18 +27,14 @@
   "stats": {
     "fullRide": "Full-ride winners",
     "admissions": "University admissions",
-    "countries": "Countries",
+    "countries": "Countries Visited",
     "years": "Years of experience"
   },
-  "sections": {
-    "servicesTitle": "Our Services",
-    "newsTitle": "News"
-  },
-  "teasers": {
-    "scholarships": { "title": "Scholarships", "desc": "Fully-funded scholarship programs" },
-    "universities": { "title": "Universities", "desc": "Contract-based universities abroad" },
-    "results": { "title": "Results", "desc": "Successful students" },
-    "blog": { "title": "Blog", "desc": "Useful tips and guides" }
+  "homeSections": {
+    "scholarships": { "title": "Scholarships", "subtitle": "Fully Funded Scholarship Programs" },
+    "universities": { "title": "Universities", "subtitle": "International universities on tuition basis" },
+    "results": { "title": "Results", "subtitle": "Results" },
+    "news": { "title": "News", "subtitle": "News" }
   },
   "auth": {
     "signIn": "Sign In",
@@ -69,7 +65,9 @@
     "resend": "Resend code",
     "verifyError": "Invalid or expired code",
     "sendingCode": "Sending code...",
-    "verifying": "Verifying..."
+    "verifying": "Verifying...",
+    "profile": "Profile",
+    "logout": "Log out"
   },
   "common": {
     "loading": "Loading...",
@@ -88,6 +86,7 @@
   "contact": {
     "title": "Contact",
     "subtitle": "Get in touch via your preferred channel.",
+    "autoNote": "Enter your details — the message will be generated automatically",
     "form": {
       "name": "Full name",
       "email": "Email",
@@ -103,6 +102,7 @@
     }
   },
   "footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "follow": "Follow us"
   }
 }

@@ -52,7 +52,7 @@ export default async function LocaleLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} bg-[#faf7f2] dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200`}>
+      <body className={`${inter.className} bg-[#f0f9f8] dark:bg-[#0d1117] text-[#0f172a] dark:text-[#e6edf3] transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Header />

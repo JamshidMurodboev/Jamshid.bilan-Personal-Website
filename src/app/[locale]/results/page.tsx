@@ -24,7 +24,7 @@ export default async function ResultsPage({ params: { locale } }: { params: { lo
   const yearsActive = years.length > 0 ? Math.max(1, new Date().getFullYear() - Math.min(...years) + 1) : 1;
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {[

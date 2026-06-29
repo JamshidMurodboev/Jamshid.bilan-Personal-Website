@@ -21,7 +21,7 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
   const body = (post as any)[`body_${locale}`] || post.body_uz;
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href={`/${locale}/news`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; {t('back')}</Link>
         {post.cover_url && (

@@ -19,7 +19,7 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
   } catch {}
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] dark:bg-gray-950 py-12">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Universitetlar</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">Tolov asosida xorijiy universitetlar katalogi</p>
