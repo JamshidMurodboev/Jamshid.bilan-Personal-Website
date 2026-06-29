@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { SAMPLE_SCHOLARSHIPS, SAMPLE_UNIVERSITIES } from '@/lib/data';
+import DateInput from '@/components/shared/DateInput';
 
 interface Props {
   children: React.ReactNode;
@@ -171,10 +172,9 @@ export default function TelegramContactButton({ children, className }: Props) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Tug&apos;ilgan sana <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DateInput
                     value={form.dob}
-                    onChange={e => set('dob', e.target.value)}
+                    onChange={v => set('dob', v)}
                     max={new Date().toISOString().split('T')[0]}
                     className={inputClass}
                   />

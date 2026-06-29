@@ -39,15 +39,15 @@ export default function AboutSection() {
   const photo = db?.photo_url || '/copy_0659112A-3990-4AFC-A553-6B9CF1B3E78C.jpeg';
 
   return (
-    <section id="about" className="py-16 px-4 bg-white dark:bg-[#0d1117] relative">
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+    <section id="about" className="py-24 md:py-32 px-4 bg-white dark:bg-[#0d1117] relative">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-14 items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('title')}</h2>
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{body}</p>
-          <ul className="space-y-3">
+          <h2 className="text-[2.25rem] md:text-[2.5rem] font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
+          <p className="text-[17px] md:text-[18px] leading-[1.8] text-gray-600 dark:text-gray-300 mb-8">{body}</p>
+          <ul className="space-y-4">
             {credentials.map((c: string) => (
-              <li key={c} className="flex items-start gap-3 text-gray-700 dark:text-gray-200">
-                <span className="flex-shrink-0 w-6 h-6 bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-400 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+              <li key={c} className="flex items-start gap-3 text-[17px] md:text-[18px] leading-[1.8] text-gray-700 dark:text-gray-200">
+                <span className="flex-shrink-0 w-7 h-7 bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-400 rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
                   ✓
                 </span>
                 <span>{c}</span>
@@ -56,7 +56,7 @@ export default function AboutSection() {
           </ul>
         </div>
         <div className="flex justify-center">
-          <div className="relative w-64 h-80 rounded-2xl overflow-hidden shadow-xl border-4 border-white dark:border-gray-700">
+          <div className="relative w-full max-w-[420px] aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/40 border-4 border-white dark:border-gray-700">
             <Image
               src={photo}
               alt="Jamshid Murodboev"
@@ -65,11 +65,6 @@ export default function AboutSection() {
             />
           </div>
         </div>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 translate-y-full pointer-events-none">
-        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-[#e6fffa] dark:fill-[#102a43]" />
-        </svg>
       </div>
     </section>
   );

@@ -246,3 +246,34 @@ insert into faqs (question_uz, answer_uz, sort_order) values
   ('Natija kafolatlanadi mi?', 'Yuzlab talabaga yordam bergan tajriba asosida sizning hujjatlaringizni eng yuqori sifatda tayyorlashga ko''maklashaman, biroq grant komissiyasining yakuniy qarorini kafolatlab bo''lmaydi.', 3),
   ('Jarayon qanday ketadi?', 'Avval maqsadingiz aniqlanadi, so''ng hujjatlar tayyorlanadi, motivatsiya xati va CV ishlab chiqiladi, va ariza topshirish bosqichigacha boshidan oxirigacha kuzatib boraman.', 4)
 on conflict do nothing;
+
+-- ============================================================
+-- 10. Backfill RU/EN translations for seeded FAQs and testimonials
+-- ============================================================
+update faqs set
+  question_ru = 'Сколько стоит услуга?',
+  question_en = 'How much does the service cost?',
+  answer_ru = 'Цена зависит от выбранного вида услуги. Для точной цены обратитесь через раздел «Контакты».',
+  answer_en = 'The price depends on the type of service chosen. For an exact price, please reach out via the Contact section.'
+where question_uz = 'Xizmat qancha turadi?';
+
+update faqs set
+  question_ru = 'По каким грантам вы помогаете?',
+  question_en = 'Which scholarships do you help with?',
+  answer_ru = 'Я помогаю по грантам Türkiye Bursları, Chevening, DAAD, Erasmus+, MEXT и многим другим полностью финансируемым программам.',
+  answer_en = 'I provide guidance for Türkiye Bursları, Chevening, DAAD, Erasmus+, MEXT and many other fully-funded scholarships.'
+where question_uz = 'Qaysi grantlar uchun yordam beradi?';
+
+update faqs set
+  question_ru = 'Гарантируется ли результат?',
+  question_en = 'Is the result guaranteed?',
+  answer_ru = 'Опираясь на опыт помощи сотням студентов, я помогу подготовить ваши документы на самом высоком уровне, однако окончательное решение грантовой комиссии гарантировать невозможно.',
+  answer_en = 'Based on experience helping hundreds of students, I will help prepare your documents to the highest standard, but the final decision of the scholarship committee cannot be guaranteed.'
+where question_uz = 'Natija kafolatlanadi mi?';
+
+update faqs set
+  question_ru = 'Как проходит процесс?',
+  question_en = 'How does the process work?',
+  answer_ru = 'Сначала определяется ваша цель, затем готовятся документы, разрабатываются мотивационное письмо и резюме, и я сопровождаю вас от начала до подачи заявки.',
+  answer_en = 'First your goal is defined, then documents are prepared, a motivation letter and CV are developed, and I guide you from start through to submitting the application.'
+where question_uz = 'Jarayon qanday ketadi?';

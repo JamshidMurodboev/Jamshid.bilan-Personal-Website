@@ -9,16 +9,24 @@ const FALLBACK: Testimonial[] = [
   {
     id: 'f1',
     quote_uz: "Jamshid akaning yordami bilan motivatsiya xatimni qaytadan yozdim va grantga o'tdim.",
+    quote_ru: 'С помощью Джамшида ака я переписала мотивационное письмо и выиграла грант.',
+    quote_en: "With Jamshid's help I rewrote my motivation letter and won the scholarship.",
     student_name: 'Aziza',
-    outcome_uz: 'Türkiye Burslari granti g\'olibi',
+    outcome_uz: "Türkiye Burslari granti g'olibi",
+    outcome_ru: 'Победитель гранта Türkiye Bursları',
+    outcome_en: 'Türkiye Bursları scholarship winner',
     sort_order: 1,
     created_at: '', updated_at: '',
   },
   {
     id: 'f2',
-    quote_uz: 'Hujjatlarni tayyorlashda har bir bosqichda yo\'l-yo\'riq ko\'rsatdi.',
+    quote_uz: "Hujjatlarni tayyorlashda har bir bosqichda yo'l-yo'riq ko'rsatdi.",
+    quote_ru: 'Он направлял меня на каждом этапе подготовки документов.',
+    quote_en: 'He guided me through every step of preparing my documents.',
     student_name: 'Bekzod',
     outcome_uz: 'Istanbul University, 2024',
+    outcome_ru: 'Istanbul University, 2024',
+    outcome_en: 'Istanbul University, 2024',
     sort_order: 2,
     created_at: '', updated_at: '',
   },
@@ -45,7 +53,7 @@ export default function TestimonialsSection() {
   }
 
   return (
-    <section id="testimonials" className="py-16 px-4 bg-white dark:bg-[#0d1117]">
+    <section id="testimonials" className="py-16 px-4 bg-white dark:bg-[#0d1117] relative">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-[2rem] font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-2">{t('title')}</h2>
         <p className="text-[#64748b] dark:text-[#8b949e] text-center mb-10">{t('subtitle')}</p>
@@ -59,6 +67,11 @@ export default function TestimonialsSection() {
             <TestimonialCard key={item.id} item={item} quote={field(item, 'quote')} outcome={field(item, 'outcome')} />
           ))}
         </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 translate-y-full pointer-events-none">
+        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+          <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-[#e6fffa] dark:fill-[#102a43]" />
+        </svg>
       </div>
     </section>
   );

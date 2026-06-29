@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
+import DateInput from '@/components/shared/DateInput';
 
 interface Props {
   isOpen: boolean;
@@ -205,7 +206,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('dob')} *</label>
-              <input type="date" required value={suDob} onChange={e => setSuDob(e.target.value)} className={inputCls} />
+              <DateInput required value={suDob} onChange={setSuDob} className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('email')} *</label>

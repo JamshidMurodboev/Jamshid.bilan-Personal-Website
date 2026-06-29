@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
+import DateInput from '@/components/shared/DateInput';
 
 const SCHOLARSHIPS = ['Türkiye Bursları', 'Chevening Scholarship', 'DAAD Scholarship', 'Erasmus+', 'MEXT (Yaponiya)', 'Fulbright'];
 const UNIVERSITIES = ['Istanbul University', 'Ankara University', 'Marmara University', 'Middle East Technical University', 'Bogazici University'];
@@ -69,7 +70,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label className={labelCls}>Tug'ilgan sana *</label>
-        <input type="date" lang="uz-UZ" value={dob} onChange={e => setDob(e.target.value)} className={inputCls('dob')} />
+        <DateInput value={dob} onChange={setDob} className={inputCls('dob')} />
         {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
       </div>
       <div>

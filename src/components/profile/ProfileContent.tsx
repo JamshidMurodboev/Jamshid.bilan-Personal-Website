@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import DateInput from '@/components/shared/DateInput';
 
 export default function ProfileContent() {
   const { user, updateProfile, logout } = useAuth();
@@ -68,8 +69,7 @@ export default function ProfileContent() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Tug'ilgan sana</label>
-            <input type="date" value={dob} onChange={e => setDob(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <DateInput value={dob} onChange={setDob} />
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">Email: {user.email}</p>
           <div className="flex gap-3">
