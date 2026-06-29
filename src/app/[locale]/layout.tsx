@@ -12,10 +12,20 @@ import { AuthProvider } from '@/lib/auth';
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://jamshidbilan.uz'),
   title: "Jamshid Murodboev — Xorijda ta'lim maslahatchisi",
   description: "To'liq grant va xorijiy universitetlarga qabul bo'lishda professional ko'mak.",
+  alternates: {
+    canonical: '/',
+    languages: {
+      'uz': '/uz',
+      'ru': '/ru',
+      'en': '/en',
+    },
+  },
   openGraph: {
     type: 'website',
+    url: 'https://jamshidbilan.uz',
     locale: 'uz_UZ',
     siteName: 'Jamshid Murodboev',
   },
