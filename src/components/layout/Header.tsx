@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { useState, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import AuthModal from '@/components/auth/AuthModal';
 
@@ -169,13 +169,29 @@ function AvatarMenu() {
   );
 }
 
-export default function Header() {
+function HeaderInner() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const { user } = useAuth();
   const tAuth = useTranslations('auth');
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ open: boolean; tab: 'signin' | 'signup' }>({ open: false, tab: 'signin' });
+  const callbackUrl = searchParams.get('callbackUrl');
+
+  useEffect(() => {
+    if (searchParams.get('auth') === 'signin') {
+      setAuthModal({ open: true, tab: 'signin' });
+    }
+  }, [searchParams]);
+
+  function handleAuthClose() {
+    setAuthModal(prev => ({ ...prev, open: false }));
+    if (user && callbackUrl) {
+      router.push(callbackUrl);
+    }
+  }
 
   const links = [
     { href: `/${locale}#about`, label: t('about') },
@@ -273,9 +289,17 @@ export default function Header() {
       </header>
       <AuthModal
         isOpen={authModal.open}
-        onClose={() => setAuthModal(prev => ({ ...prev, open: false }))}
+        onClose={handleAuthClose}
         initialTab={authModal.tab}
       />
     </>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={null}>
+      <HeaderInner />
+    </Suspense>
   );
 }

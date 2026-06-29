@@ -37,7 +37,7 @@ const SOCIALS = [
 export default function Footer() {
   const t = useTranslations('footer');
   return (
-    <footer className="bg-gray-900 dark:bg-gray-950 text-gray-400 py-10 mt-16 border-t border-gray-800">
+    <footer className="bg-gray-900 dark:bg-gray-950 text-gray-400 py-10 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4 text-center text-sm">
         <p className="text-sm uppercase tracking-wide text-gray-300 dark:text-gray-400">{t('follow')}</p>
         <div className="flex items-center gap-6">

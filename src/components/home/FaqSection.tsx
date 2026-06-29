@@ -69,30 +69,32 @@ export default function FaqSection() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mb-10">
-      <h2 className="text-2xl font-bold text-white text-center mb-6">{t('title')}</h2>
-      <div className="space-y-2">
-        {items.map((item) => {
-          const isOpen = openId === item.id;
-          return (
-            <div key={item.id} className="bg-white/10 rounded-xl overflow-hidden">
-              <button
-                onClick={() => setOpenId(isOpen ? null : item.id)}
-                className="w-full flex items-center justify-between text-left px-5 py-4 text-white font-medium"
-              >
-                <span>{field(item, 'question')}</span>
-                <span className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>⌄</span>
-              </button>
-              <div
-                className="px-5 overflow-hidden transition-all duration-300 ease-in-out text-white/80 text-sm"
-                style={{ maxHeight: isOpen ? '20rem' : '0px', paddingBottom: isOpen ? '1rem' : '0px' }}
-              >
-                {field(item, 'answer')}
+    <section className="py-16 px-4 bg-white dark:bg-[#0d1117]">
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-6">{t('title')}</h2>
+        <div className="space-y-2">
+          {items.map((item) => {
+            const isOpen = openId === item.id;
+            return (
+              <div key={item.id} className="bg-gray-50 dark:bg-[#161b22] border border-[#e2e8f0] dark:border-[#21262d] rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setOpenId(isOpen ? null : item.id)}
+                  className="w-full flex items-center justify-between text-left px-5 py-4 text-[#0f172a] dark:text-[#e6edf3] font-medium"
+                >
+                  <span>{field(item, 'question')}</span>
+                  <span className={`transition-transform duration-200 text-[#64748b] dark:text-[#8b949e] ${isOpen ? 'rotate-180' : ''}`}>⌄</span>
+                </button>
+                <div
+                  className="px-5 overflow-hidden transition-all duration-300 ease-in-out text-[#64748b] dark:text-[#8b949e] text-sm"
+                  style={{ maxHeight: isOpen ? '20rem' : '0px', paddingBottom: isOpen ? '1rem' : '0px' }}
+                >
+                  {field(item, 'answer')}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

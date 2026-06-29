@@ -5,6 +5,7 @@ import StatsBanner from '@/components/home/StatsBanner';
 import TeaserSection from '@/components/home/TeaserSection';
 import HomeContactSection from '@/components/home/HomeContactSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
+import FaqSection from '@/components/home/FaqSection';
 
 export default function HomePage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
@@ -15,6 +16,7 @@ export default function HomePage({ params: { locale } }: { params: { locale: str
       <AboutSection />
       <TestimonialsSection />
       <TeaserSection />
+      <FaqSection />
       <HomeContactSection />
     </>
   );

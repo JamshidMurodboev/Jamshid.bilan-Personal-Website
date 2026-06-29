@@ -53,7 +53,7 @@ export default function TestimonialsSection() {
   }
 
   return (
-    <section id="testimonials" className="py-16 px-4 bg-white dark:bg-[#0d1117] relative">
+    <section id="testimonials" className="py-16 px-4 bg-gray-50 dark:bg-[#161b22]">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-[2rem] font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-2">{t('title')}</h2>
         <p className="text-[#64748b] dark:text-[#8b949e] text-center mb-10">{t('subtitle')}</p>
@@ -68,18 +68,13 @@ export default function TestimonialsSection() {
           ))}
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 translate-y-full pointer-events-none">
-        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
-          <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-[#e6fffa] dark:fill-[#102a43]" />
-        </svg>
-      </div>
     </section>
   );
 }
 
 function TestimonialCard({ item, quote, outcome, className = '' }: { item: Testimonial; quote: string; outcome: string; className?: string }) {
   return (
-    <div className={`bg-white dark:bg-[#161b22] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] ${className}`}>
+    <div className={`bg-white dark:bg-[#0d1117] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] ${className}`}>
       <p className="text-[#334155] dark:text-[#8b949e] leading-relaxed mb-4">&ldquo;{quote}&rdquo;</p>
       <div className="flex items-center gap-3">
         {item.photo_url ? (
