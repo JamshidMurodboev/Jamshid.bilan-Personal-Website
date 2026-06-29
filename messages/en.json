@@ -33,8 +33,8 @@
   "homeSections": {
     "scholarships": { "title": "Scholarships", "subtitle": "Fully Funded Scholarship Programs" },
     "universities": { "title": "Universities", "subtitle": "International universities on tuition basis" },
-    "results": { "title": "Results", "subtitle": "Results" },
-    "news": { "title": "News", "subtitle": "News" }
+    "results": { "title": "Results", "subtitle": "Students who studied abroad with our help" },
+    "news": { "title": "News", "subtitle": "Scholarship and university news" }
   },
   "auth": {
     "signIn": "Sign In",
@@ -104,5 +104,12 @@
   "footer": {
     "rights": "All rights reserved.",
     "follow": "Follow us"
+  },
+  "testimonials": {
+    "title": "What our students say",
+    "subtitle": "Students who studied abroad with our help"
+  },
+  "faq": {
+    "title": "Frequently asked questions"
   }
 }

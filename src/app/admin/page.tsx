@@ -12,6 +12,8 @@ export default function AdminDashboard() {
     { label: 'Universitetlar', count: 0, href: '/admin/universities' },
     { label: 'Yangiliklar', count: 0, href: '/admin/news' },
     { label: 'Talaba natijalari', count: 0, href: '/admin/results' },
+    { label: 'Talaba fikrlari', count: 0, href: '/admin/testimonials' },
+    { label: 'Savollar', count: 0, href: '/admin/faq' },
     { label: 'Yangi murojaatlar', count: 0, href: '/admin/inquiries' },
   ])
   const [loading, setLoading] = useState(true)
@@ -19,11 +21,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
-      const [s, u, n, r, i] = await Promise.all([
+      const [s, u, n, r, t, f, i] = await Promise.all([
         supabase.from('scholarships').select('id', { count: 'exact', head: true }),
         supabase.from('universities').select('id', { count: 'exact', head: true }),
         supabase.from('news_posts').select('id', { count: 'exact', head: true }),
         supabase.from('student_results').select('id', { count: 'exact', head: true }),
+        supabase.from('testimonials').select('id', { count: 'exact', head: true }),
+        supabase.from('faqs').select('id', { count: 'exact', head: true }),
         supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
       ])
       setCards([
@@ -31,6 +35,8 @@ export default function AdminDashboard() {
         { label: 'Universitetlar', count: u.count ?? 0, href: '/admin/universities' },
         { label: 'Yangiliklar', count: n.count ?? 0, href: '/admin/news' },
         { label: 'Talaba natijalari', count: r.count ?? 0, href: '/admin/results' },
+        { label: 'Talaba fikrlari', count: t.count ?? 0, href: '/admin/testimonials' },
+        { label: 'Savollar', count: f.count ?? 0, href: '/admin/faq' },
         { label: 'Yangi murojaatlar', count: i.count ?? 0, href: '/admin/inquiries' },
       ])
       setLoading(false)

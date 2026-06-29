@@ -69,7 +69,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label className={labelCls}>Tug'ilgan sana *</label>
-        <input type="date" value={dob} onChange={e => setDob(e.target.value)} className={inputCls('dob')} />
+        <input type="date" lang="uz-UZ" value={dob} onChange={e => setDob(e.target.value)} className={inputCls('dob')} />
         {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
       </div>
       <div>

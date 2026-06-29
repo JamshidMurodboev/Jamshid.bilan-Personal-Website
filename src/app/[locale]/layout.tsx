@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react';
 import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ScrollWidgets from '@/components/layout/ScrollWidgets';
 import { AuthProvider } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -58,6 +59,7 @@ export default async function LocaleLayout({
             <Header />
             <main>{children}</main>
             <Footer />
+            <ScrollWidgets />
           </AuthProvider>
         </NextIntlClientProvider>
         <Analytics />

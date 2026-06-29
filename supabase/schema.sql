@@ -190,3 +190,59 @@ create trigger trg_news_updated before update on news_posts
   for each row execute procedure set_updated_at();
 create trigger trg_blog_updated before update on blog_posts
   for each row execute procedure set_updated_at();
+
+-- ============================================================
+-- 8. testimonials
+-- ============================================================
+create table if not exists testimonials (
+  id           uuid primary key default uuid_generate_v4(),
+  quote_uz     text not null,
+  quote_ru     text,
+  quote_en     text,
+  student_name text not null,
+  outcome_uz   text not null,
+  outcome_ru   text,
+  outcome_en   text,
+  photo_url    text,
+  sort_order   smallint not null default 0,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+alter table testimonials enable row level security;
+create policy "Public read testimonials" on testimonials for select using (true);
+create policy "Authenticated manage testimonials" on testimonials for all using (auth.role() = 'authenticated');
+
+create trigger trg_testimonials_updated before update on testimonials
+  for each row execute procedure set_updated_at();
+
+-- ============================================================
+-- 9. faqs
+-- ============================================================
+create table if not exists faqs (
+  id           uuid primary key default uuid_generate_v4(),
+  question_uz  text not null,
+  question_ru  text,
+  question_en  text,
+  answer_uz    text not null,
+  answer_ru    text,
+  answer_en    text,
+  sort_order   smallint not null default 0,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+alter table faqs enable row level security;
+create policy "Public read faqs" on faqs for select using (true);
+create policy "Authenticated manage faqs" on faqs for all using (auth.role() = 'authenticated');
+
+create trigger trg_faqs_updated before update on faqs
+  for each row execute procedure set_updated_at();
+
+-- Seed default FAQs
+insert into faqs (question_uz, answer_uz, sort_order) values
+  ('Xizmat qancha turadi?', 'Narx tanlangan xizmat turiga qarab belgilanadi. Aniq narx uchun Bog''lanish bo''limi orqali murojaat qiling.', 1),
+  ('Qaysi grantlar uchun yordam beradi?', 'Türkiye Burslari, Chevening, DAAD, Erasmus+, MEXT va boshqa ko''plab to''liq grantlar bo''yicha yordam beraman.', 2),
+  ('Natija kafolatlanadi mi?', 'Yuzlab talabaga yordam bergan tajriba asosida sizning hujjatlaringizni eng yuqori sifatda tayyorlashga ko''maklashaman, biroq grant komissiyasining yakuniy qarorini kafolatlab bo''lmaydi.', 3),
+  ('Jarayon qanday ketadi?', 'Avval maqsadingiz aniqlanadi, so''ng hujjatlar tayyorlanadi, motivatsiya xati va CV ishlab chiqiladi, va ariza topshirish bosqichigacha boshidan oxirigacha kuzatib boraman.', 4)
+on conflict do nothing;

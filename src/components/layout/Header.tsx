@@ -64,10 +64,26 @@ function LanguageDropdown() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  function getCurrentSectionId() {
+    const sections = document.querySelectorAll('section[id]');
+    let closestId: string | null = null;
+    let closestDist = Infinity;
+    sections.forEach((s) => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= window.innerHeight && rect.bottom >= 0) {
+        const dist = Math.abs(rect.top);
+        if (dist < closestDist) { closestDist = dist; closestId = s.id; }
+      }
+    });
+    return closestId;
+  }
+
   function switchLocale(newLocale: string) {
+    const sectionId = getCurrentSectionId();
     const segments = pathname.split('/');
     segments[1] = newLocale;
-    router.push(segments.join('/'));
+    const newPath = segments.join('/');
+    router.push(sectionId ? `${newPath}#${sectionId}` : newPath);
     localStorage.setItem('locale', newLocale);
     setOpen(false);
   }

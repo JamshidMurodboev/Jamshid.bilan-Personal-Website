@@ -39,7 +39,7 @@ export default function AboutSection() {
   const photo = db?.photo_url || '/copy_0659112A-3990-4AFC-A553-6B9CF1B3E78C.jpeg';
 
   return (
-    <section id="about" className="py-16 px-4 bg-amber-50 dark:bg-gray-900">
+    <section id="about" className="py-16 px-4 bg-white dark:bg-[#0d1117] relative">
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('title')}</h2>
@@ -65,6 +65,11 @@ export default function AboutSection() {
             />
           </div>
         </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 translate-y-full pointer-events-none">
+        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-[#e6fffa] dark:fill-[#102a43]" />
+        </svg>
       </div>
     </section>
   );

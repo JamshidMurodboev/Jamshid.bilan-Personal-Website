@@ -33,8 +33,8 @@
   "homeSections": {
     "scholarships": { "title": "Grantlar", "subtitle": "To'liq Qoplanadigan Grant Dasturlari" },
     "universities": { "title": "Universitetlar", "subtitle": "To'lov asosida xorijiy universitetlar" },
-    "results": { "title": "Natijalar", "subtitle": "Natijalar" },
-    "news": { "title": "Yangiliklar", "subtitle": "Yangiliklar" }
+    "results": { "title": "Natijalar", "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar" },
+    "news": { "title": "Yangiliklar", "subtitle": "Grant va universitetlar yangiliklari" }
   },
   "auth": {
     "signIn": "Kirish",
@@ -104,5 +104,12 @@
   "footer": {
     "rights": "Barcha huquqlar himoyalangan.",
     "follow": "Bizni kuzating"
+  },
+  "testimonials": {
+    "title": "Talabalarimiz fikri",
+    "subtitle": "Bizning yordamimiz bilan xorijda o'qishga muyassar bo'lgan talabalar"
+  },
+  "faq": {
+    "title": "Ko'p so'raladigan savollar"
   }
 }

@@ -10,7 +10,7 @@ const STATS = [
 export default function StatsBanner() {
   const t = useTranslations('stats');
   return (
-    <section className="bg-[#0d9488] dark:bg-[#0d2d2a] text-white py-12 px-4">
+    <section className="bg-[#0d9488] dark:bg-[#0D1F3C] text-white py-12 px-4">
       <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
         {STATS.map((s) => (
           <div key={s.key} className="bg-white/10 rounded-xl p-4">

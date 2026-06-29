@@ -1,15 +1,17 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import ContactForm from '@/components/shared/ContactForm';
+import FaqSection from '@/components/home/FaqSection';
 
 export default function HomeContactSection() {
   const t = useTranslations('contact');
   return (
-    <section className="py-16 px-4 bg-white dark:bg-gray-900" id="contact">
+    <section className="py-16 px-4 bg-[#0d9488] dark:bg-[#0D1F3C]" id="contact">
+      <FaqSection />
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">{t('title')}</h2>
-        <p className="text-gray-500 dark:text-gray-400 text-center mb-8">{t('autoNote')}</p>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">{t('title')}</h2>
+        <p className="text-white/70 text-center mb-8">{t('autoNote')}</p>
+        <div className="bg-white dark:bg-[#161b22] rounded-2xl shadow-sm border border-white/20 dark:border-[#21262d] p-6">
           <ContactForm />
         </div>
       </div>

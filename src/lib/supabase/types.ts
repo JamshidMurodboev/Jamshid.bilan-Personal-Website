@@ -75,6 +75,34 @@ export interface BlogPost {
   updated_at: string
 }
 
+export interface Testimonial {
+  id: string
+  quote_uz: string
+  quote_ru?: string
+  quote_en?: string
+  student_name: string
+  outcome_uz: string
+  outcome_ru?: string
+  outcome_en?: string
+  photo_url?: string
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface Faq {
+  id: string
+  question_uz: string
+  question_ru?: string
+  question_en?: string
+  answer_uz: string
+  answer_ru?: string
+  answer_en?: string
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
 export interface Inquiry {
   id: string
   name: string
