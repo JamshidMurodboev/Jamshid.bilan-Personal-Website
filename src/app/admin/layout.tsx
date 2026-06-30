@@ -19,6 +19,7 @@ const navLinks = [
   { href: '/admin/faq', label: 'Savollar' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
   { href: '/admin/users', label: 'Foydalanuvchilar' },
+  { href: '/admin/ai-assistant', label: '✦ AI Yordamchi' },
   { href: '/admin/about', label: 'Men haqimda' },
 ]
 
