@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json.error?.message || 'Groq API error')
-    const raw = json.choices[0].message.content.trim()
+    let raw = json.choices[0].message.content.trim()
+    raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
     const parsed = JSON.parse(raw)
     return NextResponse.json(parsed)
   } catch (e: any) {
