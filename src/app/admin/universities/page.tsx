@@ -341,23 +341,10 @@ export default function UniversitiesPage() {
                 </div>
               </div>
 
-              {/* Descriptions */}
+              {/* Description — Uzbek only */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                  <button type="button" onClick={handleTranslate} disabled={translating || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline disabled:opacity-40">
-                    {translating ? 'Tarjimon...' : 'Avtotarjima (RU/EN)'}
-                  </button>
-                </div>
-                <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} placeholder="O'zbek tilida tavsif..." />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
-                <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} placeholder="Описание на русском..." />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
-                <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} placeholder="Description in English..." />
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (UZ)</label>
+                <textarea rows={4} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} placeholder="O'zbek tilida tavsif..." />
               </div>
 
               <div>

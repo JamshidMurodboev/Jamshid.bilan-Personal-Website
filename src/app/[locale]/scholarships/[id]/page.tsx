@@ -14,7 +14,7 @@ const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Kelayotgan' }
 const CATEGORY_LABELS = {
   fully_funded: "To'liq moliyalashtirilgan",
   partially_funded: 'Qisman moliyalashtirilgan',
-  self_funded: "O'z mablag'i bilan",
+  self_funded: 'Kontrakt asosida',
 };
 
 export default async function ScholarshipDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {

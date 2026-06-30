@@ -17,6 +17,7 @@ export default function ScholarshipsPage() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [status, setStatus] = useState('');
+  const [category, setCategory] = useState('');
   const [scholarships, setScholarships] = useState<Scholarship[]>(SAMPLE_SCHOLARSHIPS);
 
   useEffect(() => {
@@ -25,12 +26,18 @@ export default function ScholarshipsPage() {
     });
   }, []);
 
+  const countries = useMemo(() =>
+    Array.from(new Set(scholarships.map(s => s.country).filter(Boolean))).sort(),
+    [scholarships]
+  );
+
   const filtered = useMemo(() => scholarships.filter((s) => {
     const matchSearch = s.title.toLowerCase().includes(search.toLowerCase()) || s.country.toLowerCase().includes(search.toLowerCase());
     const matchCountry = !country || s.country === country;
     const matchStatus = !status || s.status === status;
-    return matchSearch && matchCountry && matchStatus;
-  }), [scholarships, search, country, status]);
+    const matchCategory = !category || (s as any).category === category;
+    return matchSearch && matchCountry && matchStatus && matchCategory;
+  }), [scholarships, search, country, status, category]);
 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
@@ -39,7 +46,13 @@ export default function ScholarshipsPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-8">To'liq moliyalashtirilgan grant dasturlari katalogi</p>
         <div className="flex flex-col lg:flex-row gap-6">
           <aside className="lg:w-60 flex-shrink-0">
-            <ScholarshipFilters search={search} onSearch={setSearch} country={country} onCountry={setCountry} status={status} onStatus={setStatus} />
+            <ScholarshipFilters
+              search={search} onSearch={setSearch}
+              country={country} onCountry={setCountry}
+              status={status} onStatus={setStatus}
+              category={category} onCategory={setCategory}
+              countries={countries}
+            />
           </aside>
           <div className="flex-1">
             {filtered.length === 0
