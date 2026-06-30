@@ -158,7 +158,7 @@ export default function TestimonialsPage() {
 
   function categoryLabel(cat?: string) {
     if (cat === 'scholarship_winner') return 'Grant g\'olibi'
-    if (cat === 'tuition_based') return 'Pullik o\'qish'
+    if (cat === 'tuition_based') return 'Kontrakt asosida'
     return '—'
   }
 
@@ -351,7 +351,7 @@ export default function TestimonialsPage() {
                   className={inp}
                 >
                   <option value="scholarship_winner">Grant g'olibi (Scholarship Winner)</option>
-                  <option value="tuition_based">Pullik o'qish (Tuition-based University)</option>
+                  <option value="tuition_based">Kontrakt asosida (Tuition-based)</option>
                 </select>
               </div>
 

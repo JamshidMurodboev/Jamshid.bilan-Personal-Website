@@ -16,7 +16,7 @@ const degreeLabels: Record<StudentResult['degree_level'], string> = {
 
 const categoryLabels: Record<string, string> = {
   scholarship_winner: 'Stipendiya g\'olibi',
-  tuition_based: 'Pullik universitet',
+  tuition_based: 'Kontrakt asosida',
 }
 
 type Category = 'scholarship_winner' | 'tuition_based'
