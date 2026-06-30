@@ -10,6 +10,16 @@ export interface Scholarship {
   tip?: string
   application_url?: string
   status: 'open' | 'closed' | 'upcoming'
+  // New fields (admin overhaul)
+  description_uz?: string
+  description_ru?: string
+  description_en?: string
+  open_date?: string
+  close_date?: string
+  results_date?: string
+  results_date_type?: 'exact' | 'month' | 'period'
+  category?: 'fully_funded' | 'partially_funded' | 'self_funded'
+  photo_urls?: string[]
   created_at: string
   updated_at: string
 }
@@ -25,20 +35,42 @@ export interface University {
   type: 'public' | 'private'
   ranking?: number
   programs: string[]
+  // New fields (admin overhaul)
+  description_uz?: string
+  description_ru?: string
+  description_en?: string
+  photo_urls?: string[]
   created_at: string
   updated_at: string
+}
+
+export interface UniversityMajor {
+  id: string
+  university_id: string
+  name: string
+  language?: string
+  tuition?: number
+  currency: 'USD' | 'UZS' | 'EUR' | 'TL'
+  sort_order: number
 }
 
 export interface StudentResult {
   id: string
   student_name: string
   photo_url?: string
+  photo_urls?: string[]
   university_id?: string
   scholarship_id?: string
   degree_level: 'bachelor' | 'master' | 'phd'
   year: number
   country: string
   testimonial?: string
+  // New fields (admin overhaul)
+  category?: 'scholarship_winner' | 'tuition_based'
+  major?: string
+  language?: string
+  university_ranking?: number
+  university_name?: string
   created_at: string
 }
 
@@ -51,6 +83,7 @@ export interface NewsPost {
   body_ru?: string
   body_en?: string
   cover_url?: string
+  photo_urls?: string[]
   published: boolean
   published_at?: string
   created_at: string
@@ -85,7 +118,12 @@ export interface Testimonial {
   outcome_ru?: string
   outcome_en?: string
   photo_url?: string
+  photo_urls?: string[]
   sort_order: number
+  // New fields (admin overhaul)
+  category?: 'scholarship_winner' | 'tuition_based'
+  scholarship_id?: string
+  university_id?: string
   created_at: string
   updated_at: string
 }
@@ -112,6 +150,12 @@ export interface Inquiry {
   source: string
   status: 'new' | 'contacted' | 'converted' | 'closed'
   locale: string
+  // New fields (admin overhaul)
+  notes?: string
+  dob?: string
+  language_certificate?: string
+  grant_interest?: string
+  university_interest?: string
   created_at: string
 }
 
@@ -123,4 +167,18 @@ export interface Stat {
   label_ru?: string
   label_en?: string
   sort_order: number
+}
+
+export interface SiteUser {
+  id: string
+  full_name: string
+  email: string
+  phone?: string
+  gender?: string
+  dob?: string
+  photo_url?: string
+  created_at: string
+  last_active_at?: string
+  login_count: number
+  status: 'active' | 'blocked'
 }

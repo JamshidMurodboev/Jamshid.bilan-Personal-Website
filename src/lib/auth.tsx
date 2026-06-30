@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export interface AuthUser {
   id: string;
@@ -65,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u);
       localStorage.setItem('auth_user', JSON.stringify(u));
       setSessionCookie();
+      // Sync login to Supabase site_users (best-effort)
+      createClient().from('site_users').update({ last_active_at: new Date().toISOString(), login_count: (found as any).login_count + 1 }).eq('id', u.id).then(() => {});
       return null;
     } catch { return 'Xatolik yuz berdi'; }
   }
@@ -87,6 +90,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newUser);
       localStorage.setItem('auth_user', JSON.stringify(newUser));
       setSessionCookie();
+      // Sync new user to Supabase site_users (best-effort)
+      createClient().from('site_users').upsert({
+        id: newUser.id,
+        full_name: newUser.fullName,
+        email: newUser.email,
+        phone: newUser.phone,
+        gender: newUser.gender,
+        dob: newUser.dob,
+        created_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
+        login_count: 1,
+        status: 'active',
+      }, { onConflict: 'id' }).then(() => {});
       return null;
     } catch { return 'Xatolik yuz berdi'; }
   }
