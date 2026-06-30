@@ -23,6 +23,42 @@ const navLinks = [
   { href: '/admin/about', label: 'Men haqimda' },
 ]
 
+function LangToggle() {
+  const [lang, setLang] = useState('uz')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    setLang(localStorage.getItem('admin_lang') || 'uz')
+  }, [])
+
+  function pick(l: string) {
+    setLang(l)
+    localStorage.setItem('admin_lang', l)
+    window.dispatchEvent(new CustomEvent('admin-lang-change', { detail: l }))
+  }
+
+  if (!mounted) return <div className="w-16 h-6" />
+
+  return (
+    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+      {['uz', 'ru', 'en'].map(l => (
+        <button
+          key={l}
+          onClick={() => pick(l)}
+          className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+            lang === l
+              ? 'bg-white dark:bg-gray-600 text-teal-700 dark:text-teal-400 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+          }`}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function DarkToggle() {
   const [dark, setDark] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -113,7 +149,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="text-teal-700 dark:text-teal-400 font-bold text-base">Admin Panel</div>
                 {userEmail && <div className="text-gray-400 text-xs mt-0.5 truncate max-w-[140px]">{userEmail}</div>}
               </div>
-              <DarkToggle />
+              <div className="flex items-center gap-2">
+                <LangToggle />
+                <DarkToggle />
+              </div>
             </div>
             <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
               {navLinks.map((link) => {

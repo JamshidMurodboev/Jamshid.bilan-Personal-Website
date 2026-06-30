@@ -72,13 +72,13 @@ export default function AdminAboutPage() {
     setSaving(false);
   }
 
-  const textareaCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none';
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500';
+  const textareaCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100';
+  const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100';
 
   function field(label: string, key: keyof AboutContent, rows = 3) {
     return (
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
         <textarea
           rows={rows}
           value={form[key]}
@@ -91,15 +91,15 @@ export default function AdminAboutPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Men haqimda — tahrirlash</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Men haqimda — tahrirlash</h1>
 
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Rasm URL</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rasm URL</label>
           <input value={form.photo_url} onChange={e => setForm(prev => ({ ...prev, photo_url: e.target.value }))} className={inputCls} placeholder="/jamshid.jpg or https://..." />
         </div>
 
-        <div className="border-t pt-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Matn (body)</p>
           <div className="space-y-3">
             {field('O\'zbek', 'body_uz', 4)}
@@ -108,7 +108,7 @@ export default function AdminAboutPage() {
           </div>
         </div>
 
-        <div className="border-t pt-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Yutuqlar (har biri yangi qatordan)</p>
           <div className="space-y-3">
             {field("O'zbek", 'credentials_uz', 3)}
@@ -117,8 +117,8 @@ export default function AdminAboutPage() {
           </div>
         </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {saved && <p className="text-teal-600 text-sm font-medium">Saqlandi!</p>}
+        {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
+        {saved && <p className="text-teal-600 dark:text-teal-400 text-sm font-medium">Saqlandi!</p>}
 
         <button
           onClick={handleSave}
