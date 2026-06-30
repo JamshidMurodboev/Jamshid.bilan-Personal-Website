@@ -26,7 +26,7 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-64 flex-shrink-0"><UniversityFilters /></aside>
           <div className="flex-1 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {universities.map((u) => <UniversityCard key={u.id} university={u} />)}
+            {universities.map((u) => <UniversityCard key={u.id} university={u} locale={locale} />)}
           </div>
         </div>
       </div>

@@ -1,11 +1,12 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { StudentResult } from '@/lib/supabase/types';
 
 const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
 
-export default function StudentCard({ result: r }: { result: StudentResult }) {
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+export default function StudentCard({ result: r, locale }: { result: StudentResult; locale?: string }) {
+  const card = (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition">
       <div className="flex items-center gap-3 mb-3">
         {r.photo_url ? (
           <Image src={r.photo_url} alt={r.student_name} width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
@@ -20,7 +21,15 @@ export default function StudentCard({ result: r }: { result: StudentResult }) {
         </div>
       </div>
       {r.testimonial && <p className="text-sm text-gray-600 dark:text-gray-300 italic">&ldquo;{r.testimonial}&rdquo;</p>}
-      <div className="mt-3 text-xs text-gray-400 dark:text-gray-500">{r.country}</div>
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs text-gray-400 dark:text-gray-500">{r.country}</span>
+        {locale && <span className="text-xs text-teal-700 dark:text-teal-400 font-medium">Batafsil →</span>}
+      </div>
     </div>
   );
+
+  if (locale) {
+    return <Link href={`/${locale}/results/${r.id}`}>{card}</Link>;
+  }
+  return card;
 }

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
@@ -12,6 +13,7 @@ const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
 ];
 
 export default function ScholarshipsPage() {
+  const locale = useLocale();
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [status, setStatus] = useState('');
@@ -42,7 +44,7 @@ export default function ScholarshipsPage() {
           <div className="flex-1">
             {filtered.length === 0
               ? <p className="text-gray-500 dark:text-gray-400">Hech narsa topilmadi.</p>
-              : <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} />)}</div>
+              : <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}</div>
             }
           </div>
         </div>

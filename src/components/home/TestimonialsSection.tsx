@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Testimonial } from '@/lib/supabase/types';
@@ -59,12 +60,12 @@ export default function TestimonialsSection() {
         <p className="text-[#64748b] dark:text-[#8b949e] text-center mb-10">{t('subtitle')}</p>
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:hidden -mx-4 px-4">
           {items.map((item) => (
-            <TestimonialCard key={item.id} item={item} quote={field(item, 'quote')} outcome={field(item, 'outcome')} className="min-w-[85%] snap-start" />
+            <TestimonialCard key={item.id} item={item} locale={locale} quote={field(item, 'quote')} outcome={field(item, 'outcome')} className="min-w-[85%] snap-start" />
           ))}
         </div>
         <div className="hidden sm:grid sm:grid-cols-2 gap-6">
           {items.map((item) => (
-            <TestimonialCard key={item.id} item={item} quote={field(item, 'quote')} outcome={field(item, 'outcome')} />
+            <TestimonialCard key={item.id} item={item} locale={locale} quote={field(item, 'quote')} outcome={field(item, 'outcome')} />
           ))}
         </div>
       </div>
@@ -72,9 +73,10 @@ export default function TestimonialsSection() {
   );
 }
 
-function TestimonialCard({ item, quote, outcome, className = '' }: { item: Testimonial; quote: string; outcome: string; className?: string }) {
-  return (
-    <div className={`bg-white dark:bg-[#0d1117] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] ${className}`}>
+function TestimonialCard({ item, locale, quote, outcome, className = '' }: { item: Testimonial; locale: string; quote: string; outcome: string; className?: string }) {
+  const isFallback = item.id.startsWith('f');
+  const inner = (
+    <div className={`bg-white dark:bg-[#0d1117] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition ${className}`}>
       <p className="text-[#334155] dark:text-[#8b949e] leading-relaxed mb-4">&ldquo;{quote}&rdquo;</p>
       <div className="flex items-center gap-3">
         {item.photo_url ? (
@@ -93,4 +95,9 @@ function TestimonialCard({ item, quote, outcome, className = '' }: { item: Testi
       </div>
     </div>
   );
+
+  if (!isFallback) {
+    return <Link href={`/${locale}/testimonials/${item.id}`}>{inner}</Link>;
+  }
+  return inner;
 }

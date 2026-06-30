@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { University } from '@/lib/supabase/types';
 
 const TYPE_COLORS = {
@@ -6,7 +7,7 @@ const TYPE_COLORS = {
 };
 const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 
-export default function UniversityCard({ university: u }: { university: University }) {
+export default function UniversityCard({ university: u, locale }: { university: University; locale?: string }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col gap-3 border border-gray-100 dark:border-gray-700">
       <div className="flex justify-between items-start">
@@ -31,16 +32,26 @@ export default function UniversityCard({ university: u }: { university: Universi
           ))}
         </div>
       )}
-      {u.website_url && (
-        <a
-          href={u.website_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
-        >
-          Rasmiy sayt
-        </a>
-      )}
+      <div className="mt-auto flex gap-2">
+        {locale && (
+          <Link
+            href={`/${locale}/universities/${u.id}`}
+            className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
+          >
+            Batafsil
+          </Link>
+        )}
+        {u.website_url && (
+          <a
+            href={u.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
+          >
+            Rasmiy sayt
+          </a>
+        )}
+      </div>
     </div>
   );
 }
