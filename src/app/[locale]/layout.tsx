@@ -11,25 +11,38 @@ import { AuthProvider } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://jamshidbilan.uz'),
-  title: "Jamshid Murodboev — Xorijda ta'lim maslahatchisi",
-  description: "To'liq grant va xorijiy universitetlarga qabul bo'lishda professional ko'mak.",
-  alternates: {
-    canonical: '/',
-    languages: {
-      'uz': '/uz',
-      'ru': '/ru',
-      'en': '/en',
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const titles: Record<string, string> = {
+    uz: "Jamshid Murodboev — Xorijda ta'lim maslahatchisi",
+    ru: "Jamshid Murodboev — Консультант по образованию за рубежом",
+    en: "Jamshid Murodboev — Study Abroad Consultant",
+  };
+  const descriptions: Record<string, string> = {
+    uz: "To'liq grant va xorijiy universitetlarga qabul bo'lishda professional ko'mak.",
+    ru: "Профессиональная помощь в получении грантов и поступлении в зарубежные университеты.",
+    en: "Professional help with full scholarships and admission to universities abroad.",
+  };
+  return {
+    metadataBase: new URL('https://jamshidbilan.uz'),
+    title: titles[locale] ?? titles.uz,
+    description: descriptions[locale] ?? descriptions.uz,
+    alternates: {
+      canonical: `https://jamshidbilan.uz/${locale}`,
+      languages: {
+        'uz': 'https://jamshidbilan.uz/uz',
+        'ru': 'https://jamshidbilan.uz/ru',
+        'en': 'https://jamshidbilan.uz/en',
+        'x-default': 'https://jamshidbilan.uz/uz',
+      },
     },
-  },
-  openGraph: {
-    type: 'website',
-    url: 'https://jamshidbilan.uz',
-    locale: 'uz_UZ',
-    siteName: 'Jamshid Murodboev',
-  },
-};
+    openGraph: {
+      type: 'website',
+      url: `https://jamshidbilan.uz/${locale}`,
+      locale: locale === 'ru' ? 'ru_RU' : locale === 'en' ? 'en_US' : 'uz_UZ',
+      siteName: 'Jamshid Murodboev',
+    },
+  };
+}
 
 export function generateStaticParams() {
   return [{ locale: 'uz' }, { locale: 'ru' }, { locale: 'en' }];
