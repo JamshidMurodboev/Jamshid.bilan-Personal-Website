@@ -38,23 +38,35 @@ function LangToggle() {
     window.dispatchEvent(new CustomEvent('admin-lang-change', { detail: l }))
   }
 
-  if (!mounted) return <div className="w-16 h-6" />
+  const [open, setOpen] = useState(false)
+
+  if (!mounted) return <div className="w-8 h-8" />
 
   return (
-    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
-      {['uz', 'ru', 'en'].map(l => (
-        <button
-          key={l}
-          onClick={() => pick(l)}
-          className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
-            lang === l
-              ? 'bg-white dark:bg-gray-600 text-teal-700 dark:text-teal-400 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
-        >
-          {l.toUpperCase()}
-        </button>
-      ))}
+    <div className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label="Switch language"
+        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-9 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+          {['uz', 'ru', 'en'].map(l => (
+            <button key={l} onClick={() => { pick(l); setOpen(false) }}
+              className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
+                lang === l
+                  ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}>
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -149,7 +161,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="text-teal-700 dark:text-teal-400 font-bold text-base">Admin Panel</div>
                 {userEmail && <div className="text-gray-400 text-xs mt-0.5 truncate max-w-[140px]">{userEmail}</div>}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <LangToggle />
                 <DarkToggle />
               </div>
