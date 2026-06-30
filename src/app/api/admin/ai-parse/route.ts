@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 
 const SYSTEM_PROMPT = `You are a data extraction assistant for an educational consulting admin panel.
@@ -78,19 +77,26 @@ export async function POST(req: NextRequest) {
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ error: 'No text provided' }, { status: 400 })
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 503 })
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
 
   try {
-    const client = new Anthropic({ apiKey })
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: text }],
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 2048,
+        temperature: 0.1,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: text },
+        ],
+      }),
     })
-
-    const raw = (message.content[0] as { text: string }).text.trim()
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error?.message || 'Groq API error')
+    const raw = json.choices[0].message.content.trim()
     const parsed = JSON.parse(raw)
     return NextResponse.json(parsed)
   } catch (e: any) {
