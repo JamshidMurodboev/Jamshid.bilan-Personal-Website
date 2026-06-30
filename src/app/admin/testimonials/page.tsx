@@ -119,7 +119,7 @@ export default function TestimonialsPage() {
       category: form.category,
       scholarship_id: form.category === 'scholarship_winner' ? (form.scholarship_id || null) : null,
       university_id: form.category === 'tuition_based' ? (form.university_id || null) : null,
-      photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
+      photo_urls: form.photo_urls.length > 0 ? form.photo_urls : [],
     }
 
     const supabase = createClient()
