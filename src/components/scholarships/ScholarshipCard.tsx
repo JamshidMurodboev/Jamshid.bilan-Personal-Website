@@ -11,32 +11,34 @@ const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Kelayotgan' }
 
 export default function ScholarshipCard({ scholarship: s, locale }: { scholarship: Scholarship; locale?: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col gap-3 border border-gray-100 dark:border-gray-700">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">{s.title}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{s.country}{s.university ? ` · ${s.university}` : ''}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-2">
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{s.country}{s.university ? ` · ${s.university}` : ''}</p>
+          </div>
+          <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>
+            {STATUS_LABELS[s.status]}
+          </span>
         </div>
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[s.status]}`}>
-          {STATUS_LABELS[s.status]}
-        </span>
+        {s.coverage.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {s.coverage.map((c) => (
+              <span key={c} className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs px-2 py-0.5 rounded-full">{c}</span>
+            ))}
+          </div>
+        )}
+        {s.difficulty != null && (
+          <div className="flex items-center gap-1 text-yellow-500 text-sm">
+            {'★'.repeat(s.difficulty)}{'☆'.repeat(5 - s.difficulty)}
+            <span className="text-gray-400 dark:text-gray-500 text-xs ml-1">qiyinlik</span>
+          </div>
+        )}
+        {s.deadline && <p className="text-xs text-gray-500 dark:text-gray-400">Muddati: {formatDate(s.deadline)}</p>}
+        {s.tip && <p className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-2 rounded-lg">💡 {s.tip}</p>}
       </div>
-      {s.coverage.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {s.coverage.map((c) => (
-            <span key={c} className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs px-2 py-0.5 rounded-full">{c}</span>
-          ))}
-        </div>
-      )}
-      {s.difficulty != null && (
-        <div className="flex items-center gap-1 text-yellow-500 text-sm">
-          {'★'.repeat(s.difficulty)}{'☆'.repeat(5 - s.difficulty)}
-          <span className="text-gray-400 dark:text-gray-500 text-xs ml-1">qiyinlik</span>
-        </div>
-      )}
-      {s.deadline && <p className="text-xs text-gray-500 dark:text-gray-400">Muddati: {formatDate(s.deadline)}</p>}
-      {s.tip && <p className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-2 rounded-lg">💡 {s.tip}</p>}
-      <div className="mt-auto flex gap-2">
+      <div className="flex gap-2 pt-2">
         {locale && (
           <Link
             href={`/${locale}/scholarships/${s.id}`}

@@ -26,18 +26,20 @@ export default async function ResultsPage({ params: { locale } }: { params: { lo
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-12">
           {[
-            { label: 'Talaba', value: studentsHelped },
-            { label: 'Mamlakat', value: countriesCount },
-            { label: 'Yil', value: yearsActive },
+            { label: 'Talaba', value: studentsHelped, suffix: '+' },
+            { label: 'Mamlakat', value: countriesCount, suffix: '+' },
+            { label: 'Yil', value: yearsActive, suffix: '+' },
           ].map((s) => (
-            <div key={s.label} className="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
-              <div className="text-4xl font-bold text-teal-700 dark:text-teal-400">{s.value}+</div>
-              <div className="text-gray-600 dark:text-gray-400 mt-1">{s.label}</div>
+            <div key={s.label} className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="text-5xl font-extrabold text-teal-700 dark:text-teal-400 leading-none">{s.value}{s.suffix}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium uppercase tracking-wide">{s.label}</div>
             </div>
           ))}
         </div>
+
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Muvaffaqiyat tarihlari</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((r) => <StudentCard key={r.id} result={r} locale={locale} />)}
