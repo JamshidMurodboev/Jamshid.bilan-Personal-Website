@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Scholarship } from '@/lib/supabase/types';
 import { formatDate } from '@/lib/format';
 
@@ -8,7 +9,7 @@ const STATUS_COLORS = {
 };
 const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Kelayotgan' };
 
-export default function ScholarshipCard({ scholarship: s }: { scholarship: Scholarship }) {
+export default function ScholarshipCard({ scholarship: s, locale }: { scholarship: Scholarship; locale?: string }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col gap-3 border border-gray-100 dark:border-gray-700">
       <div className="flex justify-between items-start">
@@ -35,16 +36,26 @@ export default function ScholarshipCard({ scholarship: s }: { scholarship: Schol
       )}
       {s.deadline && <p className="text-xs text-gray-500 dark:text-gray-400">Muddati: {formatDate(s.deadline)}</p>}
       {s.tip && <p className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-2 rounded-lg">💡 {s.tip}</p>}
-      {s.application_url && (
-        <a
-          href={s.application_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto bg-teal-700 hover:bg-teal-800 text-white text-center py-2 rounded-xl text-sm font-semibold transition"
-        >
-          Ariza topshirish
-        </a>
-      )}
+      <div className="mt-auto flex gap-2">
+        {locale && (
+          <Link
+            href={`/${locale}/scholarships/${s.id}`}
+            className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
+          >
+            Batafsil
+          </Link>
+        )}
+        {s.application_url && (
+          <a
+            href={s.application_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-teal-700 hover:bg-teal-800 text-white text-center py-2 rounded-xl text-sm font-semibold transition"
+          >
+            Ariza topshirish
+          </a>
+        )}
+      </div>
     </div>
   );
 }
