@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { SAMPLE_SCHOLARSHIPS, SAMPLE_UNIVERSITIES } from '@/lib/data';
 import DateInput from '@/components/shared/DateInput';
+import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   children: React.ReactNode;
@@ -43,7 +44,7 @@ export default function TelegramContactButton({ children, className }: Props) {
     setErrors({});
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
 
@@ -61,6 +62,23 @@ export default function TelegramContactButton({ children, className }: Props) {
     ].join('\n');
 
     navigator.clipboard.writeText(message).catch(() => {});
+
+    // Save to Supabase inquiries (best-effort)
+    try {
+      await createClient().from('inquiries').insert({
+        name: form.name,
+        phone: '',
+        message: `Ariza: ${form.applying}`,
+        source: 'telegram_button',
+        status: 'new',
+        locale: 'uz',
+        dob: form.dob,
+        language_certificate: noCert ? "Yo'q" : `${form.certName} — ${form.certScore}`,
+        grant_interest: form.applying,
+        created_at: new Date().toISOString(),
+      });
+    } catch {}
+
     setSubmitted(true);
   }
 

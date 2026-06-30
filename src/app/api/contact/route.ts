@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 
 const schema = z.object({
   full_name: z.string().min(2),
@@ -7,13 +8,27 @@ const schema = z.object({
   phone: z.string().optional(),
   subject: z.enum(['scholarship', 'university', 'general']),
   message: z.string().min(10),
+  locale: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const data = schema.parse(body);
-    console.log('New inquiry:', data);
+
+    const supabase = await createClient();
+    await supabase.from('inquiries').insert({
+      name: data.full_name,
+      phone: data.phone || '',
+      email: data.email,
+      message: data.message,
+      source: 'contact_form',
+      status: 'new',
+      locale: data.locale || 'uz',
+      grant_interest: data.subject,
+      created_at: new Date().toISOString(),
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
