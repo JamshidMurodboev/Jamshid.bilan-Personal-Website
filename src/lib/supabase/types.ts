@@ -51,6 +51,7 @@ export interface UniversityMajor {
   language?: string
   tuition?: number
   currency: 'USD' | 'UZS' | 'EUR' | 'TL'
+  degree?: 'bachelor' | 'master_thesis' | 'master_no_thesis' | 'phd'
   sort_order: number
 }
 

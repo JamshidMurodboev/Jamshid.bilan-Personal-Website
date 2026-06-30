@@ -33,58 +33,65 @@ export default async function TestimonialDetailPage({ params: { locale, id } }: 
 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link href={`/${locale}/#testimonials`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha fikrlar</Link>
 
+        {/* Student identity */}
         <div className="mt-8 flex items-center gap-4 mb-6">
           {photos.length > 0 ? (
-            <Image src={photos[0]} alt={t.student_name} width={80} height={80} className="w-20 h-20 rounded-full object-cover flex-shrink-0" />
+            <Image src={photos[0]} alt={t.student_name} width={72} height={72} className="w-18 h-18 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-3xl flex-shrink-0">
+            <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl flex-shrink-0">
               {t.student_name[0]}
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t.student_name}</h1>
-            <div className="flex flex-wrap gap-2 mt-1">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.student_name}</h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
               {t.category && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
                   {CATEGORY_LABELS[t.category]}
                 </span>
               )}
-              <span className="text-xs text-gray-500 dark:text-gray-400">{outcome}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{outcome}</span>
             </div>
           </div>
         </div>
 
-        <blockquote className="border-l-4 border-teal-500 pl-4 my-6 text-gray-700 dark:text-gray-300 italic text-lg leading-relaxed">
-          &ldquo;{quote}&rdquo;
-        </blockquote>
+        {/* Clean blockquote card */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
+          <div className="flex gap-3">
+            <div className="w-1 bg-teal-500 rounded-full flex-shrink-0" />
+            <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">{quote}</p>
+          </div>
 
-        {scholarship && (
-          <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Grant</div>
-              <div className="font-medium text-gray-900 dark:text-white">{scholarship.title}</div>
-              <div className="text-xs text-gray-500">{scholarship.country}</div>
+          {/* Metadata tags inline at bottom */}
+          {(scholarship || university) && (
+            <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
+              {scholarship && (
+                <Link
+                  href={`/${locale}/scholarships/${scholarship.id}`}
+                  className="inline-flex items-center gap-1.5 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs px-3 py-1.5 rounded-full hover:bg-teal-100 dark:hover:bg-teal-900/50 transition"
+                >
+                  <span className="opacity-60">Grant:</span>
+                  <span className="font-medium">{scholarship.title}</span>
+                </Link>
+              )}
+              {university && (
+                <Link
+                  href={`/${locale}/universities/${university.id}`}
+                  className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs px-3 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition"
+                >
+                  <span className="opacity-60">Universitet:</span>
+                  <span className="font-medium">{university.name}</span>
+                </Link>
+              )}
             </div>
-            <Link href={`/${locale}/scholarships/${scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
-          </div>
-        )}
-        {university && (
-          <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Universitet</div>
-              <div className="font-medium text-gray-900 dark:text-white">{university.name}</div>
-              <div className="text-xs text-gray-500">{university.country}</div>
-            </div>
-            <Link href={`/${locale}/universities/${university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
-          </div>
-        )}
+          )}
+        </div>
 
         {photos.length > 1 && (
-          <div className="space-y-4 mt-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rasmlar</h2>
+          <div className="space-y-4">
             {photos.slice(1).map((url, i) => (
               <div key={i} className="relative w-full rounded-xl overflow-hidden">
                 <Image src={url} alt={`${t.student_name} ${i + 2}`} width={800} height={600} className="w-full h-auto object-contain" />

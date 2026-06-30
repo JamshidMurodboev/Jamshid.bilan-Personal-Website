@@ -1,22 +1,23 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { University, UniversityMajor, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 
-const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
 type MajorRow = {
   name: string
+  degree: string
   language: string
   tuition: string
   currency: 'USD' | 'UZS' | 'EUR' | 'TL'
 }
 
-const emptyMajor = (): MajorRow => ({ name: '', language: '', tuition: '', currency: 'USD' })
+const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD' })
 
 type FormState = {
   name: string
@@ -43,6 +44,14 @@ const emptyForm: FormState = {
   description_en: '',
   photo_urls: [],
 }
+
+const DEGREE_OPTIONS = [
+  { value: '', label: 'Daraja tanlang...' },
+  { value: 'bachelor', label: "Bakalavriat" },
+  { value: 'master_thesis', label: "Magistratura (dissertatsiya bilan)" },
+  { value: 'master_no_thesis', label: "Magistratura (dissertatsiyasiz)" },
+  { value: 'phd', label: "PhD / Doktorantura" },
+]
 
 export default function UniversitiesPage() {
   const [items, setItems] = useState<University[]>([])
@@ -79,6 +88,7 @@ export default function UniversitiesPage() {
     if (data && data.length > 0) {
       setMajors(data.map((m: UniversityMajor) => ({
         name: m.name,
+        degree: m.degree ?? '',
         language: m.language ?? '',
         tuition: m.tuition?.toString() ?? '',
         currency: m.currency,
@@ -147,6 +157,7 @@ export default function UniversitiesPage() {
       .map((m, i) => ({
         university_id: universityId,
         name: m.name.trim(),
+        degree: m.degree || null,
         language: m.language.trim() || null,
         tuition: m.tuition ? Number(m.tuition) : null,
         currency: m.currency,
@@ -295,189 +306,146 @@ export default function UniversitiesPage() {
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none">×</button>
             </div>
 
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-6 space-y-5">
               {error && (
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
-              {/* Basic fields */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi *</label>
-                <input
-                  required
-                  value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
-                  className={inp}
-                  placeholder="Universitet nomi"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Davlat *</label>
-                <CountrySelect
-                  value={form.country}
-                  onChange={v => setForm({ ...form, country: v })}
-                  required
-                  className={inp}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Shahar</label>
-                <input
-                  value={form.city}
-                  onChange={e => setForm({ ...form, city: e.target.value })}
-                  className={inp}
-                  placeholder="Shahar nomi"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Veb-sayt</label>
-                <input
-                  type="url"
-                  value={form.website_url}
-                  onChange={e => setForm({ ...form, website_url: e.target.value })}
-                  className={inp}
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Turi</label>
-                <select
-                  value={form.type}
-                  onChange={e => setForm({ ...form, type: e.target.value as University['type'] })}
-                  className={inp}
-                >
-                  <option value="public">Davlat</option>
-                  <option value="private">Xususiy</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Reyting</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={form.ranking}
-                  onChange={e => setForm({ ...form, ranking: e.target.value })}
-                  className={inp}
-                  placeholder="Masalan: 150"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Nomi *</label>
+                  <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inp} placeholder="Universitet nomi" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Davlat *</label>
+                  <CountrySelect value={form.country} onChange={v => setForm({ ...form, country: v })} required className={inp} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Shahar</label>
+                  <input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} className={inp} placeholder="Shahar nomi" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Turi</label>
+                  <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as University['type'] })} className={inp}>
+                    <option value="public">Davlat</option>
+                    <option value="private">Xususiy</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Reyting</label>
+                  <input type="number" min={1} value={form.ranking} onChange={e => setForm({ ...form, ranking: e.target.value })} className={inp} placeholder="Masalan: 150" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Veb-sayt</label>
+                  <input type="url" value={form.website_url} onChange={e => setForm({ ...form, website_url: e.target.value })} className={inp} placeholder="https://..." />
+                </div>
               </div>
 
               {/* Descriptions */}
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslate}
-                    disabled={translating || !form.description_uz.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline disabled:opacity-40"
-                  >
+                  <button type="button" onClick={handleTranslate} disabled={translating || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline disabled:opacity-40">
                     {translating ? 'Tarjimon...' : 'Avtotarjima (RU/EN)'}
                   </button>
                 </div>
-                <textarea
-                  rows={3}
-                  value={form.description_uz}
-                  onChange={e => setForm({ ...form, description_uz: e.target.value })}
-                  className={inp}
-                  placeholder="O'zbek tilida tavsif..."
-                />
+                <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} placeholder="O'zbek tilida tavsif..." />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
+                <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} placeholder="Описание на русском..." />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
+                <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} placeholder="Description in English..." />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (RU)</label>
-                <textarea
-                  rows={3}
-                  value={form.description_ru}
-                  onChange={e => setForm({ ...form, description_ru: e.target.value })}
-                  className={inp}
-                  placeholder="Описание на русском..."
-                />
+                <ImageUpload bucket="universities" urls={form.photo_urls} onChange={urls => setForm({ ...form, photo_urls: urls })} multiple label="Rasmlar" />
               </div>
 
+              {/* Majors — redesigned as cards */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (EN)</label>
-                <textarea
-                  rows={3}
-                  value={form.description_en}
-                  onChange={e => setForm({ ...form, description_en: e.target.value })}
-                  className={inp}
-                  placeholder="Description in English..."
-                />
-              </div>
-
-              {/* Photos */}
-              <div>
-                <ImageUpload
-                  bucket="universities"
-                  urls={form.photo_urls}
-                  onChange={urls => setForm({ ...form, photo_urls: urls })}
-                  multiple
-                  label="Rasmlar"
-                />
-              </div>
-
-              {/* Majors */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Yo'nalishlar</label>
                   <span className="text-xs text-gray-400">{majors.length}/35</span>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {majors.map((m, i) => (
-                    <div key={i} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
-                      <input
-                        value={m.name}
-                        onChange={e => setMajorField(i, 'name', e.target.value)}
-                        placeholder="Yo'nalish nomi"
-                        className={`${inp} flex-[2]`}
-                      />
-                      <input
-                        value={m.language}
-                        onChange={e => setMajorField(i, 'language', e.target.value)}
-                        placeholder="Til (masalan: Ingliz tili)"
-                        className={`${inp} flex-[2]`}
-                      />
-                      <input
-                        type="number"
-                        min={0}
-                        value={m.tuition}
-                        onChange={e => setMajorField(i, 'tuition', e.target.value)}
-                        placeholder="To'lov"
-                        className={`${inp} flex-1`}
-                      />
-                      <select
-                        value={m.currency}
-                        onChange={e => setMajorField(i, 'currency', e.target.value as MajorRow['currency'])}
-                        className={`${inp} flex-none w-20`}
-                      >
-                        <option value="USD">USD</option>
-                        <option value="UZS">UZS</option>
-                        <option value="EUR">EUR</option>
-                        <option value="TL">TL</option>
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => removeMajor(i)}
-                        className="flex-none text-red-500 hover:text-red-700 text-lg font-bold w-6 text-center leading-none"
-                        title="O'chirish"
-                      >
-                        ×
-                      </button>
+                    <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                          Yo'nalish {i + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeMajor(i)}
+                          className="text-red-500 hover:text-red-700 text-xs font-medium hover:underline"
+                        >
+                          O'chirish
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Yo'nalish nomi *</label>
+                          <input
+                            value={m.name}
+                            onChange={e => setMajorField(i, 'name', e.target.value)}
+                            placeholder="Masalan: Kompyuter muhandisligi"
+                            className={inp}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Daraja</label>
+                          <select
+                            value={m.degree}
+                            onChange={e => setMajorField(i, 'degree', e.target.value)}
+                            className={inp}
+                          >
+                            {DEGREE_OPTIONS.map(opt => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">O'qitish tili</label>
+                          <input
+                            value={m.language}
+                            onChange={e => setMajorField(i, 'language', e.target.value)}
+                            placeholder="Ingliz tili, Turk tili..."
+                            className={inp}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">To'lov miqdori</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={m.tuition}
+                            onChange={e => setMajorField(i, 'tuition', e.target.value)}
+                            placeholder="0"
+                            className={inp}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Valyuta</label>
+                          <select
+                            value={m.currency}
+                            onChange={e => setMajorField(i, 'currency', e.target.value as MajorRow['currency'])}
+                            className={inp}
+                          >
+                            <option value="USD">USD — Dollar</option>
+                            <option value="UZS">UZS — So'm</option>
+                            <option value="EUR">EUR — Evro</option>
+                            <option value="TL">TL — Turk lirasi</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
                 {majors.length < 35 && (
-                  <button
-                    type="button"
-                    onClick={addMajor}
-                    className="mt-2 text-sm text-teal-700 dark:text-teal-400 font-medium hover:underline"
-                  >
+                  <button type="button" onClick={addMajor} className="mt-3 text-sm text-teal-700 dark:text-teal-400 font-medium hover:underline">
                     + Yo'nalish qo'shish
                   </button>
                 )}
@@ -519,18 +487,10 @@ export default function UniversitiesPage() {
               )}
 
               <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg disabled:opacity-60"
-                >
+                <button type="submit" disabled={saving} className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-lg disabled:opacity-60">
                   {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                   Bekor
                 </button>
               </div>
