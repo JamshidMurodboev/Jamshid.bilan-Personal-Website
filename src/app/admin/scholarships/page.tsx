@@ -18,6 +18,12 @@ const categoryLabels: Record<Category, string> = {
   self_funded: "O'z hisobiga",
 }
 
+const DEGREE_OPTIONS = [
+  { value: 'bachelor', label: 'Bakalavr' },
+  { value: 'master', label: 'Magistratura' },
+  { value: 'phd', label: 'PhD' },
+]
+
 const emptyForm = {
   title: '',
   country: '',
@@ -26,6 +32,7 @@ const emptyForm = {
   application_url: '',
   status: 'open' as Scholarship['status'],
   category: '' as Category | '',
+  degrees_available: [] as string[],
   description_uz: '',
   description_ru: '',
   description_en: '',
@@ -102,6 +109,7 @@ export default function ScholarshipsPage() {
       application_url: item.application_url ?? '',
       status: item.status,
       category: (item.category as Category) ?? '',
+      degrees_available: (item as any).degrees_available ?? [],
       description_uz: item.description_uz ?? '',
       description_ru: item.description_ru ?? '',
       description_en: item.description_en ?? '',
@@ -157,6 +165,7 @@ export default function ScholarshipsPage() {
       application_url: form.application_url || null,
       status: form.status,
       category: form.category || null,
+      degrees_available: form.degrees_available.length > 0 ? form.degrees_available : null,
       description_uz: form.description_uz || null,
       description_ru: description_ru || null,
       description_en: description_en || null,
@@ -346,6 +355,29 @@ export default function ScholarshipsPage() {
                   <option value="partially_funded">Qisman moliyalashtirilgan</option>
                   <option value="self_funded">O&apos;z hisobiga</option>
                 </select>
+              </div>
+
+              {/* Degrees available */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Ta&apos;lim darajalari</label>
+                <div className="flex flex-wrap gap-3">
+                  {DEGREE_OPTIONS.map(opt => (
+                    <label key={opt.value} className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.degrees_available.includes(opt.value)}
+                        onChange={e => {
+                          const updated = e.target.checked
+                            ? [...form.degrees_available, opt.value]
+                            : form.degrees_available.filter(d => d !== opt.value)
+                          setForm({ ...form, degrees_available: updated })
+                        }}
+                        className="w-4 h-4 rounded accent-teal-600"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Description UZ */}

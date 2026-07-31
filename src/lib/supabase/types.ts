@@ -19,6 +19,7 @@ export interface Scholarship {
   results_date?: string
   results_date_type?: 'exact' | 'month' | 'period'
   category?: 'fully_funded' | 'partially_funded' | 'self_funded'
+  degrees_available?: string[]
   photo_urls?: string[]
   created_at: string
   updated_at: string

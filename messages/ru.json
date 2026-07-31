@@ -109,5 +109,22 @@
   },
   "faq": {
     "title": "Часто задаваемые вопросы"
+  },
+  "scholarships": {
+    "fundingType": {
+      "fully_funded": "Полное финансирование",
+      "partially_funded": "Частичное финансирование",
+      "self_funded": "На контрактной основе"
+    },
+    "degrees": {
+      "bachelor": "Бакалавриат",
+      "master": "Магистратура",
+      "phd": "PhD"
+    },
+    "benefitsHeading": "Льготы гранта",
+    "contactTelegram": "Написать в Telegram",
+    "contactWhatsApp": "Написать в WhatsApp",
+    "detailBtn": "Подробнее",
+    "applyBtn": "Подать заявку"
   }
 }

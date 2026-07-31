@@ -109,5 +109,22 @@
   },
   "faq": {
     "title": "Frequently asked questions"
+  },
+  "scholarships": {
+    "fundingType": {
+      "fully_funded": "Fully Funded",
+      "partially_funded": "Partially Funded",
+      "self_funded": "Contract Basis"
+    },
+    "degrees": {
+      "bachelor": "Bachelor's",
+      "master": "Master's",
+      "phd": "PhD"
+    },
+    "benefitsHeading": "Grant Benefits",
+    "contactTelegram": "Contact via Telegram",
+    "contactWhatsApp": "Contact via WhatsApp",
+    "detailBtn": "Details",
+    "applyBtn": "Apply now"
   }
 }
