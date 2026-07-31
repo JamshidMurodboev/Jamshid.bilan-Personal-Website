@@ -6,11 +6,14 @@ import { createClient } from '@/lib/supabase/client';
 interface Props {
   children: React.ReactNode;
   className?: string;
+  platform?: 'telegram' | 'whatsapp';
+  scholarshipContext?: string;
 }
 
 const TELEGRAM_URL = 'https://t.me/jamshid_bilan';
+const WHATSAPP_NUMBER = '905052250893';
 
-export default function TelegramContactButton({ children, className }: Props) {
+export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext }: Props) {
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [noCert, setNoCert] = useState(false);
@@ -52,7 +55,7 @@ export default function TelegramContactButton({ children, className }: Props) {
     setOpen(false);
     setSubmitted(false);
     setNoCert(false);
-    setForm({ name: '', applying: '', dob: '', certName: '', certScore: '' });
+    setForm({ name: '', applying: scholarshipContext ? `Grant: ${scholarshipContext}` : '', dob: '', certName: '', certScore: '' });
     setErrors({});
   }
 
@@ -73,14 +76,18 @@ export default function TelegramContactButton({ children, className }: Props) {
       `🌐 Til sertifikati: ${certInfo}`,
     ].join('\n');
 
-    navigator.clipboard.writeText(message).catch(() => {});
+    if (platform === 'whatsapp') {
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+      navigator.clipboard.writeText(message).catch(() => {});
+    }
 
     try {
       await createClient().from('inquiries').insert({
         name: form.name,
         phone: '',
         message: `Ariza: ${form.applying}`,
-        source: 'telegram_button',
+        source: platform === 'whatsapp' ? 'whatsapp_button' : 'telegram_button',
         status: 'new',
         locale: 'uz',
         dob: form.dob,
@@ -93,12 +100,25 @@ export default function TelegramContactButton({ children, className }: Props) {
     setSubmitted(true);
   }
 
-  const inputClass = 'w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent';
+  const isWhatsApp = platform === 'whatsapp';
+  const platformColor = isWhatsApp ? 'bg-[#25d366] hover:bg-[#20b956]' : 'bg-[#0088cc] hover:bg-[#0077b5]';
+  const platformColorSuccess = isWhatsApp ? 'bg-[#25d366] hover:bg-[#20b956]' : 'bg-[#0088cc] hover:bg-[#0077b5]';
+  const platformTitle = isWhatsApp ? "WhatsApp orqali bog'lanish" : "Telegram orqali bog'lanish";
+  const platformIcon = isWhatsApp ? (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  ) : (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.613c-.152.678-.554.843-1.123.524l-3.1-2.284-1.497 1.44c-.165.165-.304.304-.624.304l.223-3.165 5.757-5.197c.25-.223-.054-.347-.389-.124L6.838 14.04l-3.054-.953c-.664-.208-.678-.664.138-.982l11.931-4.6c.554-.2 1.04.138.709.743z"/></svg>
+  );
+
+  const inputClass = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100';
   const errorClass = 'text-red-500 text-xs mt-1';
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={className}>
+      <button type="button" onClick={() => {
+        if (scholarshipContext) setForm(f => ({ ...f, applying: `Grant: ${scholarshipContext}` }));
+        setOpen(true);
+      }} className={className}>
         {children}
       </button>
 
@@ -108,41 +128,64 @@ export default function TelegramContactButton({ children, className }: Props) {
           style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
           onClick={e => { if (e.target === e.currentTarget) handleClose(); }}
         >
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <span className="text-xl">✈️</span>
-                <h2 className="text-base font-bold text-gray-900">Telegram orqali bog&apos;lanish</h2>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">{platformTitle}</h2>
               </div>
-              <button type="button" onClick={handleClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">×</button>
+              <button type="button" onClick={handleClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">×</button>
             </div>
 
             {submitted ? (
               <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📋</div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Ma&apos;lumotlaringiz nusxalandi!</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  Telegram ochilgach, chat maydoniga <strong>paste</strong> qiling (Ctrl+V / ⌘V).
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                  {isWhatsApp ? '💬' : '📋'}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                  {isWhatsApp ? "WhatsApp ochildi!" : "Ma'lumotlaringiz nusxalandi!"}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                  {isWhatsApp
+                    ? "WhatsApp ochilmagan bo'lsa, quyidagi tugmani bosing."
+                    : "Telegram ochilgach, chat maydoniga paste qiling (Ctrl+V / ⌘V)."}
                 </p>
-                <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#0088cc] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#0077b5] transition shadow">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.613c-.152.678-.554.843-1.123.524l-3.1-2.284-1.497 1.44c-.165.165-.304.304-.624.304l.223-3.165 5.757-5.197c.25-.223-.054-.347-.389-.124L6.838 14.04l-3.054-.953c-.664-.208-.678-.664.138-.982l11.931-4.6c.554-.2 1.04.138.709.743z"/></svg>
-                  Telegramni ochish
-                </a>
+                {isWhatsApp ? (
+                  <a
+                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 ${platformColorSuccess} text-white px-8 py-3 rounded-xl font-semibold transition shadow`}
+                  >
+                    {platformIcon}
+                    WhatsApp ni ochish
+                  </a>
+                ) : (
+                  <a
+                    href={TELEGRAM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 ${platformColorSuccess} text-white px-8 py-3 rounded-xl font-semibold transition shadow`}
+                  >
+                    {platformIcon}
+                    Telegramni ochish
+                  </a>
+                )}
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
-                <p className="text-xs text-gray-500">
-                  Quyidagi ma&apos;lumotlarni to&apos;ldiring — ular Telegram chatiga avtomatik nusxalanadi.
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Quyidagi ma&apos;lumotlarni to&apos;ldiring — ular {isWhatsApp ? 'WhatsApp' : 'Telegram'} chatiga avtomatik yuboriladi.
                 </p>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">To&apos;liq ism <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To&apos;liq ism <span className="text-red-500">*</span></label>
                   <input value={form.name} onChange={e => set('name', e.target.value)} className={inputClass} placeholder="Ism va familiyangiz" />
                   {errors.name && <p className={errorClass}>{errors.name}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Qaysi dastur uchun ariza <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Qaysi dastur uchun ariza <span className="text-red-500">*</span></label>
                   <select value={form.applying} onChange={e => set('applying', e.target.value)} className={inputClass}>
                     <option value="">Tanlang...</option>
                     {scholarships.length > 0 && (
@@ -164,16 +207,16 @@ export default function TelegramContactButton({ children, className }: Props) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tug&apos;ilgan sana <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tug&apos;ilgan sana <span className="text-red-500">*</span></label>
                   <DateInput value={form.dob} onChange={v => set('dob', v)} max={new Date().toISOString().split('T')[0]} className={inputClass} />
                   {errors.dob && <p className={errorClass}>{errors.dob}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Til sertifikati <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Til sertifikati <span className="text-red-500">*</span></label>
                   <label className="flex items-center gap-2 mb-3 cursor-pointer select-none">
                     <input type="checkbox" checked={noCert} onChange={e => { setNoCert(e.target.checked); if (e.target.checked) setErrors(err => ({ ...err, certName: '', certScore: '' })); }} className="w-4 h-4 rounded accent-teal-600" />
-                    <span className="text-sm text-gray-600">Til sertifikatim yo&apos;q</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Til sertifikatim yo&apos;q</span>
                   </label>
                   {!noCert && (
                     <div className="flex gap-3">
@@ -189,9 +232,9 @@ export default function TelegramContactButton({ children, className }: Props) {
                   )}
                 </div>
 
-                <button type="submit" className="w-full bg-[#0088cc] text-white py-3 rounded-xl font-semibold hover:bg-[#0077b5] transition shadow flex items-center justify-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.613c-.152.678-.554.843-1.123.524l-3.1-2.284-1.497 1.44c-.165.165-.304.304-.624.304l.223-3.165 5.757-5.197c.25-.223-.054-.347-.389-.124L6.838 14.04l-3.054-.953c-.664-.208-.678-.664.138-.982l11.931-4.6c.554-.2 1.04.138.709.743z"/></svg>
-                  Telegram orqali yuborish
+                <button type="submit" className={`w-full ${platformColor} text-white py-3 rounded-xl font-semibold transition shadow flex items-center justify-center gap-2`}>
+                  {platformIcon}
+                  {isWhatsApp ? 'WhatsApp orqali yuborish' : 'Telegram orqali yuborish'}
                 </button>
               </form>
             )}

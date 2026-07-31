@@ -109,5 +109,22 @@
   },
   "faq": {
     "title": "Ko'p so'raladigan savollar"
+  },
+  "scholarships": {
+    "fundingType": {
+      "fully_funded": "To'liq moliyalashtirilgan",
+      "partially_funded": "Qisman moliyalashtirilgan",
+      "self_funded": "Kontrakt asosida"
+    },
+    "degrees": {
+      "bachelor": "Bakalavr",
+      "master": "Magistratura",
+      "phd": "PhD"
+    },
+    "benefitsHeading": "Grant Imtiyozlari",
+    "contactTelegram": "Telegram orqali bog'lanish",
+    "contactWhatsApp": "WhatsApp orqali bog'lanish",
+    "detailBtn": "Batafsil",
+    "applyBtn": "Ariza topshirish"
   }
 }

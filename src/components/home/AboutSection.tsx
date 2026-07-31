@@ -36,7 +36,7 @@ export default function AboutSection() {
 
   const body = db?.body || t('body');
   const credentials = db?.credentials || fallbackCredentials;
-  const photo = db?.photo_url || '/copy_0659112A-3990-4AFC-A553-6B9CF1B3E78C.jpeg';
+  const photo = db?.photo_url || '/about-paris.jpg';
 
   return (
     <section id="about" className="py-24 md:py-32 px-4 bg-white dark:bg-[#0d1117] relative">
