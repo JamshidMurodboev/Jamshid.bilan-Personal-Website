@@ -32,10 +32,22 @@
     "years": "Years of experience"
   },
   "homeSections": {
-    "scholarships": { "title": "Scholarships", "subtitle": "Fully Funded Scholarship Programs" },
-    "universities": { "title": "Universities", "subtitle": "International universities on tuition basis" },
-    "results": { "title": "Results", "subtitle": "Students who studied abroad with our help" },
-    "news": { "title": "News", "subtitle": "Scholarship and university news" }
+    "scholarships": {
+      "title": "Scholarships",
+      "subtitle": "Fully Funded Scholarship Programs"
+    },
+    "universities": {
+      "title": "Universities",
+      "subtitle": "International universities on tuition basis"
+    },
+    "results": {
+      "title": "Results",
+      "subtitle": "Students who studied abroad with our help"
+    },
+    "news": {
+      "title": "News",
+      "subtitle": "Scholarship and university news"
+    }
   },
   "auth": {
     "signIn": "Sign In",
@@ -187,10 +199,16 @@
     "resultsPeriod": "Results Period",
     "requiredDocuments": "Required Documents",
     "applyNow": "Apply Now",
-    "chooseContact": "Choose your preferred platform"
+    "chooseContact": "Choose your preferred platform",
+    "officialWebsite": "Official Website →",
+    "mandatory": "Required",
+    "optional": "Optional"
   },
   "universities": {
     "ourResults": "Our Results",
-    "requiredDocuments": "Required Documents"
+    "requiredDocuments": "Required Documents",
+    "officialWebsite": "Official Website →",
+    "mandatory": "Required",
+    "optional": "Optional"
   }
 }
