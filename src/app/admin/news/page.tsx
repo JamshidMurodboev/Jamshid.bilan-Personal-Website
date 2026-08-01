@@ -17,6 +17,8 @@ const emptyForm = {
   cover_url: '',
   published: false,
   published_at: '',
+  scholarship_id: '',
+  university_id: '',
 }
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
@@ -31,6 +33,8 @@ export default function NewsPage() {
   const [saving, setSaving] = useState(false)
   const [translatingTitle, setTranslatingTitle] = useState(false)
   const [translatingBody, setTranslatingBody] = useState(false)
+  const [scholarships, setScholarships] = useState<any[]>([])
+  const [universities, setUniversities] = useState<any[]>([])
 
   async function load() {
     setLoading(true)
@@ -43,7 +47,12 @@ export default function NewsPage() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const supabase = createClient()
+    supabase.from('scholarships').select('id,title,country').order('title').then(({ data }) => setScholarships(data ?? []))
+    supabase.from('universities').select('id,name,country').order('name').then(({ data }) => setUniversities(data ?? []))
+  }, [])
 
   function openCreate() {
     setEditId(null)
@@ -65,6 +74,8 @@ export default function NewsPage() {
       cover_url: item.cover_url ?? '',
       published: item.published,
       published_at: item.published_at ? item.published_at.slice(0, 16) : '',
+      scholarship_id: item.scholarship_id ?? '',
+      university_id: item.university_id ?? '',
     })
     setError(null)
     setShowModal(true)
@@ -115,6 +126,8 @@ export default function NewsPage() {
       cover_url: form.cover_url || null,
       published: form.published,
       published_at: form.published_at || null,
+      scholarship_id: form.scholarship_id || null,
+      university_id: form.university_id || null,
     }
     const supabase = createClient()
     const res = editId
@@ -347,6 +360,34 @@ export default function NewsPage() {
                   onChange={e => setForm({ ...form, published_at: e.target.value })}
                   className={inp}
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Grant bilan bog&apos;lash (ixtiyoriy)</label>
+                <select
+                  value={form.scholarship_id}
+                  onChange={e => setForm({ ...form, scholarship_id: e.target.value })}
+                  className={inp}
+                >
+                  <option value="">— Bog&apos;lanmaslik —</option>
+                  {scholarships.map(s => (
+                    <option key={s.id} value={s.id}>{s.title} ({s.country})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitet bilan bog&apos;lash (ixtiyoriy)</label>
+                <select
+                  value={form.university_id}
+                  onChange={e => setForm({ ...form, university_id: e.target.value })}
+                  className={inp}
+                >
+                  <option value="">— Bog&apos;lanmaslik —</option>
+                  {universities.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.country})</option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex items-center gap-2">

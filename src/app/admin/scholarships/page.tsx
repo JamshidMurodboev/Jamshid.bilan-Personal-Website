@@ -49,6 +49,7 @@ const emptyForm = {
   interview_exam_period: '',
   results_period_type: 'exact' as ResultsDateType,
   results_period: '',
+  home_order: '' as string,
 }
 
 type FormState = typeof emptyForm
@@ -151,6 +152,7 @@ export default function ScholarshipsPage() {
       interview_exam_period: (item as any).interview_exam_period ?? '',
       results_period_type: (item as any).results_period_type ?? 'exact',
       results_period: (item as any).results_period ?? '',
+      home_order: item.home_order?.toString() ?? '',
     })
     setRequiredDocs((item as any).required_documents ?? [])
     // Load process steps
@@ -265,6 +267,7 @@ export default function ScholarshipsPage() {
       results_period: form.results_period || null,
       required_documents: filteredDocs.length > 0 ? filteredDocs : null,
       scholarship_process: filteredSteps.length > 0 ? filteredSteps : null,
+      home_order: form.home_order ? parseInt(form.home_order) : null,
     }
 
     const supabase = createClient()
@@ -707,6 +710,20 @@ export default function ScholarshipsPage() {
                   value={form.application_url}
                   onChange={e => setForm({ ...form, application_url: e.target.value })}
                   className={inp}
+                />
+              </div>
+
+              {/* Home order */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo'sh = ko'rsatilmaydi)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={form.home_order}
+                  onChange={e => setForm({ ...form, home_order: e.target.value })}
+                  className={inp}
+                  placeholder="1, 2 yoki 3"
                 />
               </div>
 

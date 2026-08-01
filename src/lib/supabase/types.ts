@@ -46,6 +46,7 @@ export interface Scholarship {
   results_period?: string
   required_documents?: RequiredDocument[]
   scholarship_process?: ScholarshipProcessStep[]
+  home_order?: number
   created_at: string
   updated_at: string
 }
@@ -68,6 +69,7 @@ export interface University {
   description_en?: string
   photo_urls?: string[]
   required_documents?: RequiredDocument[]
+  home_order?: number
   created_at: string
   updated_at: string
 }
@@ -100,6 +102,7 @@ export interface StudentResult {
   language?: string
   university_ranking?: number
   university_name?: string
+  home_order?: number
   created_at: string
 }
 
@@ -113,6 +116,8 @@ export interface NewsPost {
   body_en?: string
   cover_url?: string
   photo_urls?: string[]
+  scholarship_id?: string
+  university_id?: string
   published: boolean
   published_at?: string
   created_at: string
