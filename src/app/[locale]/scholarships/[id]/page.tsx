@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { Scholarship } from '@/lib/supabase/types';
 import TelegramContactButton from '@/components/contact/TelegramContactButton';
+import PageNav from '@/components/shared/PageNav';
+import { translateCountry } from '@/lib/translateCountry';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -38,7 +40,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/scholarships`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; {tc('back')}</Link>
+        <PageNav />
 
         {s.photo_urls && s.photo_urls.length > 0 && (
           <div className="relative w-full h-64 rounded-2xl mt-4 mb-0 overflow-hidden">
@@ -61,7 +63,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{s.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">{s.country}{s.university ? ` · ${s.university}` : ''}</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">{translateCountry(s.country, locale)}{s.university ? ` · ${s.university}` : ''}</p>
 
             {description && (
               <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-6 leading-relaxed text-base max-w-2xl">

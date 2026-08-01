@@ -2,6 +2,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
+export interface LanguageCertificate {
+  type: string;
+  score: string;
+}
+
 export interface AuthUser {
   id: string;
   fullName: string;
@@ -10,6 +15,7 @@ export interface AuthUser {
   phone: string;
   email: string;
   photoDataUrl?: string;
+  languageCertificate?: LanguageCertificate;
 }
 
 interface StoredUser extends AuthUser {
@@ -32,6 +38,7 @@ interface AuthContextType {
   signup: (data: SignupInput) => string | null;
   logout: () => void;
   updateProfile: (data: Partial<Omit<AuthUser, 'id' | 'email'>>) => void;
+  changePassword: (currentPassword: string, newPassword: string) => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -124,9 +131,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (idx >= 0) users[idx] = { ...users[idx], ...data };
       localStorage.setItem('auth_users', JSON.stringify(users));
     } catch {}
+    // Sync language certificate to Supabase
+    if (data.languageCertificate !== undefined) {
+      createClient().from('site_users').update({
+        language_certificate: data.languageCertificate ? `${data.languageCertificate.type}:${data.languageCertificate.score}` : null,
+      }).eq('id', user.id).then(() => {});
+    }
   }
 
-  return <AuthContext.Provider value={{ user, login, signup, logout, updateProfile }}>{children}</AuthContext.Provider>;
+  function changePassword(currentPassword: string, newPassword: string): string | null {
+    if (!user) return 'Foydalanuvchi topilmadi';
+    try {
+      const users: StoredUser[] = JSON.parse(localStorage.getItem('auth_users') || '[]');
+      const idx = users.findIndex(u => u.id === user.id);
+      if (idx < 0 || users[idx].password !== currentPassword) return "Joriy parol noto'g'ri";
+      users[idx].password = newPassword;
+      localStorage.setItem('auth_users', JSON.stringify(users));
+      return null;
+    } catch { return 'Xatolik yuz berdi'; }
+  }
+
+  return <AuthContext.Provider value={{ user, login, signup, logout, updateProfile, changePassword }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import type { University, UniversityMajor } from '@/lib/supabase/types';
 import UniversityGallery from '@/components/universities/UniversityGallery';
+import { translateCountry } from '@/lib/translateCountry';
+import PageNav from '@/components/shared/PageNav';
+import { translateLanguage } from '@/lib/translateLanguage';
 
 const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 const TYPE_COLORS = {
@@ -36,7 +39,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/universities`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha universitetlar</Link>
+        <PageNav />
 
         {photos.length > 0 && <UniversityGallery photos={photos} name={u.name} />}
 
@@ -55,7 +58,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{u.name}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">{u.city ? `${u.city}, ` : ''}{u.country}</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
 
             {description && (
               <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">
@@ -83,7 +86,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                           <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell text-xs">
                             {m.degree ? (DEGREE_LABELS[m.degree] ?? m.degree) : '—'}
                           </td>
-                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell">{m.language || '—'}</td>
+                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell">{m.language ? translateLanguage(m.language, locale) : '—'}</td>
                           <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
                             {m.tuition ? `${m.tuition.toLocaleString()} ${m.currency}` : '—'}
                           </td>

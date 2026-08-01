@@ -4,9 +4,12 @@ import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import DateInput from '@/components/shared/DateInput';
+import PageNav from '@/components/shared/PageNav';
+
+const CERT_TYPES = ['IELTS', 'TOEFL', 'SAT', 'TYS', 'Multilevel', 'Duolingo', 'N/A', 'Other'];
 
 export default function ProfileContent() {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, changePassword, logout } = useAuth();
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('auth');
@@ -15,9 +18,18 @@ export default function ProfileContent() {
   const [gender, setGender] = useState('');
   const [phone, setPhone] = useState('');
   const [photo, setPhoto] = useState('');
+  const [certType, setCertType] = useState('');
+  const [certScore, setCertScore] = useState('');
   const [saved, setSaved] = useState(false);
   const [mounted, setMounted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Password change state
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [pwError, setPwError] = useState('');
+  const [pwSaved, setPwSaved] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -31,6 +43,10 @@ export default function ProfileContent() {
       setGender(user.gender || '');
       setPhone(user.phone || '');
       setPhoto(user.photoDataUrl || '');
+      if (user.languageCertificate) {
+        setCertType(user.languageCertificate.type);
+        setCertScore(user.languageCertificate.score);
+      }
     }
   }, [user, mounted, locale, router]);
 
@@ -44,9 +60,22 @@ export default function ProfileContent() {
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    updateProfile({ fullName: name, dob, gender, phone, photoDataUrl: photo || undefined });
+    const lc = certType ? { type: certType, score: certScore } : undefined;
+    updateProfile({ fullName: name, dob, gender, phone, photoDataUrl: photo || undefined, languageCertificate: lc });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault();
+    setPwError('');
+    if (newPw.length < 6) { setPwError("Yangi parol kamida 6 ta belgi bo'lishi kerak"); return; }
+    if (newPw !== confirmPw) { setPwError('Parollar mos kelmadi'); return; }
+    const err = changePassword(currentPw, newPw);
+    if (err) { setPwError(err); return; }
+    setCurrentPw(''); setNewPw(''); setConfirmPw('');
+    setPwSaved(true);
+    setTimeout(() => setPwSaved(false), 2000);
   }
 
   if (!mounted || !user) return null;
@@ -58,8 +87,11 @@ export default function ProfileContent() {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12 px-4">
       <div className="max-w-lg mx-auto">
+        <PageNav />
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('profile')}</h1>
-        <form onSubmit={save} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+
+        {/* Main profile form */}
+        <form onSubmit={save} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5 mb-6">
           <div className="flex justify-center">
             <button type="button" onClick={() => fileRef.current?.click()} className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-dashed border-teal-400 hover:opacity-80 transition">
               {photo
@@ -90,6 +122,27 @@ export default function ProfileContent() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('phone')}</label>
             <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} />
           </div>
+
+          {/* Language certificate */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Til sertifikati (ixtiyoriy)</label>
+            <div className="flex gap-2">
+              <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
+                <option value="">— Tanlang —</option>
+                {CERT_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {certType && certType !== 'N/A' && (
+                <input
+                  type="text"
+                  placeholder="Ball"
+                  value={certScore}
+                  onChange={e => setCertScore(e.target.value)}
+                  className={`${inputCls} w-28`}
+                />
+              )}
+            </div>
+          </div>
+
           <p className="text-sm text-gray-500 dark:text-gray-400">Email: {user.email}</p>
           <div className="flex gap-3">
             <button type="submit" className="flex-1 bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition">
@@ -100,6 +153,27 @@ export default function ProfileContent() {
               {t('logout')}
             </button>
           </div>
+        </form>
+
+        {/* Password change */}
+        <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Parolni o'zgartirish</h2>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Joriy parol</label>
+            <input type="password" required value={currentPw} onChange={e => setCurrentPw(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Yangi parol</label>
+            <input type="password" required value={newPw} onChange={e => setNewPw(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Yangi parolni tasdiqlang</label>
+            <input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)} className={inputCls} />
+          </div>
+          {pwError && <p className="text-sm text-red-600 dark:text-red-400">{pwError}</p>}
+          <button type="submit" className="w-full bg-gray-800 hover:bg-gray-900 dark:bg-gray-600 dark:hover:bg-gray-500 text-white py-3 rounded-xl font-semibold text-sm transition">
+            {pwSaved ? 'Parol saqlandi ✓' : 'Parolni saqlash'}
+          </button>
         </form>
       </div>
     </div>

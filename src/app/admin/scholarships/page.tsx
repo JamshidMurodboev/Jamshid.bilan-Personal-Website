@@ -22,6 +22,7 @@ const DEGREE_OPTIONS = [
   { value: 'bachelor', label: 'Bakalavr' },
   { value: 'master', label: 'Magistratura' },
   { value: 'phd', label: 'PhD' },
+  { value: 'exchange', label: 'Almashinuv (Exchange)' },
 ]
 
 const emptyForm = {

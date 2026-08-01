@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { University, UniversityMajor, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
+import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 
@@ -408,12 +409,7 @@ export default function UniversitiesPage() {
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">O'qitish tili</label>
-                          <input
-                            value={m.language}
-                            onChange={e => setMajorField(i, 'language', e.target.value)}
-                            placeholder="Ingliz tili, Turk tili..."
-                            className={inp}
-                          />
+                          <LanguageSelect value={m.language} onChange={v => setMajorField(i, 'language', v)} className={inp} />
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">To'lov miqdori</label>

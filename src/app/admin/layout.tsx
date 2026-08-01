@@ -184,7 +184,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 )
               })}
             </nav>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+              <Link
+                href="/uz"
+                className="flex items-center gap-2 w-full text-sm text-gray-500 dark:text-gray-400 hover:text-teal-700 dark:hover:text-teal-400 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75L12 3l9 6.75V21H15v-6H9v6H3V9.75z" />
+                </svg>
+                Saytni ko'rish
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-lg transition-colors text-left"
