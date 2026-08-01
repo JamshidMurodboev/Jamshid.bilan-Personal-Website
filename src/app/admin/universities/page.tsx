@@ -25,6 +25,7 @@ type FormState = {
   city: string
   website_url: string
   type: University['type']
+  status: University['status']
   ranking: string
   description_uz: string
   description_ru: string
@@ -38,6 +39,7 @@ const emptyForm: FormState = {
   city: '',
   website_url: '',
   type: 'public',
+  status: 'open',
   ranking: '',
   description_uz: '',
   description_ru: '',
@@ -126,6 +128,7 @@ export default function UniversitiesPage() {
       city: item.city ?? '',
       website_url: item.website_url ?? '',
       type: item.type,
+      status: item.status ?? 'open',
       ranking: item.ranking?.toString() ?? '',
       description_uz: item.description_uz ?? '',
       description_ru: item.description_ru ?? '',
@@ -179,6 +182,7 @@ export default function UniversitiesPage() {
       city: form.city || null,
       website_url: form.website_url || null,
       type: form.type,
+      status: form.status,
       ranking: form.ranking ? Number(form.ranking) : null,
       description_uz: form.description_uz || null,
       description_ru: form.description_ru || null,
@@ -329,6 +333,14 @@ export default function UniversitiesPage() {
                   <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as University['type'] })} className={inp}>
                     <option value="public">Davlat</option>
                     <option value="private">Xususiy</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Holat</label>
+                  <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as University['status'] })} className={inp}>
+                    <option value="open">Ochiq</option>
+                    <option value="closed">Yopiq</option>
+                    <option value="upcoming">Tez orada</option>
                   </select>
                 </div>
                 <div>

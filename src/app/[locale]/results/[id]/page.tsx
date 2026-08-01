@@ -35,26 +35,31 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
         <Link href={`/${locale}/results`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha natijalar</Link>
 
         {/* Student header */}
-        <div className="mt-6 flex items-center gap-4 mb-8">
-          {photos.length > 0 ? (
-            <Image src={photos[0]} alt={r.student_name} width={88} height={88} className="w-22 h-22 rounded-full object-cover flex-shrink-0" />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-3xl flex-shrink-0">
-              {r.student_name[0]}
+        <div className="mt-6 mb-6">
+          {photos.length > 0 && (
+            <div className="relative w-full rounded-2xl overflow-hidden mb-5">
+              <Image src={photos[0]} alt={r.student_name} width={800} height={600} className="w-full h-auto object-contain" />
             </div>
           )}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{r.student_name}</h1>
-            <div className="flex flex-wrap gap-2 mt-1.5">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
-                {DEGREE_LABELS[r.degree_level]}
-              </span>
-              {r.category && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                  {CATEGORY_LABELS[r.category]}
+          <div className="flex items-center gap-3">
+            {photos.length === 0 && (
+              <div className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl flex-shrink-0">
+                {r.student_name[0]}
+              </div>
+            )}
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{r.student_name}</h1>
+              <div className="flex flex-wrap gap-2 mt-1.5">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                  {DEGREE_LABELS[r.degree_level]}
                 </span>
-              )}
-              <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {r.country}</span>
+                {r.category && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    {CATEGORY_LABELS[r.category]}
+                  </span>
+                )}
+                <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {r.country}</span>
+              </div>
             </div>
           </div>
         </div>
