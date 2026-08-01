@@ -41,6 +41,7 @@ export const SAMPLE_UNIVERSITIES: University[] = [
     city: 'Istanbul',
     website_url: 'https://istanbul.edu.tr',
     type: 'public',
+    status: 'open',
     programs: ['Tibbiyot', 'Muhandislik', 'Iqtisodiyot', 'Huquq'],
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
