@@ -32,10 +32,22 @@
     "years": "Yillik tajriba"
   },
   "homeSections": {
-    "scholarships": { "title": "Grantlar", "subtitle": "To'liq Qoplanadigan Grant Dasturlari" },
-    "universities": { "title": "Universitetlar", "subtitle": "To'lov asosida xorijiy universitetlar" },
-    "results": { "title": "Natijalar", "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar" },
-    "news": { "title": "Yangiliklar", "subtitle": "Grant va universitetlar yangiliklari" }
+    "scholarships": {
+      "title": "Grantlar",
+      "subtitle": "To'liq Qoplanadigan Grant Dasturlari"
+    },
+    "universities": {
+      "title": "Universitetlar",
+      "subtitle": "To'lov asosida xorijiy universitetlar"
+    },
+    "results": {
+      "title": "Natijalar",
+      "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar"
+    },
+    "news": {
+      "title": "Yangiliklar",
+      "subtitle": "Grant va universitetlar yangiliklari"
+    }
   },
   "auth": {
     "signIn": "Kirish",
@@ -187,10 +199,16 @@
     "resultsPeriod": "Natijalar davri",
     "requiredDocuments": "Talab qilinadigan hujjatlar",
     "applyNow": "Hoziroq Hujjat Topshirish",
-    "chooseContact": "Quyidagi platformadan birini tanlang"
+    "chooseContact": "Quyidagi platformadan birini tanlang",
+    "officialWebsite": "Rasmiy sayt →",
+    "mandatory": "Majburiy",
+    "optional": "Ixtiyoriy"
   },
   "universities": {
     "ourResults": "Bizning natijalarimiz",
-    "requiredDocuments": "Talab qilinadigan hujjatlar"
+    "requiredDocuments": "Talab qilinadigan hujjatlar",
+    "officialWebsite": "Rasmiy sayt →",
+    "mandatory": "Majburiy",
+    "optional": "Ixtiyoriy"
   }
 }

@@ -24,10 +24,11 @@ const FUNDING_COLORS: Record<string, string> = {
 export default async function ScholarshipDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
 
-  const [supabase, t, tc] = await Promise.all([
+  const [supabase, t, tc, tu] = await Promise.all([
     createClient(),
     getTranslations({ locale, namespace: 'scholarships' }),
     getTranslations({ locale, namespace: 'common' }),
+    getTranslations({ locale, namespace: 'universities' }),
   ]);
 
   const { data } = await supabase.from('scholarships').select('*').eq('id', id).single();
@@ -40,8 +41,34 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
     .eq('scholarship_id', id)
     .order('year', { ascending: false });
   const results = (linkedResults ?? []) as { id: string; student_name: string; degree_level: string; year: number; country: string }[];
-  const requiredDocs: Array<{ uz: string; ru: string; en: string }> = (s as any).required_documents ?? [];
+  const requiredDocs: Array<{ uz: string; ru: string; en: string; mandatory?: boolean }> = (s as any).required_documents ?? [];
   const docLocale = (d: { uz: string; ru: string; en: string }) => (d as any)[locale] || d.uz;
+
+  // scholarship_process overrides the old flat period fields when present
+  const processSteps: Array<{ key: string; label: string; value: string; description?: string; color: string; textColor: string; bgColor: string; borderColor: string }> = (() => {
+    const sp: Array<{ key: string; type: string; value: string; description_uz?: string; description_ru?: string; description_en?: string }> = (s as any).scholarship_process ?? [];
+    const COLORS = [
+      { color: 'bg-teal-500', textColor: 'text-teal-700 dark:text-teal-400', bgColor: 'bg-teal-50 dark:bg-teal-900/20', borderColor: 'border-teal-200 dark:border-teal-800/40' },
+      { color: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400', bgColor: 'bg-blue-50 dark:bg-blue-900/20', borderColor: 'border-blue-200 dark:border-blue-800/40' },
+      { color: 'bg-purple-500', textColor: 'text-purple-700 dark:text-purple-400', bgColor: 'bg-purple-50 dark:bg-purple-900/20', borderColor: 'border-purple-200 dark:border-purple-800/40' },
+      { color: 'bg-orange-500', textColor: 'text-orange-700 dark:text-orange-400', bgColor: 'bg-orange-50 dark:bg-orange-900/20', borderColor: 'border-orange-200 dark:border-orange-800/40' },
+    ];
+    if (sp.length > 0) {
+      return sp.filter(step => step.value).map((step, i) => {
+        const c = COLORS[i % COLORS.length];
+        const labelKey: Record<string, string> = { application: t('applicationPeriod'), interview_exam: t('interviewExamPeriod'), results: t('resultsPeriod'), admission: t('admissionDeadline') };
+        return { key: step.key, label: labelKey[step.key] || step.key, value: step.value, description: (step as any)[`description_${locale}`] || step.description_uz || '', ...c };
+      });
+    }
+    // fallback: old flat fields
+    const fallback = [
+      { key: 'admission', label: t('admissionDeadline'), value: [s.open_date, s.close_date].filter(Boolean).join(' – '), ...COLORS[0] },
+      { key: 'application', label: t('applicationPeriod'), value: (s as any).application_period as string || '', ...COLORS[1] },
+      { key: 'interview_exam', label: t('interviewExamPeriod'), value: (s as any).interview_exam_period as string || '', ...COLORS[2] },
+      { key: 'results', label: t('resultsPeriod'), value: (s as any).results_period as string || '', ...COLORS[3] },
+    ];
+    return fallback.filter(step => step.value).map(step => ({ ...step, description: '' }));
+  })();
 
   const description = (s as any)[`description_${locale}`] || s.description_uz || '';
   const degreesAvailable: string[] = (s as any).degrees_available ?? [];
@@ -100,58 +127,22 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
             )}
 
             {/* Scholarship Process */}
-            {(s.open_date || s.close_date || (s as any).application_period || (s as any).interview_exam_period || (s as any).results_period) && (
+            {processSteps.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">{t('scholarshipProcess')}</h2>
                 <div className="space-y-0">
-                  {[
-                    {
-                      num: 1,
-                      label: t('admissionDeadline'),
-                      value: [s.open_date, s.close_date].filter(Boolean).join(' – '),
-                      color: 'bg-teal-500',
-                      textColor: 'text-teal-700 dark:text-teal-400',
-                      bgColor: 'bg-teal-50 dark:bg-teal-900/20',
-                      borderColor: 'border-teal-200 dark:border-teal-800/40',
-                    },
-                    {
-                      num: 2,
-                      label: t('applicationPeriod'),
-                      value: (s as any).application_period as string | undefined,
-                      color: 'bg-blue-500',
-                      textColor: 'text-blue-700 dark:text-blue-400',
-                      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-                      borderColor: 'border-blue-200 dark:border-blue-800/40',
-                    },
-                    {
-                      num: 3,
-                      label: t('interviewExamPeriod'),
-                      value: (s as any).interview_exam_period as string | undefined,
-                      color: 'bg-purple-500',
-                      textColor: 'text-purple-700 dark:text-purple-400',
-                      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-                      borderColor: 'border-purple-200 dark:border-purple-800/40',
-                    },
-                    {
-                      num: 4,
-                      label: t('resultsPeriod'),
-                      value: (s as any).results_period as string | undefined,
-                      color: 'bg-orange-500',
-                      textColor: 'text-orange-700 dark:text-orange-400',
-                      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
-                      borderColor: 'border-orange-200 dark:border-orange-800/40',
-                    },
-                  ].filter(step => step.value).map((step, idx, arr) => (
-                    <div key={step.num} className="flex gap-3">
+                  {processSteps.map((step, idx, arr) => (
+                    <div key={step.key} className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div className={`w-8 h-8 rounded-full ${step.color} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                          {step.num}
+                          {idx + 1}
                         </div>
                         {idx < arr.length - 1 && <div className="w-0.5 bg-gray-200 dark:bg-gray-700 flex-1 my-1.5" style={{ minHeight: '1.25rem' }} />}
                       </div>
                       <div className={`flex-1 ${step.bgColor} border ${step.borderColor} rounded-xl p-4 ${idx < arr.length - 1 ? 'mb-2' : ''}`}>
                         <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${step.textColor}`}>{step.label}</div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{step.value}</div>
+                        {step.description && <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-relaxed">{step.description}</p>}
                       </div>
                     </div>
                   ))}
@@ -165,9 +156,14 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('requiredDocuments')}</h2>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                   {requiredDocs.map((doc, i) => (
-                    <div key={i} className={`flex items-start gap-3 px-5 py-3.5 ${i > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''}`}>
-                      <span className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                      <span className="text-sm text-gray-800 dark:text-gray-200">{docLocale(doc)}</span>
+                    <div key={i} className={`flex items-center gap-3 px-5 py-3.5 ${i > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''}`}>
+                      <span className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-400 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span>
+                      <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{docLocale(doc)}</span>
+                      {doc.mandatory === false ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex-shrink-0">{tu('optional')}</span>
+                      ) : doc.mandatory === true ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex-shrink-0">{tu('mandatory')}</span>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -251,9 +247,9 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                 href={s.application_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full text-center bg-teal-700 hover:bg-teal-800 text-white px-6 py-3 rounded-xl font-semibold transition"
+                className="block w-full text-center border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 px-6 py-3 rounded-xl font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
               >
-                Hujjat topshirish →
+                {tu('officialWebsite')}
               </a>
             )}
           </aside>

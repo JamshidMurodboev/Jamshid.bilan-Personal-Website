@@ -20,7 +20,7 @@ type MajorRow = {
 
 const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD' })
 
-type DocRow = RequiredDocument
+type DocRow = RequiredDocument & { mandatory?: boolean }
 
 type FormState = {
   name: string
@@ -68,8 +68,9 @@ export default function UniversitiesPage() {
   const [majors, setMajors] = useState<MajorRow[]>([emptyMajor()])
   const [saving, setSaving] = useState(false)
   const [translating, setTranslating] = useState(false)
+  const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
-  const [requiredDocs, setRequiredDocs] = useState<RequiredDocument[]>([])
+  const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
 
   async function load() {
@@ -152,9 +153,21 @@ export default function UniversitiesPage() {
     setTranslating(true)
     try {
       const result = await autoTranslate(form.description_uz)
-      setForm(f => ({ ...f, description_ru: result.ru, description_en: result.en }))
+      setForm(f => ({ ...f, description_ru: result.ru || f.description_ru, description_en: result.en || f.description_en }))
     } finally {
       setTranslating(false)
+    }
+  }
+
+  async function handleTranslateDoc(i: number) {
+    const doc = requiredDocs[i]
+    if (!doc.uz.trim()) return
+    setTranslatingSections(s => ({ ...s, [`doc_${i}`]: true }))
+    try {
+      const result = await autoTranslate(doc.uz)
+      setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
+    } finally {
+      setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
     }
   }
 
@@ -374,21 +387,42 @@ export default function UniversitiesPage() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
-                  <button type="button" onClick={() => setRequiredDocs(d => [...d, { uz: '', ru: '', en: '' }])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo'shish</button>
+                  <button type="button" onClick={() => setRequiredDocs(d => [...d, { uz: '', ru: '', en: '', mandatory: true }])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo&apos;shish</button>
                 </div>
                 {requiredDocs.length === 0 ? (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo'shilmagan</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo&apos;shilmagan</p>
                 ) : (
                   <div className="space-y-2">
                     {requiredDocs.map((doc, i) => (
                       <div key={i} className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
-                          <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O'chirish</button>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={doc.mandatory !== false}
+                                onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, mandatory: e.target.checked } : r))}
+                                className="w-3.5 h-3.5 rounded accent-red-500"
+                              />
+                              <span className="text-xs text-gray-600 dark:text-gray-400">Majburiy</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}
+                              onClick={() => handleTranslateDoc(i)}
+                              className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
+                            >
+                              {translatingSections[`doc_${i}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                            </button>
+                            <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
+                          </div>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O'zbek</label>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O&apos;zbek</label>
                             <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
                           </div>
                           <div>

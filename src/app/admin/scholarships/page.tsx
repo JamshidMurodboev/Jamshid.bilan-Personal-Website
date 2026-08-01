@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Scholarship, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
@@ -54,8 +54,17 @@ const emptyForm = {
 type FormState = typeof emptyForm
 
 // Required document row
-type DocRow = { uz: string; ru: string; en: string }
-const emptyDoc = (): DocRow => ({ uz: '', ru: '', en: '' })
+type DocRow = { uz: string; ru: string; en: string; mandatory?: boolean }
+const emptyDoc = (): DocRow => ({ uz: '', ru: '', en: '', mandatory: true })
+
+// Scholarship process step
+type ProcessStep = { key: string; label: string; type: ResultsDateType; value: string; description_uz: string; description_ru: string; description_en: string }
+const DEFAULT_STEPS: ProcessStep[] = [
+  { key: 'admission', label: "Qabul muddati", type: 'exact', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'application', label: "Ariza davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'interview_exam', label: "Suhbat / Imtihon davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'results', label: "Natijalar davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+]
 
 function StatusBadge({ status }: { status: Scholarship['status'] }) {
   const cfg = {
@@ -76,9 +85,12 @@ export default function ScholarshipsPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [translating, setTranslating] = useState(false)
+  const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
+  const [processSteps, setProcessSteps] = useState<ProcessStep[]>(DEFAULT_STEPS)
+  const dragIdx = useRef<number | null>(null)
 
   async function load() {
     setLoading(true)
@@ -109,6 +121,7 @@ export default function ScholarshipsPage() {
     setForm(emptyForm)
     setStudentResults([])
     setRequiredDocs([])
+    setProcessSteps(DEFAULT_STEPS.map(s => ({ ...s })))
     setError(null)
     setShowModal(true)
   }
@@ -140,6 +153,23 @@ export default function ScholarshipsPage() {
       results_period: (item as any).results_period ?? '',
     })
     setRequiredDocs((item as any).required_documents ?? [])
+    // Load process steps
+    const sp: any[] = (item as any).scholarship_process ?? []
+    if (sp.length > 0) {
+      setProcessSteps(sp.map(s => ({
+        key: s.key, label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.key,
+        type: s.type || 'period', value: s.value || '',
+        description_uz: s.description_uz || '', description_ru: s.description_ru || '', description_en: s.description_en || '',
+      })))
+    } else {
+      // migrate from old flat fields
+      setProcessSteps([
+        { ...DEFAULT_STEPS[0], type: 'period', value: [item.open_date, item.close_date].filter(Boolean).join(' – ') },
+        { ...DEFAULT_STEPS[1], type: (item as any).application_period_type || 'period', value: (item as any).application_period || '' },
+        { ...DEFAULT_STEPS[2], type: (item as any).interview_exam_period_type || 'period', value: (item as any).interview_exam_period || '' },
+        { ...DEFAULT_STEPS[3], type: (item as any).results_period_type || 'period', value: (item as any).results_period || '' },
+      ])
+    }
     setError(null)
     setShowModal(true)
     loadStudentResults(item.id)
@@ -152,11 +182,35 @@ export default function ScholarshipsPage() {
       const result = await autoTranslate(form.description_uz)
       setForm(f => ({
         ...f,
-        description_ru: f.description_ru || result.ru,
-        description_en: f.description_en || result.en,
+        description_ru: result.ru || f.description_ru,
+        description_en: result.en || f.description_en,
       }))
     } finally {
       setTranslating(false)
+    }
+  }
+
+  async function handleTranslateDoc(i: number) {
+    const doc = requiredDocs[i]
+    if (!doc.uz.trim()) return
+    setTranslatingSections(s => ({ ...s, [`doc_${i}`]: true }))
+    try {
+      const result = await autoTranslate(doc.uz)
+      setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
+    } finally {
+      setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
+    }
+  }
+
+  async function handleTranslateStep(i: number) {
+    const step = processSteps[i]
+    if (!step.description_uz.trim()) return
+    setTranslatingSections(s => ({ ...s, [`step_${i}`]: true }))
+    try {
+      const result = await autoTranslate(step.description_uz)
+      setProcessSteps(ps => ps.map((p, j) => j === i ? { ...p, description_ru: result.ru || p.description_ru, description_en: result.en || p.description_en } : p))
+    } finally {
+      setTranslatingSections(s => ({ ...s, [`step_${i}`]: false }))
     }
   }
 
@@ -179,6 +233,12 @@ export default function ScholarshipsPage() {
     }
 
     const filteredDocs = requiredDocs.filter(d => d.uz.trim())
+    const filteredSteps = processSteps.filter(s => s.value.trim()).map(s => ({
+      key: s.key, type: s.type, value: s.value,
+      description_uz: s.description_uz || null,
+      description_ru: s.description_ru || null,
+      description_en: s.description_en || null,
+    }))
 
     const payload = {
       title: form.title,
@@ -204,6 +264,7 @@ export default function ScholarshipsPage() {
       results_period_type: form.results_period_type,
       results_period: form.results_period || null,
       required_documents: filteredDocs.length > 0 ? filteredDocs : null,
+      scholarship_process: filteredSteps.length > 0 ? filteredSteps : null,
     }
 
     const supabase = createClient()
@@ -456,43 +517,62 @@ export default function ScholarshipsPage() {
               {/* Grant Jarayoni — Scholarship Process */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Grant Jarayoni</h3>
-                <div className="space-y-0">
-                  {[
-                    { label: 'Ariza davri', typeKey: 'application_period_type', valueKey: 'application_period', num: 1, color: 'bg-teal-500' },
-                    { label: 'Suhbat / Imtihon davri', typeKey: 'interview_exam_period_type', valueKey: 'interview_exam_period', num: 2, color: 'bg-blue-500' },
-                    { label: 'Natijalar davri', typeKey: 'results_period_type', valueKey: 'results_period', num: 3, color: 'bg-purple-500' },
-                  ].map((step, idx, arr) => (
-                    <div key={step.typeKey} className="flex gap-3">
-                      {/* Timeline line + circle */}
-                      <div className="flex flex-col items-center">
-                        <div className={`w-7 h-7 rounded-full ${step.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                          {step.num}
-                        </div>
-                        {idx < arr.length - 1 && <div className="w-0.5 bg-gray-200 dark:bg-gray-700 flex-1 my-1" style={{minHeight: '1.5rem'}} />}
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Bosqichlarni tortib qayta tartiblash mumkin</p>
+                <div className="space-y-2">
+                  {processSteps.map((step, idx) => (
+                    <div
+                      key={step.key}
+                      draggable
+                      onDragStart={() => { dragIdx.current = idx }}
+                      onDragOver={e => { e.preventDefault() }}
+                      onDrop={() => {
+                        if (dragIdx.current === null || dragIdx.current === idx) return
+                        setProcessSteps(ps => {
+                          const next = [...ps]
+                          const [moved] = next.splice(dragIdx.current!, 1)
+                          next.splice(idx, 0, moved)
+                          return next
+                        })
+                        dragIdx.current = null
+                      }}
+                      className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 cursor-grab active:cursor-grabbing"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-gray-400 dark:text-gray-500 cursor-grab select-none">⠿</span>
+                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{step.label}</span>
                       </div>
-                      {/* Card */}
-                      <div className={`flex-1 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 ${idx < arr.length - 1 ? 'mb-2' : ''}`}>
-                        <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">{step.label}</div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <select
-                              value={(form as any)[step.typeKey]}
-                              onChange={e => setForm({ ...form, [step.typeKey]: e.target.value, [step.valueKey]: '' })}
-                              className={inp}
-                            >
-                              <option value="exact">Aniq sana</option>
-                              <option value="month">Oy</option>
-                              <option value="period">Davr</option>
-                            </select>
-                          </div>
-                          <div>
-                            {(form as any)[step.typeKey] === 'exact' ? (
-                              <input type="date" value={(form as any)[step.valueKey]} onChange={e => setForm({ ...form, [step.valueKey]: e.target.value })} className={inp} />
-                            ) : (
-                              <input type="text" value={(form as any)[step.valueKey]} onChange={e => setForm({ ...form, [step.valueKey]: e.target.value })} placeholder={(form as any)[step.typeKey] === 'month' ? '2025-04' : 'Mart – Aprel'} className={inp} />
-                            )}
-                          </div>
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <select
+                          value={step.type}
+                          onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, type: e.target.value as ResultsDateType, value: '' } : p))}
+                          className={inp}
+                        >
+                          <option value="exact">Aniq sana</option>
+                          <option value="month">Oy</option>
+                          <option value="period">Davr</option>
+                        </select>
+                        {step.type === 'exact' ? (
+                          <input type="date" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} className={inp} />
+                        ) : (
+                          <input type="text" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} placeholder={step.type === 'month' ? '2025-04' : 'Mart – Aprel'} className={inp} />
+                        )}
+                      </div>
+                      {/* Descriptions */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-500 dark:text-gray-400">Tavsif (UZ)</label>
+                          <button
+                            type="button"
+                            disabled={!step.description_uz.trim() || !!translatingSections[`step_${idx}`]}
+                            onClick={() => handleTranslateStep(idx)}
+                            className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
+                          >
+                            {translatingSections[`step_${idx}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                          </button>
                         </div>
+                        <input value={step.description_uz} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_uz: e.target.value } : p))} className={inp} placeholder="Bu bosqich haqida qo'shimcha ma'lumot..." />
+                        <input value={step.description_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: e.target.value } : p))} className={inp} placeholder="Описание (RU)" />
+                        <input value={step.description_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_en: e.target.value } : p))} className={inp} placeholder="Description (EN)" />
                       </div>
                     </div>
                   ))}
@@ -512,8 +592,29 @@ export default function ScholarshipsPage() {
                     {requiredDocs.map((doc, i) => (
                       <div key={i} className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
-                          <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={doc.mandatory !== false}
+                                onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, mandatory: e.target.checked } : r))}
+                                className="w-3.5 h-3.5 rounded accent-red-500"
+                              />
+                              <span className="text-xs text-gray-600 dark:text-gray-400">Majburiy</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}
+                              onClick={() => handleTranslateDoc(i)}
+                              className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
+                            >
+                              {translatingSections[`doc_${i}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                            </button>
+                            <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
+                          </div>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>

@@ -2,6 +2,16 @@ export interface RequiredDocument {
   uz: string
   ru: string
   en: string
+  mandatory?: boolean
+}
+
+export interface ScholarshipProcessStep {
+  key: string
+  type: 'exact' | 'month' | 'period'
+  value: string
+  description_uz?: string
+  description_ru?: string
+  description_en?: string
 }
 
 export interface Scholarship {
@@ -35,6 +45,7 @@ export interface Scholarship {
   results_period_type?: 'exact' | 'month' | 'period'
   results_period?: string
   required_documents?: RequiredDocument[]
+  scholarship_process?: ScholarshipProcessStep[]
   created_at: string
   updated_at: string
 }
