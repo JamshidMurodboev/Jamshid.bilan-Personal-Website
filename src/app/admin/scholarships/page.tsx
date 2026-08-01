@@ -42,9 +42,20 @@ const emptyForm = {
   results_date_type: 'exact' as ResultsDateType,
   results_date: '',
   photo_urls: [] as string[],
+  // new process period fields
+  application_period_type: 'exact' as ResultsDateType,
+  application_period: '',
+  interview_exam_period_type: 'exact' as ResultsDateType,
+  interview_exam_period: '',
+  results_period_type: 'exact' as ResultsDateType,
+  results_period: '',
 }
 
 type FormState = typeof emptyForm
+
+// Required document row
+type DocRow = { uz: string; ru: string; en: string }
+const emptyDoc = (): DocRow => ({ uz: '', ru: '', en: '' })
 
 function StatusBadge({ status }: { status: Scholarship['status'] }) {
   const cfg = {
@@ -67,6 +78,7 @@ export default function ScholarshipsPage() {
   const [translating, setTranslating] = useState(false)
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
+  const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
 
   async function load() {
     setLoading(true)
@@ -96,6 +108,7 @@ export default function ScholarshipsPage() {
     setEditId(null)
     setForm(emptyForm)
     setStudentResults([])
+    setRequiredDocs([])
     setError(null)
     setShowModal(true)
   }
@@ -119,7 +132,14 @@ export default function ScholarshipsPage() {
       results_date_type: (item.results_date_type as ResultsDateType) ?? 'exact',
       results_date: item.results_date ?? '',
       photo_urls: item.photo_urls ?? [],
+      application_period_type: (item as any).application_period_type ?? 'exact',
+      application_period: (item as any).application_period ?? '',
+      interview_exam_period_type: (item as any).interview_exam_period_type ?? 'exact',
+      interview_exam_period: (item as any).interview_exam_period ?? '',
+      results_period_type: (item as any).results_period_type ?? 'exact',
+      results_period: (item as any).results_period ?? '',
     })
+    setRequiredDocs((item as any).required_documents ?? [])
     setError(null)
     setShowModal(true)
     loadStudentResults(item.id)
@@ -158,6 +178,8 @@ export default function ScholarshipsPage() {
       }
     }
 
+    const filteredDocs = requiredDocs.filter(d => d.uz.trim())
+
     const payload = {
       title: form.title,
       country: form.country,
@@ -175,6 +197,13 @@ export default function ScholarshipsPage() {
       results_date_type: form.results_date_type,
       results_date: form.results_date || null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
+      application_period_type: form.application_period_type,
+      application_period: form.application_period || null,
+      interview_exam_period_type: form.interview_exam_period_type,
+      interview_exam_period: form.interview_exam_period || null,
+      results_period_type: form.results_period_type,
+      results_period: form.results_period || null,
+      required_documents: filteredDocs.length > 0 ? filteredDocs : null,
     }
 
     const supabase = createClient()
@@ -424,11 +453,93 @@ export default function ScholarshipsPage() {
                 />
               </div>
 
+              {/* Grant Jarayoni — Scholarship Process */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Grant Jarayoni</h3>
+                <div className="space-y-0">
+                  {[
+                    { label: 'Ariza davri', typeKey: 'application_period_type', valueKey: 'application_period', num: 1, color: 'bg-teal-500' },
+                    { label: 'Suhbat / Imtihon davri', typeKey: 'interview_exam_period_type', valueKey: 'interview_exam_period', num: 2, color: 'bg-blue-500' },
+                    { label: 'Natijalar davri', typeKey: 'results_period_type', valueKey: 'results_period', num: 3, color: 'bg-purple-500' },
+                  ].map((step, idx, arr) => (
+                    <div key={step.typeKey} className="flex gap-3">
+                      {/* Timeline line + circle */}
+                      <div className="flex flex-col items-center">
+                        <div className={`w-7 h-7 rounded-full ${step.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                          {step.num}
+                        </div>
+                        {idx < arr.length - 1 && <div className="w-0.5 bg-gray-200 dark:bg-gray-700 flex-1 my-1" style={{minHeight: '1.5rem'}} />}
+                      </div>
+                      {/* Card */}
+                      <div className={`flex-1 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 ${idx < arr.length - 1 ? 'mb-2' : ''}`}>
+                        <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">{step.label}</div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <select
+                              value={(form as any)[step.typeKey]}
+                              onChange={e => setForm({ ...form, [step.typeKey]: e.target.value, [step.valueKey]: '' })}
+                              className={inp}
+                            >
+                              <option value="exact">Aniq sana</option>
+                              <option value="month">Oy</option>
+                              <option value="period">Davr</option>
+                            </select>
+                          </div>
+                          <div>
+                            {(form as any)[step.typeKey] === 'exact' ? (
+                              <input type="date" value={(form as any)[step.valueKey]} onChange={e => setForm({ ...form, [step.valueKey]: e.target.value })} className={inp} />
+                            ) : (
+                              <input type="text" value={(form as any)[step.valueKey]} onChange={e => setForm({ ...form, [step.valueKey]: e.target.value })} placeholder={(form as any)[step.typeKey] === 'month' ? '2025-04' : 'Mart – Aprel'} className={inp} />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Required Documents */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
+                  <button type="button" onClick={() => setRequiredDocs(d => [...d, emptyDoc()])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo&apos;shish</button>
+                </div>
+                {requiredDocs.length === 0 ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo&apos;shilmagan</p>
+                ) : (
+                  <div className="space-y-2">
+                    {requiredDocs.map((doc, i) => (
+                      <div key={i} className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
+                          <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O&apos;zbek</label>
+                            <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Rus</label>
+                            <input value={doc.ru} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingliz</label>
+                            <input value={doc.en} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, en: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Dates */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Qabul boshlanish sanasi (taxminiy)
+                    Qabul Muddati (Boshlanish)
                   </label>
                   <input
                     type="date"
@@ -439,7 +550,7 @@ export default function ScholarshipsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Qabul tugash sanasi (taxminiy)
+                    Qabul Muddati (Tugash)
                   </label>
                   <input
                     type="date"

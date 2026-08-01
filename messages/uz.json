@@ -159,11 +159,6 @@
     "rights": "Barcha huquqlar himoyalangan.",
     "follow": "Bizni kuzating"
   },
-  "testimonials": {
-    "title": "Talabalarimiz fikri",
-    "subtitle": "Bizning yordamimiz bilan xorijda o'qishga muyassar bo'lgan talabalar",
-    "viewAll": "Barcha fikrlar"
-  },
   "faq": {
     "title": "Ko'p so'raladigan savollar"
   },
@@ -183,6 +178,19 @@
     "contactTelegram": "Telegram orqali bog'lanish",
     "contactWhatsApp": "WhatsApp orqali bog'lanish",
     "detailBtn": "Batafsil",
-    "applyBtn": "Ariza topshirish"
+    "applyBtn": "Ariza topshirish",
+    "ourResults": "Bizning natijalarimiz",
+    "scholarshipProcess": "Grant jarayoni",
+    "admissionDeadline": "Qabul muddati",
+    "applicationPeriod": "Ariza davri",
+    "interviewExamPeriod": "Suhbat / Imtihon davri",
+    "resultsPeriod": "Natijalar davri",
+    "requiredDocuments": "Talab qilinadigan hujjatlar",
+    "applyNow": "Hoziroq Hujjat Topshirish",
+    "chooseContact": "Quyidagi platformadan birini tanlang"
+  },
+  "universities": {
+    "ourResults": "Bizning natijalarimiz",
+    "requiredDocuments": "Talab qilinadigan hujjatlar"
   }
 }

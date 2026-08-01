@@ -6,7 +6,6 @@ The admin will paste raw text (in any language — Uzbek, Russian, English, or m
 - university
 - student_result
 - news
-- testimonial
 
 Your job:
 1. Detect the content type.
@@ -15,7 +14,7 @@ Your job:
 
 Return ONLY valid JSON in this exact structure (no extra text):
 {
-  "type": "<scholarship|university|student_result|news|testimonial>",
+  "type": "<scholarship|university|student_result|news>",
   "confidence": "<high|medium|low>",
   "data": { ...fields }
 }
@@ -55,14 +54,6 @@ news:
   "title_uz": "", "title_ru": "", "title_en": "",
   "body_uz": "", "body_ru": "", "body_en": "",
   "published": true
-}
-
-testimonial:
-{
-  "student_name": "",
-  "quote_uz": "", "quote_ru": "", "quote_en": "",
-  "outcome_uz": "", "outcome_ru": "", "outcome_en": "",
-  "category": "scholarship_winner|tuition_based"
 }
 
 Leave fields as empty string or null if not found in the text. Do not invent facts.`

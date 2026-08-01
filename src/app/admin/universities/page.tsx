@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { University, UniversityMajor, StudentResult } from '@/lib/supabase/types'
+import type { University, UniversityMajor, StudentResult, RequiredDocument } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
@@ -19,6 +19,8 @@ type MajorRow = {
 }
 
 const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD' })
+
+type DocRow = RequiredDocument
 
 type FormState = {
   name: string
@@ -67,6 +69,7 @@ export default function UniversitiesPage() {
   const [saving, setSaving] = useState(false)
   const [translating, setTranslating] = useState(false)
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
+  const [requiredDocs, setRequiredDocs] = useState<RequiredDocument[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
 
   async function load() {
@@ -117,6 +120,7 @@ export default function UniversitiesPage() {
     setForm(emptyForm)
     setMajors([emptyMajor()])
     setStudentResults([])
+    setRequiredDocs([])
     setError(null)
     setShowModal(true)
   }
@@ -136,6 +140,7 @@ export default function UniversitiesPage() {
       description_en: item.description_en ?? '',
       photo_urls: item.photo_urls ?? [],
     })
+    setRequiredDocs((item as any).required_documents ?? [])
     setError(null)
     setShowModal(true)
     loadMajors(item.id)
@@ -189,6 +194,7 @@ export default function UniversitiesPage() {
       description_ru: form.description_ru || null,
       description_en: form.description_en || null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
+      required_documents: requiredDocs.filter(d => d.uz.trim()).length > 0 ? requiredDocs.filter(d => d.uz.trim()) : null,
     }
 
     const supabase = createClient()
@@ -362,6 +368,42 @@ export default function UniversitiesPage() {
 
               <div>
                 <ImageUpload bucket="universities" urls={form.photo_urls} onChange={urls => setForm({ ...form, photo_urls: urls })} multiple label="Rasmlar" />
+              </div>
+
+              {/* Required Documents */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
+                  <button type="button" onClick={() => setRequiredDocs(d => [...d, { uz: '', ru: '', en: '' }])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo'shish</button>
+                </div>
+                {requiredDocs.length === 0 ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo'shilmagan</p>
+                ) : (
+                  <div className="space-y-2">
+                    {requiredDocs.map((doc, i) => (
+                      <div key={i} className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
+                          <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O'chirish</button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O'zbek</label>
+                            <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Rus</label>
+                            <input value={doc.ru} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingliz</label>
+                            <input value={doc.en} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, en: e.target.value } : r))} className={inp} placeholder="..." />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Majors — redesigned as cards */}
