@@ -39,6 +39,7 @@ interface FormState {
   language: string
   university_ranking: string
   photo_urls: string[]
+  home_order: string
 }
 
 const emptyForm: FormState = {
@@ -55,6 +56,7 @@ const emptyForm: FormState = {
   language: '',
   university_ranking: '',
   photo_urls: [],
+  home_order: '',
 }
 
 // Inline searchable select component
@@ -220,6 +222,7 @@ export default function ResultsPage() {
       language: item.language ?? '',
       university_ranking: item.university_ranking != null ? String(item.university_ranking) : '',
       photo_urls: item.photo_urls ?? [],
+      home_order: item.home_order?.toString() ?? '',
     })
     setError(null)
     setShowModal(true)
@@ -241,6 +244,7 @@ export default function ResultsPage() {
       language: form.language || null,
       university_ranking: form.university_ranking ? Number(form.university_ranking) : null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
+      home_order: form.home_order ? parseInt(form.home_order) : null,
     }
 
     let payload: Record<string, unknown>
@@ -514,6 +518,22 @@ export default function ResultsPage() {
                   onChange={(e) => setForm({ ...form, university_ranking: e.target.value })}
                   className={inp}
                   placeholder="Masalan: 150"
+                />
+              </div>
+
+              {/* Home order */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  Bosh sahifa tartibi (1-3)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={form.home_order}
+                  onChange={(e) => setForm({ ...form, home_order: e.target.value })}
+                  className={inp}
+                  placeholder="1, 2 yoki 3"
                 />
               </div>
 

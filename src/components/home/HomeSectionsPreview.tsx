@@ -43,9 +43,9 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
   const supabase = createClient();
 
   const [scholarshipsRes, universitiesRes, resultsRes, newsRes] = await Promise.allSettled([
-    supabase.from('scholarships').select('id,title,country,status,category,close_date,photo_urls,degrees_available').order('created_at', { ascending: false }).limit(3),
-    supabase.from('universities').select('id,name,country,city,type,status,tuition_usd,photo_urls').order('created_at', { ascending: false }).limit(3),
-    supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial').order('created_at', { ascending: false }).limit(3),
+    supabase.from('scholarships').select('id,title,country,status,category,close_date,photo_urls,degrees_available,home_order').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
+    supabase.from('universities').select('id,name,country,city,type,status,tuition_usd,photo_urls,home_order').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
+    supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial,home_order').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('news_posts').select('id,title_uz,title_ru,title_en,body_uz,body_ru,body_en,published_at').eq('published', true).order('published_at', { ascending: false }).limit(3),
   ]);
 

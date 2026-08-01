@@ -1,12 +1,14 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { University, UniversityMajor, RequiredDocument } from '@/lib/supabase/types';
 import UniversityGallery from '@/components/universities/UniversityGallery';
 import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
 import { translateLanguage } from '@/lib/translateLanguage';
+import { formatDate } from '@/lib/format';
 
 const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 const TYPE_COLORS = {
@@ -24,10 +26,11 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   setRequestLocale(locale);
 
   const supabase = await createClient();
-  const [{ data }, { data: majorsData }, { data: resultsData }, t] = await Promise.all([
+  const [{ data }, { data: majorsData }, { data: resultsData }, { data: newsData }, t] = await Promise.all([
     supabase.from('universities').select('*').eq('id', id).single(),
     supabase.from('university_majors').select('*').eq('university_id', id).order('sort_order'),
     supabase.from('student_results').select('id, student_name, degree_level, year, country').eq('university_id', id).order('year', { ascending: false }),
+    supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at').eq('university_id', id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     getTranslations({ locale, namespace: 'universities' }),
   ]);
 
@@ -36,6 +39,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
 
   const majors = (majorsData ?? []) as UniversityMajor[];
   const linkedResults = (resultsData ?? []) as { id: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const linkedNews = (newsData ?? []) as { id: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const description = (u as any)[`description_${locale}`] || u.description_uz || '';
   const photos = u.photo_urls ?? [];
   const requiredDocs: RequiredDocument[] = (u as any).required_documents ?? [];
@@ -106,6 +110,35 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                       ) : null}
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Linked News */}
+            {linkedNews.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">So'nggi yangiliklar</h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {linkedNews.map(post => {
+                    const newsTitle = (post as any)[`title_${locale}`] || post.title_uz;
+                    const thumb = post.cover_url || post.photo_urls?.[0];
+                    return (
+                      <Link key={post.id} href={`/${locale}/news/${post.id}`}
+                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition flex flex-col">
+                        {thumb ? (
+                          <div className="relative aspect-[16/9] w-full">
+                            <Image src={thumb} alt={newsTitle} fill className="object-cover" />
+                          </div>
+                        ) : (
+                          <div className="aspect-[16/9] w-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-3xl">📰</div>
+                        )}
+                        <div className="p-3 flex flex-col gap-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{newsTitle}</p>
+                          {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(post.published_at)}</span>}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}

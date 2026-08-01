@@ -34,6 +34,7 @@ type FormState = {
   description_ru: string
   description_en: string
   photo_urls: string[]
+  home_order: string
 }
 
 const emptyForm: FormState = {
@@ -48,6 +49,7 @@ const emptyForm: FormState = {
   description_ru: '',
   description_en: '',
   photo_urls: [],
+  home_order: '',
 }
 
 const DEGREE_OPTIONS = [
@@ -140,6 +142,7 @@ export default function UniversitiesPage() {
       description_ru: item.description_ru ?? '',
       description_en: item.description_en ?? '',
       photo_urls: item.photo_urls ?? [],
+      home_order: item.home_order?.toString() ?? '',
     })
     setRequiredDocs((item as any).required_documents ?? [])
     setError(null)
@@ -208,6 +211,7 @@ export default function UniversitiesPage() {
       description_en: form.description_en || null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
       required_documents: requiredDocs.filter(d => d.uz.trim()).length > 0 ? requiredDocs.filter(d => d.uz.trim()) : null,
+      home_order: form.home_order ? parseInt(form.home_order) : null,
     }
 
     const supabase = createClient()
@@ -366,6 +370,10 @@ export default function UniversitiesPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Reyting</label>
                   <input type="number" min={1} value={form.ranking} onChange={e => setForm({ ...form, ranking: e.target.value })} className={inp} placeholder="Masalan: 150" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Bosh sahifa tartibi (1-3)</label>
+                  <input type="number" min={1} max={99} value={form.home_order} onChange={e => setForm({ ...form, home_order: e.target.value })} className={inp} placeholder="1, 2 yoki 3" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Veb-sayt</label>
