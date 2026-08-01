@@ -119,7 +119,8 @@
     "degrees": {
       "bachelor": "Бакалавриат",
       "master": "Магистратура",
-      "phd": "PhD"
+      "phd": "PhD",
+      "exchange": "Обмен"
     },
     "benefitsHeading": "Льготы гранта",
     "contactTelegram": "Написать в Telegram",

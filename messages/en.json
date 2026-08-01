@@ -119,7 +119,8 @@
     "degrees": {
       "bachelor": "Bachelor's",
       "master": "Master's",
-      "phd": "PhD"
+      "phd": "PhD",
+      "exchange": "Exchange"
     },
     "benefitsHeading": "Grant Benefits",
     "contactTelegram": "Contact via Telegram",

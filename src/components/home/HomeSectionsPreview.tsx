@@ -64,7 +64,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
               {scholarships.map(s => {
                 const photos: string[] = (s as any).photo_urls?.length ? (s as any).photo_urls : [];
                 const degrees: string[] = (s as any).degrees_available ?? [];
-                const DEGREE_UZ: Record<string, string> = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
+                const DEGREE_UZ: Record<string, string> = { bachelor: 'Bakalavr', master: 'Magistratura', phd: 'PhD', exchange: 'Almashinuv' };
                 return (
                   <Link key={s.id} href={`/${locale}/scholarships/${s.id}`} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
                     {photos.length > 0 ? (
