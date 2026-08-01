@@ -2,9 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
+import { createClient } from '@/lib/supabase/client';
 
-const SCHOLARSHIPS = ['Türkiye Bursları', 'Chevening Scholarship', 'DAAD Scholarship', 'Erasmus+', 'MEXT (Yaponiya)', 'Fulbright'];
-const UNIVERSITIES = ['Istanbul University', 'Ankara University', 'Marmara University', 'Middle East Technical University', 'Bogazici University'];
 const CERTS = ['IELTS', 'TOEFL', 'TYS', 'SAT', 'Other', 'None'];
 
 function buildMessage(name: string, dob: string, cert: string, score: string, target: string, other: string) {
@@ -32,6 +31,8 @@ export default function ContactForm() {
   const [target, setTarget] = useState('');
   const [other, setOther] = useState('');
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
+  const [universities, setUniversities] = useState<{ id: string; name: string; country: string }[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -39,6 +40,16 @@ export default function ContactForm() {
       setDob(user.dob);
     }
   }, [user]);
+
+  useEffect(() => {
+    const sb = createClient();
+    sb.from('scholarships').select('id,title,country').order('title').then(({ data }) => {
+      if (data && data.length > 0) setScholarships(data);
+    });
+    sb.from('universities').select('id,name,country').order('name').then(({ data }) => {
+      if (data && data.length > 0) setUniversities(data);
+    });
+  }, []);
 
   function validate() {
     const e: FieldErrors = {};
@@ -64,12 +75,12 @@ export default function ContactForm() {
   return (
     <div className="space-y-4">
       <div>
-        <label className={labelCls}>To'liq ism *</label>
+        <label className={labelCls}>To&apos;liq ism *</label>
         <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ismingiz" className={inputCls('name')} />
         {errors.name && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.name}</p>}
       </div>
       <div>
-        <label className={labelCls}>Tug'ilgan sana *</label>
+        <label className={labelCls}>Tug&apos;ilgan sana *</label>
         <DateInput value={dob} onChange={setDob} className={inputCls('dob')} />
         {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
       </div>
@@ -92,12 +103,20 @@ export default function ContactForm() {
         <label className={labelCls}>Grant yoki Universitet *</label>
         <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
           <option value="">Tanlang...</option>
-          <optgroup label="Grantlar">
-            {SCHOLARSHIPS.map(s => <option key={s} value={s}>{s}</option>)}
-          </optgroup>
-          <optgroup label="Universitetlar">
-            {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-          </optgroup>
+          {scholarships.length > 0 && (
+            <optgroup label="Grantlar">
+              {scholarships.map(s => (
+                <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
+              ))}
+            </optgroup>
+          )}
+          {universities.length > 0 && (
+            <optgroup label="Universitetlar">
+              {universities.map(u => (
+                <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
+              ))}
+            </optgroup>
+          )}
           <option value="other">Boshqa...</option>
         </select>
         {errors.target && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.target}</p>}
