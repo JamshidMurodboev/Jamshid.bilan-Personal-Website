@@ -2,11 +2,10 @@ import { setRequestLocale } from 'next-intl/server';
 import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
 import StatsBanner from '@/components/home/StatsBanner';
-import TeaserSection from '@/components/home/TeaserSection';
 import HomeContactSection from '@/components/home/HomeContactSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import FaqSection from '@/components/home/FaqSection';
-import NewsTeaserSection from '@/components/home/NewsTeaserSection';
+import HomeSectionsPreview from '@/components/home/HomeSectionsPreview';
 
 export default function HomePage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
@@ -16,8 +15,7 @@ export default function HomePage({ params: { locale } }: { params: { locale: str
       <StatsBanner />
       <AboutSection />
       <TestimonialsSection />
-      <TeaserSection />
-      <NewsTeaserSection locale={locale} />
+      <HomeSectionsPreview locale={locale} />
       <FaqSection />
       <HomeContactSection />
     </>
