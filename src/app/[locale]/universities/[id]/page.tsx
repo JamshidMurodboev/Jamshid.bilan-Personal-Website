@@ -30,7 +30,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   if (!u) notFound();
 
   const majors = (majorsData ?? []) as UniversityMajor[];
-  const description = (u as any)[`description_${locale}`] || u.description_uz || '';
+  const description = u.description_uz || '';
   const photos = u.photo_urls ?? [];
 
   return (
