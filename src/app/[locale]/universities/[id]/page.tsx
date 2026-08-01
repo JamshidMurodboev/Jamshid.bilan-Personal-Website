@@ -1,8 +1,8 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import type { University, UniversityMajor } from '@/lib/supabase/types';
+import type { University, UniversityMajor, RequiredDocument } from '@/lib/supabase/types';
 import UniversityGallery from '@/components/universities/UniversityGallery';
 import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
@@ -24,17 +24,22 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   setRequestLocale(locale);
 
   const supabase = await createClient();
-  const [{ data }, { data: majorsData }] = await Promise.all([
+  const [{ data }, { data: majorsData }, { data: resultsData }, t] = await Promise.all([
     supabase.from('universities').select('*').eq('id', id).single(),
     supabase.from('university_majors').select('*').eq('university_id', id).order('sort_order'),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country').eq('university_id', id).order('year', { ascending: false }),
+    getTranslations({ locale, namespace: 'universities' }),
   ]);
 
   const u = data as University | null;
   if (!u) notFound();
 
   const majors = (majorsData ?? []) as UniversityMajor[];
-  const description = u.description_uz || '';
+  const linkedResults = (resultsData ?? []) as { id: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const description = (u as any)[`description_${locale}`] || u.description_uz || '';
   const photos = u.photo_urls ?? [];
+  const requiredDocs: RequiredDocument[] = (u as any).required_documents ?? [];
+  const docLocale = (d: RequiredDocument) => (d as any)[locale] || d.uz;
 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
@@ -63,6 +68,40 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {description && (
               <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">
                 {description}
+              </div>
+            )}
+
+            {/* Our Results */}
+            {linkedResults.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
+                <div className="flex flex-wrap gap-2">
+                  {linkedResults.map(r => (
+                    <Link key={r.id} href={`/${locale}/results/${r.id}`}
+                      className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
+                      <span className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xs flex-shrink-0">
+                        {r.student_name[0]}
+                      </span>
+                      <span>{r.student_name}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">· {r.year}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Required Documents */}
+            {requiredDocs.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('requiredDocuments')}</h2>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                  {requiredDocs.map((doc, i) => (
+                    <div key={i} className={`flex items-start gap-3 px-5 py-3.5 ${i > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''}`}>
+                      <span className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                      <span className="text-sm text-gray-800 dark:text-gray-200">{docLocale(doc)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

@@ -1,3 +1,9 @@
+export interface RequiredDocument {
+  uz: string
+  ru: string
+  en: string
+}
+
 export interface Scholarship {
   id: string
   title: string
@@ -21,6 +27,14 @@ export interface Scholarship {
   category?: 'fully_funded' | 'partially_funded' | 'self_funded'
   degrees_available?: string[]
   photo_urls?: string[]
+  // Scholarship process fields
+  application_period_type?: 'exact' | 'month' | 'period'
+  application_period?: string
+  interview_exam_period_type?: 'exact' | 'month' | 'period'
+  interview_exam_period?: string
+  results_period_type?: 'exact' | 'month' | 'period'
+  results_period?: string
+  required_documents?: RequiredDocument[]
   created_at: string
   updated_at: string
 }
@@ -42,6 +56,7 @@ export interface University {
   description_ru?: string
   description_en?: string
   photo_urls?: string[]
+  required_documents?: RequiredDocument[]
   created_at: string
   updated_at: string
 }
@@ -107,26 +122,6 @@ export interface BlogPost {
   tags: string[]
   published: boolean
   published_at?: string
-  created_at: string
-  updated_at: string
-}
-
-export interface Testimonial {
-  id: string
-  quote_uz: string
-  quote_ru?: string
-  quote_en?: string
-  student_name: string
-  outcome_uz: string
-  outcome_ru?: string
-  outcome_en?: string
-  photo_url?: string
-  photo_urls?: string[]
-  sort_order: number
-  // New fields (admin overhaul)
-  category?: 'scholarship_winner' | 'tuition_based'
-  scholarship_id?: string
-  university_id?: string
   created_at: string
   updated_at: string
 }

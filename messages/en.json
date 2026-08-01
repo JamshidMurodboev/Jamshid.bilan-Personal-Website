@@ -159,11 +159,6 @@
     "rights": "All rights reserved.",
     "follow": "Follow us"
   },
-  "testimonials": {
-    "title": "What our students say",
-    "subtitle": "Students who studied abroad with our help",
-    "viewAll": "All reviews"
-  },
   "faq": {
     "title": "Frequently asked questions"
   },
@@ -183,6 +178,19 @@
     "contactTelegram": "Contact via Telegram",
     "contactWhatsApp": "Contact via WhatsApp",
     "detailBtn": "Details",
-    "applyBtn": "Apply now"
+    "applyBtn": "Apply now",
+    "ourResults": "Our Results",
+    "scholarshipProcess": "Application Process",
+    "admissionDeadline": "Admission Deadline",
+    "applicationPeriod": "Application Period",
+    "interviewExamPeriod": "Interview / Exam Period",
+    "resultsPeriod": "Results Period",
+    "requiredDocuments": "Required Documents",
+    "applyNow": "Apply Now",
+    "chooseContact": "Choose your preferred platform"
+  },
+  "universities": {
+    "ourResults": "Our Results",
+    "requiredDocuments": "Required Documents"
   }
 }

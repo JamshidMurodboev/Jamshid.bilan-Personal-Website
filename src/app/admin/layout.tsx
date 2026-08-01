@@ -15,7 +15,7 @@ const navLinks = [
   { href: '/admin/universities', label: 'Universitetlar' },
   { href: '/admin/results', label: 'Natijalar' },
   { href: '/admin/news', label: 'Yangiliklar' },
-  { href: '/admin/testimonials', label: 'Talaba fikrlari' },
+
   { href: '/admin/faq', label: 'Savollar' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
   { href: '/admin/users', label: 'Foydalanuvchilar' },

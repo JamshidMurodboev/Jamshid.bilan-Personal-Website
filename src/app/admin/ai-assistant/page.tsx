@@ -4,14 +4,13 @@ import { createClient } from '@/lib/supabase/client'
 import ImageUpload from '@/components/admin/ImageUpload'
 import type { UploadBucket } from '@/lib/upload'
 
-type ContentType = 'scholarship' | 'university' | 'student_result' | 'news' | 'testimonial'
+type ContentType = 'scholarship' | 'university' | 'student_result' | 'news'
 
 const TYPE_LABELS: Record<ContentType, string> = {
   scholarship: 'Grant',
   university: 'Universitet',
   student_result: 'Talaba natijasi',
   news: 'Yangilik',
-  testimonial: 'Talaba fikri',
 }
 
 const BUCKET_MAP: Record<ContentType, UploadBucket> = {
@@ -19,7 +18,6 @@ const BUCKET_MAP: Record<ContentType, UploadBucket> = {
   university: 'universities',
   student_result: 'results',
   news: 'news',
-  testimonial: 'testimonials',
 }
 
 const CONFIDENCE_COLORS: Record<string, string> = {
@@ -213,40 +211,6 @@ function NewsForm({ data, onChange }: { data: any; onChange: (d: any) => void })
   )
 }
 
-function TestimonialForm({ data, onChange, scholarships, universities }: { data: any; onChange: (d: any) => void; scholarships: any[]; universities: any[] }) {
-  const set = (key: string, val: any) => onChange({ ...data, [key]: val })
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Field label="Talaba ismi" value={data.student_name || ''} onChange={v => set('student_name', v)} />
-      <SelectField label="Kategoriya" value={data.category || 'scholarship_winner'} onChange={v => set('category', v)}
-        options={[{ value: 'scholarship_winner', label: 'Grant g\'olibi' }, { value: 'tuition_based', label: 'Kontrakt' }]} />
-      {data.category === 'scholarship_winner' && (
-        <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Grant</label>
-          <select className={inp} value={data.scholarship_id || ''} onChange={e => set('scholarship_id', e.target.value)}>
-            <option value="">— Tanlang —</option>
-            {scholarships.map(s => <option key={s.id} value={s.id}>{s.title} ({s.country})</option>)}
-          </select>
-        </div>
-      )}
-      {data.category === 'tuition_based' && (
-        <div>
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Universitet</label>
-          <select className={inp} value={data.university_id || ''} onChange={e => set('university_id', e.target.value)}>
-            <option value="">— Tanlang —</option>
-            {universities.map(u => <option key={u.id} value={u.id}>{u.name} ({u.country})</option>)}
-          </select>
-        </div>
-      )}
-      <div className="md:col-span-2"><Field label="Iqtibos (UZ)" value={data.quote_uz || ''} onChange={v => set('quote_uz', v)} multiline /></div>
-      <div className="md:col-span-2"><Field label="Iqtibos (RU)" value={data.quote_ru || ''} onChange={v => set('quote_ru', v)} multiline /></div>
-      <div className="md:col-span-2"><Field label="Iqtibos (EN)" value={data.quote_en || ''} onChange={v => set('quote_en', v)} multiline /></div>
-      <Field label="Natija (UZ)" value={data.outcome_uz || ''} onChange={v => set('outcome_uz', v)} />
-      <Field label="Natija (RU)" value={data.outcome_ru || ''} onChange={v => set('outcome_ru', v)} />
-      <Field label="Natija (EN)" value={data.outcome_en || ''} onChange={v => set('outcome_en', v)} />
-    </div>
-  )
-}
 
 async function saveToSupabase(type: ContentType, data: any): Promise<string | null> {
   const supabase = createClient()
@@ -293,13 +257,6 @@ async function saveToSupabase(type: ContentType, data: any): Promise<string | nu
     const { error } = await supabase.from('news_posts').insert({
       ...data, photo_urls: photoUrls, created_at: now, updated_at: now,
       published_at: data.published ? now : null,
-    })
-    return error?.message || null
-  }
-
-  if (type === 'testimonial') {
-    const { error } = await supabase.from('testimonials').insert({
-      ...data, photo_urls: photoUrls, sort_order: 0, created_at: now, updated_at: now,
     })
     return error?.message || null
   }
@@ -471,7 +428,6 @@ export default function AiAssistantPage() {
             {activeType === 'university' && <UniversityForm data={editedData || {}} onChange={setEditedData} />}
             {activeType === 'student_result' && <StudentResultForm data={editedData || {}} onChange={setEditedData} scholarships={scholarships} universities={universities} />}
             {activeType === 'news' && <NewsForm data={editedData || {}} onChange={setEditedData} />}
-            {activeType === 'testimonial' && <TestimonialForm data={editedData || {}} onChange={setEditedData} scholarships={scholarships} universities={universities} />}
 
             {/* Photo upload */}
             {activeType && (

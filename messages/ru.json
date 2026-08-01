@@ -159,11 +159,6 @@
     "rights": "Все права защищены.",
     "follow": "Подписывайтесь"
   },
-  "testimonials": {
-    "title": "Отзывы студентов",
-    "subtitle": "Студенты, поступившие за рубеж с нашей помощью",
-    "viewAll": "Все отзывы"
-  },
   "faq": {
     "title": "Часто задаваемые вопросы"
   },
@@ -183,6 +178,19 @@
     "contactTelegram": "Написать в Telegram",
     "contactWhatsApp": "Написать в WhatsApp",
     "detailBtn": "Подробнее",
-    "applyBtn": "Подать заявку"
+    "applyBtn": "Подать заявку",
+    "ourResults": "Наши результаты",
+    "scholarshipProcess": "Процесс подачи",
+    "admissionDeadline": "Срок приёма",
+    "applicationPeriod": "Период подачи заявок",
+    "interviewExamPeriod": "Период собеседования / экзамена",
+    "resultsPeriod": "Период результатов",
+    "requiredDocuments": "Необходимые документы",
+    "applyNow": "Подать документы сейчас",
+    "chooseContact": "Выберите платформу для связи"
+  },
+  "universities": {
+    "ourResults": "Наши результаты",
+    "requiredDocuments": "Необходимые документы"
   }
 }
