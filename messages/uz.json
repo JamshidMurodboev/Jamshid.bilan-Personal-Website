@@ -161,7 +161,8 @@
   },
   "testimonials": {
     "title": "Talabalarimiz fikri",
-    "subtitle": "Bizning yordamimiz bilan xorijda o'qishga muyassar bo'lgan talabalar"
+    "subtitle": "Bizning yordamimiz bilan xorijda o'qishga muyassar bo'lgan talabalar",
+    "viewAll": "Barcha fikrlar"
   },
   "faq": {
     "title": "Ko'p so'raladigan savollar"

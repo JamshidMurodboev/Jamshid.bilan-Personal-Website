@@ -31,6 +31,18 @@ const FALLBACK: Testimonial[] = [
     sort_order: 2,
     created_at: '', updated_at: '',
   },
+  {
+    id: 'f3',
+    quote_uz: "Konsultatsiya va hujjat tayyorlashda juda katta yordam ko'rsatdi. Minnatdorman!",
+    quote_ru: 'Оказал большую помощь в консультации и подготовке документов. Очень благодарен!',
+    quote_en: 'Provided great help with consultation and document preparation. Very grateful!',
+    student_name: 'Malika',
+    outcome_uz: 'DAAD granti, Germaniya',
+    outcome_ru: 'Грант DAAD, Германия',
+    outcome_en: 'DAAD grant, Germany',
+    sort_order: 3,
+    created_at: '', updated_at: '',
+  },
 ];
 
 export default function TestimonialsSection() {
@@ -39,8 +51,7 @@ export default function TestimonialsSection() {
   const [items, setItems] = useState<Testimonial[]>(FALLBACK);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
+    createClient()
       .from('testimonials')
       .select('*')
       .order('sort_order', { ascending: true })
@@ -53,20 +64,38 @@ export default function TestimonialsSection() {
     return (item as any)[`${base}_${locale}`] || (item as any)[`${base}_uz`];
   }
 
+  const preview = items.slice(0, 3);
+
   return (
     <section id="testimonials" className="py-16 px-4 bg-gray-50 dark:bg-[#161b22]">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-[2rem] font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-2">{t('title')}</h2>
         <p className="text-[#64748b] dark:text-[#8b949e] text-center mb-10">{t('subtitle')}</p>
+
+        {/* Mobile: horizontal scroll */}
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:hidden -mx-4 px-4">
-          {items.map((item) => (
+          {preview.map((item) => (
             <TestimonialCard key={item.id} item={item} locale={locale} quote={field(item, 'quote')} outcome={field(item, 'outcome')} className="min-w-[85%] snap-start" />
           ))}
         </div>
-        <div className="hidden sm:grid sm:grid-cols-2 gap-6">
-          {items.map((item) => (
+
+        {/* Desktop: 3-column grid */}
+        <div className="hidden sm:grid sm:grid-cols-3 gap-6">
+          {preview.map((item) => (
             <TestimonialCard key={item.id} item={item} locale={locale} quote={field(item, 'quote')} outcome={field(item, 'outcome')} />
           ))}
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <Link
+            href={`/${locale}/testimonials`}
+            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 px-6 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm"
+          >
+            {t('viewAll')}
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
@@ -76,9 +105,9 @@ export default function TestimonialsSection() {
 function TestimonialCard({ item, locale, quote, outcome, className = '' }: { item: Testimonial; locale: string; quote: string; outcome: string; className?: string }) {
   const isFallback = item.id.startsWith('f');
   const inner = (
-    <div className={`bg-white dark:bg-[#0d1117] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition ${className}`}>
-      <p className="text-[#334155] dark:text-[#8b949e] leading-relaxed mb-4">&ldquo;{quote}&rdquo;</p>
-      <div className="flex items-center gap-3">
+    <div className={`bg-white dark:bg-[#0d1117] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition h-full flex flex-col justify-between ${className}`}>
+      <p className="text-[#334155] dark:text-[#8b949e] leading-relaxed mb-4 line-clamp-5">&ldquo;{quote}&rdquo;</p>
+      <div className="flex items-center gap-3 mt-auto">
         {item.photo_url ? (
           <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
             <Image src={item.photo_url} alt={item.student_name} fill className="object-cover" />
@@ -97,7 +126,7 @@ function TestimonialCard({ item, locale, quote, outcome, className = '' }: { ite
   );
 
   if (!isFallback) {
-    return <Link href={`/${locale}/testimonials/${item.id}`}>{inner}</Link>;
+    return <Link href={`/${locale}/testimonials/${item.id}`} className="block h-full">{inner}</Link>;
   }
   return inner;
 }
