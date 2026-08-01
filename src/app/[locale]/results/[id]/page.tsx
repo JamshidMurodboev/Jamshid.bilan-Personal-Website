@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { StudentResult, Scholarship, University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
+import PageNav from '@/components/shared/PageNav';
 import { translateLanguage } from '@/lib/translateLanguage';
 
 const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
@@ -34,7 +35,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/results`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha natijalar</Link>
+        <PageNav />
 
         {/* Student header */}
         <div className="mt-6 mb-6">

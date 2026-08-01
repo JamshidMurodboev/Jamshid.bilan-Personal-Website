@@ -1,6 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import StudentCard from '@/components/results/StudentCard';
+import PageNav from '@/components/shared/PageNav';
 import type { StudentResult } from '@/lib/supabase/types';
 
 const SAMPLE_RESULTS: StudentResult[] = [
@@ -27,6 +28,7 @@ export default async function ResultsPage({ params: { locale } }: { params: { lo
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Stats */}
+        <PageNav />
         <div className="grid grid-cols-3 gap-4 mb-12">
           {[
             { label: 'Talaba', value: studentsHelped, suffix: '+' },

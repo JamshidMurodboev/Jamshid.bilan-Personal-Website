@@ -4,6 +4,7 @@ import { useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
+import PageNav from '@/components/shared/PageNav';
 import type { Scholarship } from '@/lib/supabase/types';
 
 const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
@@ -42,6 +43,7 @@ export default function ScholarshipsPage() {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageNav />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Grantlar</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">To'liq moliyalashtirilgan grant dasturlari katalogi</p>
         <div className="flex flex-col lg:flex-row gap-6">

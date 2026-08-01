@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { University, UniversityMajor } from '@/lib/supabase/types';
 import UniversityGallery from '@/components/universities/UniversityGallery';
 import { translateCountry } from '@/lib/translateCountry';
+import PageNav from '@/components/shared/PageNav';
 import { translateLanguage } from '@/lib/translateLanguage';
 
 const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
@@ -38,7 +39,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/universities`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha universitetlar</Link>
+        <PageNav />
 
         {photos.length > 0 && <UniversityGallery photos={photos} name={u.name} />}
 

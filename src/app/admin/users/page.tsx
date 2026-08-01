@@ -102,6 +102,7 @@ function DetailModal({ user, onClose }: DetailModalProps) {
               <span className="text-gray-500 dark:text-gray-400 font-medium">Holati</span>
               <StatusBadge status={user.status ?? 'active'} />
             </div>
+            <Field label="Til sertifikati" value={user.language_certificate} />
           </div>
         </div>
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">

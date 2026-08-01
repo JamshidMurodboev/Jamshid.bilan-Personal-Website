@@ -1,11 +1,11 @@
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { NewsPost } from '@/lib/supabase/types';
 import { formatDate } from '@/lib/format';
+import PageNav from '@/components/shared/PageNav';
 
 export default async function NewsPostPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
@@ -23,7 +23,7 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/news`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; {t('back')}</Link>
+        <PageNav />
         {post.cover_url && (
           <div className="relative w-full h-64 rounded-2xl mt-4 mb-6 overflow-hidden">
             <Image src={post.cover_url} alt={title} fill className="object-cover" />

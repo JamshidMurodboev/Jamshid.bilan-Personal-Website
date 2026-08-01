@@ -184,4 +184,5 @@ export interface SiteUser {
   last_active_at?: string
   login_count: number
   status: 'active' | 'blocked'
+  language_certificate?: string
 }
