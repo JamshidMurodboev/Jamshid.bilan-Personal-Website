@@ -42,8 +42,8 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
   const supabase = createClient();
 
   const [scholarshipsRes, universitiesRes, resultsRes, newsRes] = await Promise.allSettled([
-    supabase.from('scholarships').select('id,title,country,status,category,close_date').order('created_at', { ascending: false }).limit(3),
-    supabase.from('universities').select('id,name,country,city,type,status,tuition_usd').order('created_at', { ascending: false }).limit(3),
+    supabase.from('scholarships').select('id,title,country,status,category,close_date,photo_urls,degrees_available').order('created_at', { ascending: false }).limit(3),
+    supabase.from('universities').select('id,name,country,city,type,status,tuition_usd,photo_urls').order('created_at', { ascending: false }).limit(3),
     supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial').order('created_at', { ascending: false }).limit(3),
     supabase.from('news_posts').select('id,title_uz,title_ru,title_en,body_uz,body_ru,body_en,published_at').eq('published', true).order('published_at', { ascending: false }).limit(3),
   ]);
@@ -61,19 +61,40 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
           <div className="max-w-6xl mx-auto">
             <SectionHeader title="🎓 Grantlar" href={`/${locale}/scholarships`} label="Barcha grantlar" />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {scholarships.map(s => (
-                <Link key={s.id} href={`/${locale}/scholarships/${s.id}`} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl p-5 border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col gap-2">
-                  <div className="flex justify-between items-start gap-2">
-                    <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>{STATUS_UZ[s.status]}</span>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{s.country}</p>
-                  {s.category && (
-                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium w-fit ${FUNDING_COLORS[s.category]}`}>{FUNDING_UZ[s.category]}</span>
-                  )}
-                  {s.close_date && <p className="text-xs text-gray-400 dark:text-gray-500 mt-auto">Muddati: {s.close_date}</p>}
-                </Link>
-              ))}
+              {scholarships.map(s => {
+                const photos: string[] = (s as any).photo_urls?.length ? (s as any).photo_urls : [];
+                const degrees: string[] = (s as any).degrees_available ?? [];
+                const DEGREE_UZ: Record<string, string> = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
+                return (
+                  <Link key={s.id} href={`/${locale}/scholarships/${s.id}`} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                    {photos.length > 0 ? (
+                      <div className="relative w-full aspect-[4/3]">
+                        <Image src={photos[0]} alt={s.title} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-5xl">🎓</div>
+                    )}
+                    <div className="p-4 flex flex-col gap-2 flex-1">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>{STATUS_UZ[s.status]}</span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{s.country}</p>
+                      {s.category && (
+                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium w-fit ${FUNDING_COLORS[s.category]}`}>{FUNDING_UZ[s.category]}</span>
+                      )}
+                      {degrees.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {degrees.map(d => (
+                            <span key={d} className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs px-2 py-0.5 rounded-full">{DEGREE_UZ[d] ?? d}</span>
+                          ))}
+                        </div>
+                      )}
+                      {s.close_date && <p className="text-xs text-gray-400 dark:text-gray-500 mt-auto">Muddati: {s.close_date}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -85,23 +106,35 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
           <div className="max-w-6xl mx-auto">
             <SectionHeader title="🏫 Universitetlar" href={`/${locale}/universities`} label="Barcha universitetlar" />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {universities.map(u => (
-                <Link key={u.id} href={`/${locale}/universities/${u.id}`} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl p-5 border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col gap-2">
-                  <div className="flex justify-between items-start gap-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{u.city ? `${u.city}, ` : ''}{u.country}</p>
+              {universities.map(u => {
+                const photos: string[] = (u as any).photo_urls?.length ? (u as any).photo_urls : [];
+                return (
+                  <Link key={u.id} href={`/${locale}/universities/${u.id}`} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                    {photos.length > 0 ? (
+                      <div className="relative w-full aspect-[4/3]">
+                        <Image src={photos[0]} alt={u.name} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-5xl">🏫</div>
+                    )}
+                    <div className="p-4 flex flex-col gap-2 flex-1">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{u.city ? `${u.city}, ` : ''}{u.country}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>{TYPE_UZ[u.type]}</span>
+                          {u.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[u.status]}`}>{UNI_STATUS_UZ[u.status]}</span>}
+                        </div>
+                      </div>
+                      {u.tuition_usd != null && (
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-auto"><span className="font-medium">O&apos;qish narxi:</span> ${u.tuition_usd.toLocaleString()}/yil</p>
+                      )}
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>{TYPE_UZ[u.type]}</span>
-                      {u.status && <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[u.status]}`}>{UNI_STATUS_UZ[u.status]}</span>}
-                    </div>
-                  </div>
-                  {u.tuition_usd != null && (
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-auto"><span className="font-medium">O'qish narxi:</span> ${u.tuition_usd.toLocaleString()}/yil</p>
-                  )}
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
