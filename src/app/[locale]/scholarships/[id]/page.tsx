@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { Scholarship } from '@/lib/supabase/types';
 import TelegramContactButton from '@/components/contact/TelegramContactButton';
+import { translateCountry } from '@/lib/translateCountry';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -61,7 +62,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{s.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">{s.country}{s.university ? ` · ${s.university}` : ''}</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">{translateCountry(s.country, locale)}{s.university ? ` · ${s.university}` : ''}</p>
 
             {description && (
               <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-6 leading-relaxed text-base max-w-2xl">

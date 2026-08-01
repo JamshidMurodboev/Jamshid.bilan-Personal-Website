@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { StudentResult, Scholarship, University } from '@/lib/supabase/types';
+import { translateCountry } from '@/lib/translateCountry';
+import { translateLanguage } from '@/lib/translateLanguage';
 
 const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
 const CATEGORY_LABELS = { scholarship_winner: "Grant g'olibi", tuition_based: 'Kontrakt asosida' };
@@ -58,7 +60,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
                     {CATEGORY_LABELS[r.category]}
                   </span>
                 )}
-                <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {r.country}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
               </div>
             </div>
           </div>
@@ -128,7 +130,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
               {r.language && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Ta'lim tili</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{r.language}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</div>
                 </div>
               )}
               {r.university_ranking && (

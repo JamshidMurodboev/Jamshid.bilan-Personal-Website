@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { Scholarship } from '@/lib/supabase/types';
+import { translateCountry } from '@/lib/translateCountry';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -18,6 +19,7 @@ const FUNDING_COLORS: Record<string, string> = {
 export default function ScholarshipCard({ scholarship: s, locale }: { scholarship: Scholarship; locale?: string }) {
   const t = useTranslations('scholarships');
   const tc = useTranslations('common');
+  const currentLocale = useLocale();
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
@@ -25,7 +27,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
         <div className="flex justify-between items-start gap-2">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{s.country}{s.university ? ` · ${s.university}` : ''}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{translateCountry(s.country, locale ?? currentLocale)}{s.university ? ` · ${s.university}` : ''}</p>
           </div>
           <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>
             {tc(s.status)}

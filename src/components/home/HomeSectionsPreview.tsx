@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/format';
 import type { Scholarship, University, StudentResult, NewsPost } from '@/lib/supabase/types';
+import { translateCountry } from '@/lib/translateCountry';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -79,7 +80,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                         <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>{STATUS_UZ[s.status]}</span>
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{s.country}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{translateCountry(s.country, locale)}</p>
                       {s.category && (
                         <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium w-fit ${FUNDING_COLORS[s.category]}`}>{FUNDING_UZ[s.category]}</span>
                       )}
@@ -121,7 +122,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                       <div className="flex justify-between items-start gap-2">
                         <div>
                           <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{u.city ? `${u.city}, ` : ''}{u.country}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>{TYPE_UZ[u.type]}</span>
@@ -161,7 +162,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                     )}
                     <div className="p-4 flex flex-col gap-1">
                       <p className="font-semibold text-gray-900 dark:text-white">{r.student_name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{r.country} · {r.year}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{translateCountry(r.country, locale)} · {r.year}</p>
                       {r.testimonial && <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mt-1">&ldquo;{r.testimonial}&rdquo;</p>}
                     </div>
                   </Link>

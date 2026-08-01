@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { University } from '@/lib/supabase/types';
+import { translateCountry } from '@/lib/translateCountry';
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -14,14 +15,14 @@ const STATUS_COLORS = {
 };
 const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Tez orada' };
 
-export default function UniversityCard({ university: u, locale }: { university: University; locale?: string }) {
+export default function UniversityCard({ university: u, locale = 'uz' }: { university: University; locale?: string }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{u.country}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>
