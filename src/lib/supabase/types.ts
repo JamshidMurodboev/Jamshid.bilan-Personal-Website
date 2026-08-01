@@ -34,6 +34,7 @@ export interface University {
   website_url?: string
   tuition_usd?: number
   type: 'public' | 'private'
+  status: 'open' | 'closed' | 'upcoming'
   ranking?: number
   programs: string[]
   // New fields (admin overhaul)

@@ -7,10 +7,12 @@ interface Props {
   onCountry: (v: string) => void;
   type: string;
   onType: (v: string) => void;
+  status: string;
+  onStatus: (v: string) => void;
   countries: string[];
 }
 
-export default function UniversityFilters({ search, onSearch, country, onCountry, type, onType, countries }: Props) {
+export default function UniversityFilters({ search, onSearch, country, onCountry, type, onType, status, onStatus, countries }: Props) {
   const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
 
   return (
@@ -42,9 +44,18 @@ export default function UniversityFilters({ search, onSearch, country, onCountry
             <option value="private">Xususiy</option>
           </select>
         </div>
-        {(search || country || type) && (
+        <div>
+          <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Holat</label>
+          <select value={status} onChange={e => onStatus(e.target.value)} className={inputCls}>
+            <option value="">Hammasi</option>
+            <option value="open">Ochiq</option>
+            <option value="closed">Yopiq</option>
+            <option value="upcoming">Tez orada</option>
+          </select>
+        </div>
+        {(search || country || type || status) && (
           <button
-            onClick={() => { onSearch(''); onCountry(''); onType(''); }}
+            onClick={() => { onSearch(''); onCountry(''); onType(''); onStatus(''); }}
             className="w-full text-xs text-teal-700 dark:text-teal-400 hover:underline pt-1"
           >
             Filtrni tozalash

@@ -7,6 +7,13 @@ const TYPE_COLORS = {
 };
 const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 
+const STATUS_COLORS = {
+  open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
+  closed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
+  upcoming: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
+};
+const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Tez orada' };
+
 export default function UniversityCard({ university: u, locale }: { university: University; locale?: string }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
@@ -16,9 +23,16 @@ export default function UniversityCard({ university: u, locale }: { university: 
             <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{u.country}</p>
           </div>
-          <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${TYPE_COLORS[u.type]}`}>
-            {TYPE_LABELS[u.type]}
-          </span>
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>
+              {TYPE_LABELS[u.type]}
+            </span>
+            {u.status && (
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[u.status]}`}>
+                {STATUS_LABELS[u.status]}
+              </span>
+            )}
+          </div>
         </div>
         {u.tuition_usd != null && (
           <div className="text-sm text-gray-700 dark:text-gray-300">

@@ -13,6 +13,7 @@ export default function UniversityList({ universities, locale }: Props) {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [type, setType] = useState('');
+  const [status, setStatus] = useState('');
 
   const countries = useMemo(
     () => Array.from(new Set(universities.map(u => u.country))).sort(),
@@ -24,9 +25,10 @@ export default function UniversityList({ universities, locale }: Props) {
       if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.city?.toLowerCase().includes(search.toLowerCase())) return false;
       if (country && u.country !== country) return false;
       if (type && u.type !== type) return false;
+      if (status && u.status !== status) return false;
       return true;
     });
-  }, [universities, search, country, type]);
+  }, [universities, search, country, type, status]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -35,6 +37,7 @@ export default function UniversityList({ universities, locale }: Props) {
           search={search} onSearch={setSearch}
           country={country} onCountry={setCountry}
           type={type} onType={setType}
+          status={status} onStatus={setStatus}
           countries={countries}
         />
       </aside>
