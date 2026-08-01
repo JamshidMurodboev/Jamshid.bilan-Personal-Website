@@ -161,7 +161,8 @@
   },
   "testimonials": {
     "title": "What our students say",
-    "subtitle": "Students who studied abroad with our help"
+    "subtitle": "Students who studied abroad with our help",
+    "viewAll": "All reviews"
   },
   "faq": {
     "title": "Frequently asked questions"

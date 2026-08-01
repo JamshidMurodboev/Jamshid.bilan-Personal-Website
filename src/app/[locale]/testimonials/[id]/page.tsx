@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { Testimonial, Scholarship, University } from '@/lib/supabase/types';
+import PageNav from '@/components/shared/PageNav';
 
 const CATEGORY_LABELS = { scholarship_winner: "Grant g'olibi", tuition_based: 'Kontrakt asosida' };
 
@@ -34,10 +35,10 @@ export default async function TestimonialDetailPage({ params: { locale, id } }: 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}/#testimonials`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">&larr; Barcha fikrlar</Link>
+        <PageNav />
 
         {/* Student identity */}
-        <div className="mt-8 flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-6">
           {photos.length > 0 ? (
             <Image src={photos[0]} alt={t.student_name} width={72} height={72} className="w-18 h-18 rounded-full object-cover flex-shrink-0" />
           ) : (
