@@ -6,6 +6,7 @@ import type { StudentResult, Scholarship, University } from '@/lib/supabase/type
 import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
+import { autoTranslate } from '@/lib/translate'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -29,6 +30,8 @@ interface FormState {
   year: string
   country: string
   testimonial: string
+  testimonial_ru: string
+  testimonial_en: string
   // scholarship_winner fields
   scholarship_id: string
   university_name: string
@@ -49,6 +52,8 @@ const emptyForm: FormState = {
   year: new Date().getFullYear().toString(),
   country: '',
   testimonial: '',
+  testimonial_ru: '',
+  testimonial_en: '',
   scholarship_id: '',
   university_name: '',
   university_id: '',
@@ -181,6 +186,18 @@ export default function ResultsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [translatingTestimonial, setTranslatingTestimonial] = useState(false)
+
+  async function handleTranslateTestimonial() {
+    if (!form.testimonial.trim()) return
+    setTranslatingTestimonial(true)
+    try {
+      const result = await autoTranslate(form.testimonial)
+      setForm(f => ({ ...f, testimonial_ru: result.ru || f.testimonial_ru, testimonial_en: result.en || f.testimonial_en }))
+    } finally {
+      setTranslatingTestimonial(false)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -215,6 +232,8 @@ export default function ResultsPage() {
       year: item.year.toString(),
       country: item.country,
       testimonial: item.testimonial ?? '',
+      testimonial_ru: (item as any).testimonial_ru ?? '',
+      testimonial_en: (item as any).testimonial_en ?? '',
       scholarship_id: item.scholarship_id ?? '',
       university_name: item.university_name ?? '',
       university_id: item.university_id ?? '',
@@ -240,6 +259,8 @@ export default function ResultsPage() {
       year: Number(form.year),
       country: form.country,
       testimonial: form.testimonial || null,
+      testimonial_ru: form.testimonial_ru || null,
+      testimonial_en: form.testimonial_en || null,
       major: form.major || null,
       language: form.language || null,
       university_ranking: form.university_ranking ? Number(form.university_ranking) : null,
@@ -588,15 +609,43 @@ export default function ResultsPage() {
 
               {/* Testimonial */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                  Sharh / Fikr
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sharh / Fikr (UZ)</label>
+                  <button
+                    type="button"
+                    onClick={handleTranslateTestimonial}
+                    disabled={translatingTestimonial || !form.testimonial.trim()}
+                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {translatingTestimonial ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
+                  </button>
+                </div>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={form.testimonial}
                   onChange={(e) => setForm({ ...form, testimonial: e.target.value })}
                   className={inp}
-                  placeholder="Talabaning sharhi..."
+                  placeholder="Talabaning sharhi (o'zbekcha)..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (RU)</label>
+                <textarea
+                  rows={2}
+                  value={form.testimonial_ru}
+                  onChange={(e) => setForm({ ...form, testimonial_ru: e.target.value })}
+                  className={inp}
+                  placeholder="Отзыв студента (русский)..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (EN)</label>
+                <textarea
+                  rows={2}
+                  value={form.testimonial_en}
+                  onChange={(e) => setForm({ ...form, testimonial_en: e.target.value })}
+                  className={inp}
+                  placeholder="Student testimonial (English)..."
                 />
               </div>
 
