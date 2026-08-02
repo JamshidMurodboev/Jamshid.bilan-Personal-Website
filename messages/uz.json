@@ -34,19 +34,26 @@
   "homeSections": {
     "scholarships": {
       "title": "Grantlar",
-      "subtitle": "To'liq Qoplanadigan Grant Dasturlari"
+      "subtitle": "To'liq Qoplanadigan Grant Dasturlari",
+      "viewAll": "Barcha grantlar",
+      "deadline": "Muddati",
+      "tuition": "O'qish narxi"
     },
     "universities": {
       "title": "Universitetlar",
-      "subtitle": "To'lov asosida xorijiy universitetlar"
+      "subtitle": "To'lov asosida xorijiy universitetlar",
+      "viewAll": "Barcha universitetlar",
+      "tuition": "O'qish narxi"
     },
     "results": {
-      "title": "Natijalar",
-      "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar"
+      "title": "Muvaffaqiyat tarihlari",
+      "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar",
+      "viewAll": "Barcha natijalar"
     },
     "news": {
-      "title": "Yangiliklar",
-      "subtitle": "Grant va universitetlar yangiliklari"
+      "title": "So'nggi yangiliklar",
+      "subtitle": "Grant va universitetlar yangiliklari",
+      "viewAll": "Barcha yangiliklar"
     }
   },
   "auth": {
@@ -91,8 +98,14 @@
     "closed": "Yopiq",
     "upcoming": "Kelayotgan",
     "comingSoon": "Tez kunda",
-    "back": "Orqaga qaytish",
-    "notFound": "Topilmadi"
+    "back": "Orqaga",
+    "home": "Bosh sahifa",
+    "notFound": "Topilmadi",
+    "photos": "Rasmlar",
+    "mediaLinks": "Media",
+    "previewDocs": "Hujjatlarni ko'rish",
+    "confirmSave": "Tasdiqlash va saqlash",
+    "cancel": "Bekor qilish"
   },
   "languages": {
     "turkish": "Turk tili",
@@ -160,10 +173,27 @@
       "subject": "Mavzu",
       "message": "Xabar",
       "submit": "Yuborish",
+      "dob": "Tug'ilgan sana",
+      "cert": "Til sertifikati",
+      "score": "Ball",
+      "grantOrUniversity": "Grant yoki Universitet",
+      "other": "Boshqa variant",
+      "certNone": "Yo'q",
+      "grantGroup": "Grantlar",
+      "universityGroup": "Universitetlar",
+      "otherOption": "Boshqa...",
       "subjects": {
         "scholarship": "Grant bo'yicha savol",
         "university": "Universitetga qabul",
         "general": "Umumiy savol"
+      },
+      "errors": {
+        "name": "Ism kiritilmagan",
+        "dob": "Tug'ilgan sana kiritilmagan",
+        "cert": "Til sertifikati tanlanmagan",
+        "score": "Ball kiritilmagan",
+        "target": "Grant yoki universitet tanlanmagan",
+        "other": "Boshqa variant kiritilmagan"
       }
     }
   },
@@ -202,13 +232,28 @@
     "chooseContact": "Quyidagi platformadan birini tanlang",
     "officialWebsite": "Rasmiy sayt →",
     "mandatory": "Majburiy",
-    "optional": "Ixtiyoriy"
+    "optional": "Ixtiyoriy",
+    "mediaLinks": "Media"
   },
   "universities": {
     "ourResults": "Bizning natijalarimiz",
     "requiredDocuments": "Talab qilinadigan hujjatlar",
     "officialWebsite": "Rasmiy sayt →",
     "mandatory": "Majburiy",
-    "optional": "Ixtiyoriy"
+    "optional": "Ixtiyoriy",
+    "mediaLinks": "Media"
+  },
+  "results": {
+    "degrees": {
+      "bachelor": "Bakalavriat",
+      "master": "Magistratura",
+      "phd": "PhD"
+    },
+    "categories": {
+      "scholarship_winner": "Grant g'olibi",
+      "tuition_based": "Kontrakt asosida"
+    },
+    "mediaLinks": "Media",
+    "photos": "Rasmlar"
   }
 }

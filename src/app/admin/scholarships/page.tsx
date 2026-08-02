@@ -6,6 +6,9 @@ import type { Scholarship, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
+import { slugify } from '@/lib/slugify'
+import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
+import type { MediaLink } from '@/lib/supabase/types'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -52,6 +55,7 @@ const emptyForm = {
   results_period_type: 'exact' as ResultsDateType,
   results_period: '',
   home_order: '' as string,
+  slug: '',
 }
 
 type FormState = typeof emptyForm
@@ -92,6 +96,8 @@ export default function ScholarshipsPage() {
   const [resultsLoading, setResultsLoading] = useState(false)
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>(DEFAULT_STEPS)
+  const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
+  const [showDocsPreview, setShowDocsPreview] = useState(false)
   const dragIdx = useRef<number | null>(null)
 
   async function load() {
@@ -124,6 +130,7 @@ export default function ScholarshipsPage() {
     setStudentResults([])
     setRequiredDocs([])
     setProcessSteps(DEFAULT_STEPS.map(s => ({ ...s })))
+    setMediaLinks([])
     setError(null)
     setShowModal(true)
   }
@@ -156,15 +163,34 @@ export default function ScholarshipsPage() {
       results_period_type: (item as any).results_period_type ?? 'exact',
       results_period: (item as any).results_period ?? '',
       home_order: item.home_order?.toString() ?? '',
+      slug: item.slug ?? slugify(item.title),
     })
     setRequiredDocs((item as any).required_documents ?? [])
-    // Load process steps
+    setMediaLinks((item as any).media_links ?? [])
+    // Load process steps — merge legacy admission+application into one
     const sp: any[] = (item as any).scholarship_process ?? []
     if (sp.length > 0) {
-      setProcessSteps(sp.map(s => ({
+      const hasAdmission = sp.some(s => s.key === 'admission')
+      const hasApplication = sp.some(s => s.key === 'application')
+      let normalized = sp
+      if (hasAdmission && hasApplication) {
+        const admission = sp.find(s => s.key === 'admission')
+        const application = sp.find(s => s.key === 'application')
+        const merged = {
+          key: 'admission', label: DEFAULT_STEPS[0].label,
+          type: admission.type || 'period',
+          value: admission.value || application.value || '',
+          description_uz: admission.description_uz || application.description_uz || '',
+          description_ru: admission.description_ru || application.description_ru || '',
+          description_en: admission.description_en || application.description_en || '',
+        }
+        normalized = [merged, ...sp.filter(s => s.key !== 'admission' && s.key !== 'application')]
+      }
+      setProcessSteps(normalized.map(s => ({
         key: s.key, label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.label || s.key,
         type: s.type || 'period', value: s.value || '',
         description_uz: s.description_uz || '', description_ru: s.description_ru || '', description_en: s.description_en || '',
+        custom: !DEFAULT_STEPS.some(d => d.key === s.key),
       })))
     } else {
       // migrate from old flat fields
@@ -285,6 +311,8 @@ export default function ScholarshipsPage() {
       required_documents: filteredDocs.length > 0 ? filteredDocs : null,
       scholarship_process: filteredSteps.length > 0 ? filteredSteps : null,
       home_order: form.home_order ? parseInt(form.home_order) : null,
+      slug: form.slug || slugify(form.title) || null,
+      media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
     }
 
     const supabase = createClient()
@@ -416,9 +444,13 @@ export default function ScholarshipsPage() {
                 <input
                   required
                   value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value })}
+                  onChange={e => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })}
                   className={inp}
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
+                <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="turkiye-burslari" />
               </div>
 
               {/* Country */}
@@ -606,15 +638,13 @@ export default function ScholarshipsPage() {
                         ) : (
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{step.label}</span>
                         )}
-                        {step.custom && (
-                          <button
-                            type="button"
-                            onClick={() => setProcessSteps(ps => ps.filter((_, j) => j !== idx))}
-                            className="ml-auto text-red-500 text-xs hover:underline flex-shrink-0"
-                          >
-                            O&apos;chirish
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setProcessSteps(ps => ps.filter((_, j) => j !== idx))}
+                          className="ml-auto text-red-500 text-xs hover:underline flex-shrink-0"
+                        >
+                          O&apos;chirish
+                        </button>
                       </div>
                       <div className="grid grid-cols-2 gap-2 mb-2">
                         <select
@@ -832,6 +862,8 @@ export default function ScholarshipsPage() {
                   )}
                 </div>
               )}
+
+              <MediaLinksAdmin links={mediaLinks} onChange={setMediaLinks} />
 
               <div className="flex gap-3 pt-2">
                 <button

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Props {
   homeHref?: string;
@@ -10,6 +10,7 @@ interface Props {
 export default function PageNav({ homeHref }: Props) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('common');
 
   return (
     <div className="flex items-center gap-3 mb-6">
@@ -20,7 +21,7 @@ export default function PageNav({ homeHref }: Props) {
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Orqaga
+        {t('back')}
       </button>
       <span className="text-gray-300 dark:text-gray-600">|</span>
       <Link
@@ -30,7 +31,7 @@ export default function PageNav({ homeHref }: Props) {
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75L12 3l9 6.75V21H15v-6H9v6H3V9.75z" />
         </svg>
-        Bosh sahifa
+        {t('home')}
       </Link>
     </div>
   );

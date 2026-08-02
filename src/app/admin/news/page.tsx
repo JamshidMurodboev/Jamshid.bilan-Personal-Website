@@ -5,6 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import type { NewsPost } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
+import { slugify } from '@/lib/slugify'
+import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
+import type { MediaLink } from '@/lib/supabase/types'
 
 const emptyForm = {
   title_uz: '',
@@ -19,6 +22,7 @@ const emptyForm = {
   published_at: '',
   scholarship_id: '',
   university_id: '',
+  slug: '',
 }
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
@@ -33,6 +37,7 @@ export default function NewsPage() {
   const [saving, setSaving] = useState(false)
   const [translatingTitle, setTranslatingTitle] = useState(false)
   const [translatingBody, setTranslatingBody] = useState(false)
+  const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [scholarships, setScholarships] = useState<any[]>([])
   const [universities, setUniversities] = useState<any[]>([])
 
@@ -57,6 +62,7 @@ export default function NewsPage() {
   function openCreate() {
     setEditId(null)
     setForm(emptyForm)
+    setMediaLinks([])
     setError(null)
     setShowModal(true)
   }
@@ -76,7 +82,9 @@ export default function NewsPage() {
       published_at: item.published_at ? item.published_at.slice(0, 16) : '',
       scholarship_id: item.scholarship_id ?? '',
       university_id: item.university_id ?? '',
+      slug: (item as any).slug ?? slugify(item.title_uz),
     })
+    setMediaLinks((item as any).media_links ?? [])
     setError(null)
     setShowModal(true)
   }
@@ -128,6 +136,8 @@ export default function NewsPage() {
       published_at: form.published_at || null,
       scholarship_id: form.scholarship_id || null,
       university_id: form.university_id || null,
+      slug: form.slug || slugify(form.title_uz) || null,
+      media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
     }
     const supabase = createClient()
     const res = editId
@@ -247,6 +257,12 @@ export default function NewsPage() {
                   {error}
                 </div>
               )}
+
+              {/* Slug */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
+                <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="yangilik-sarlavhasi" />
+              </div>
 
               {/* Title UZ with autoTranslate */}
               <div>
@@ -402,6 +418,8 @@ export default function NewsPage() {
                   Chop etilgan
                 </label>
               </div>
+
+              <MediaLinksAdmin links={mediaLinks} onChange={setMediaLinks} />
 
               <div className="flex gap-3 pt-2">
                 <button

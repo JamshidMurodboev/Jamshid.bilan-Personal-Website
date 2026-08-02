@@ -1,14 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
 import { createClient } from '@/lib/supabase/client';
 
 const CERTS = ['IELTS', 'TOEFL', 'TYS', 'SAT', 'Other', 'None'];
 
-function buildMessage(name: string, dob: string, cert: string, score: string, target: string, other: string) {
+function buildMessage(name: string, dob: string, cert: string, score: string, target: string, other: string, noneLabel: string) {
   const targetStr = target === 'other' ? other : target;
-  const certStr = cert === 'None' ? "Yo'q" : cert;
+  const certStr = cert === 'None' ? noneLabel : cert;
   const scoreStr = cert === 'None' || !score.trim() ? '—' : score;
   return encodeURIComponent(
     `Assalomu Alaykum.\n\nHujjat topshirish bo'yicha yozayapman.\n\nIsm: ${name}\nTug'ilgan sana: ${dob}\nTil sertifikati: ${certStr}\nBall: ${scoreStr}\nAriza: ${targetStr}`
@@ -24,6 +25,7 @@ type FieldErrors = Partial<Record<'name' | 'dob' | 'cert' | 'score' | 'target' |
 
 export default function ContactForm() {
   const { user } = useAuth();
+  const t = useTranslations('contact.form');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [cert, setCert] = useState('');
@@ -53,12 +55,12 @@ export default function ContactForm() {
 
   function validate() {
     const e: FieldErrors = {};
-    if (!name.trim()) e.name = 'Ism kiritilmagan';
-    if (!dob) e.dob = "Tug'ilgan sana kiritilmagan";
-    if (!cert) e.cert = 'Til sertifikati tanlanmagan';
-    if (cert && cert !== 'None' && !score.trim()) e.score = 'Ball kiritilmagan';
-    if (!target) e.target = 'Grant yoki universitet tanlanmagan';
-    if (target === 'other' && !other.trim()) e.other = 'Boshqa variant kiritilmagan';
+    if (!name.trim()) e.name = t('errors.name');
+    if (!dob) e.dob = t('errors.dob');
+    if (!cert) e.cert = t('errors.cert');
+    if (cert && cert !== 'None' && !score.trim()) e.score = t('errors.score');
+    if (!target) e.target = t('errors.target');
+    if (target === 'other' && !other.trim()) e.other = t('errors.other');
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -69,61 +71,61 @@ export default function ContactForm() {
 
   function open(url: string) {
     if (!validate()) return;
-    window.open(`${url}${buildMessage(name, dob, cert, score, target, other)}`, '_blank');
+    window.open(`${url}${buildMessage(name, dob, cert, score, target, other, t('certNone'))}`, '_blank');
   }
 
   return (
     <div className="space-y-4">
       <div>
-        <label className={labelCls}>To&apos;liq ism *</label>
-        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ismingiz" className={inputCls('name')} />
+        <label className={labelCls}>{t('name')} *</label>
+        <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder={t('name')} className={inputCls('name')} />
         {errors.name && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.name}</p>}
       </div>
       <div>
-        <label className={labelCls}>Tug&apos;ilgan sana *</label>
+        <label className={labelCls}>{t('dob')} *</label>
         <DateInput value={dob} onChange={setDob} className={inputCls('dob')} />
         {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
       </div>
       <div>
-        <label className={labelCls}>Til sertifikati *</label>
+        <label className={labelCls}>{t('cert')} *</label>
         <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); }} className={inputCls('cert')}>
           <option value="">Tanlang...</option>
-          {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? "Yo'q" : c}</option>)}
+          {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
         </select>
         {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}
       </div>
       {cert && cert !== 'None' && (
         <div>
-          <label className={labelCls}>Ball *</label>
+          <label className={labelCls}>{t('score')} *</label>
           <input type="text" value={score} onChange={e => setScore(e.target.value)} placeholder="Masalan: 6.5" className={inputCls('score')} />
           {errors.score && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.score}</p>}
         </div>
       )}
       <div>
-        <label className={labelCls}>Grant yoki Universitet *</label>
+        <label className={labelCls}>{t('grantOrUniversity')} *</label>
         <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
           <option value="">Tanlang...</option>
           {scholarships.length > 0 && (
-            <optgroup label="Grantlar">
+            <optgroup label={t('grantGroup')}>
               {scholarships.map(s => (
                 <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
               ))}
             </optgroup>
           )}
           {universities.length > 0 && (
-            <optgroup label="Universitetlar">
+            <optgroup label={t('universityGroup')}>
               {universities.map(u => (
                 <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
               ))}
             </optgroup>
           )}
-          <option value="other">Boshqa...</option>
+          <option value="other">{t('otherOption')}</option>
         </select>
         {errors.target && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.target}</p>}
       </div>
       {target === 'other' && (
         <div>
-          <label className={labelCls}>Boshqa variant</label>
+          <label className={labelCls}>{t('other')}</label>
           <input type="text" value={other} onChange={e => setOther(e.target.value)} placeholder="Grant yoki universitet nomini kiriting" className={inputCls('other')} />
           {errors.other && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.other}</p>}
         </div>

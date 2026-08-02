@@ -1,3 +1,11 @@
+export interface MediaLink {
+  url: string
+  thumbnail?: string
+  description_uz?: string
+  description_ru?: string
+  description_en?: string
+}
+
 export interface RequiredDocument {
   uz: string
   ru: string
@@ -47,6 +55,8 @@ export interface Scholarship {
   required_documents?: RequiredDocument[]
   scholarship_process?: ScholarshipProcessStep[]
   home_order?: number
+  slug?: string
+  media_links?: MediaLink[]
   created_at: string
   updated_at: string
 }
@@ -70,6 +80,8 @@ export interface University {
   photo_urls?: string[]
   required_documents?: RequiredDocument[]
   home_order?: number
+  slug?: string
+  media_links?: MediaLink[]
   created_at: string
   updated_at: string
 }
@@ -103,6 +115,8 @@ export interface StudentResult {
   university_ranking?: number
   university_name?: string
   home_order?: number
+  slug?: string
+  media_links?: MediaLink[]
   created_at: string
 }
 
@@ -120,6 +134,8 @@ export interface NewsPost {
   university_id?: string
   published: boolean
   published_at?: string
+  slug?: string
+  media_links?: MediaLink[]
   created_at: string
   updated_at: string
 }
