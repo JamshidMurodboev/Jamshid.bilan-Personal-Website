@@ -30,6 +30,8 @@ const emptyForm = {
   country: '',
   university: '',
   coverage: '',
+  coverage_ru: '',
+  coverage_en: '',
   application_url: '',
   status: 'open' as Scholarship['status'],
   category: '' as Category | '',
@@ -59,10 +61,9 @@ type DocRow = { uz: string; ru: string; en: string; mandatory?: boolean }
 const emptyDoc = (): DocRow => ({ uz: '', ru: '', en: '', mandatory: true })
 
 // Scholarship process step
-type ProcessStep = { key: string; label: string; type: ResultsDateType; value: string; description_uz: string; description_ru: string; description_en: string }
+type ProcessStep = { key: string; label: string; type: ResultsDateType; value: string; description_uz: string; description_ru: string; description_en: string; custom?: boolean }
 const DEFAULT_STEPS: ProcessStep[] = [
-  { key: 'admission', label: "Qabul muddati", type: 'exact', value: '', description_uz: '', description_ru: '', description_en: '' },
-  { key: 'application', label: "Ariza davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'admission', label: "Qabul muddati / Ariza davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
   { key: 'interview_exam', label: "Suhbat / Imtihon davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
   { key: 'results', label: "Natijalar davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
 ]
@@ -134,6 +135,8 @@ export default function ScholarshipsPage() {
       country: item.country,
       university: item.university ?? '',
       coverage: item.coverage?.join(', ') ?? '',
+      coverage_ru: (item as any).coverage_ru?.join(', ') ?? '',
+      coverage_en: (item as any).coverage_en?.join(', ') ?? '',
       application_url: item.application_url ?? '',
       status: item.status,
       category: (item.category as Category) ?? '',
@@ -159,17 +162,18 @@ export default function ScholarshipsPage() {
     const sp: any[] = (item as any).scholarship_process ?? []
     if (sp.length > 0) {
       setProcessSteps(sp.map(s => ({
-        key: s.key, label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.key,
+        key: s.key, label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.label || s.key,
         type: s.type || 'period', value: s.value || '',
         description_uz: s.description_uz || '', description_ru: s.description_ru || '', description_en: s.description_en || '',
       })))
     } else {
       // migrate from old flat fields
+      const admissionValue = [item.open_date, item.close_date].filter(Boolean).join(' – ')
+        || (item as any).application_period || ''
       setProcessSteps([
-        { ...DEFAULT_STEPS[0], type: 'period', value: [item.open_date, item.close_date].filter(Boolean).join(' – ') },
-        { ...DEFAULT_STEPS[1], type: (item as any).application_period_type || 'period', value: (item as any).application_period || '' },
-        { ...DEFAULT_STEPS[2], type: (item as any).interview_exam_period_type || 'period', value: (item as any).interview_exam_period || '' },
-        { ...DEFAULT_STEPS[3], type: (item as any).results_period_type || 'period', value: (item as any).results_period || '' },
+        { ...DEFAULT_STEPS[0], type: 'period', value: admissionValue },
+        { ...DEFAULT_STEPS[1], type: (item as any).interview_exam_period_type || 'period', value: (item as any).interview_exam_period || '' },
+        { ...DEFAULT_STEPS[2], type: (item as any).results_period_type || 'period', value: (item as any).results_period || '' },
       ])
     }
     setError(null)
@@ -189,6 +193,17 @@ export default function ScholarshipsPage() {
       }))
     } finally {
       setTranslating(false)
+    }
+  }
+
+  async function handleTranslateCoverage() {
+    if (!form.coverage.trim()) return
+    setTranslatingSections(s => ({ ...s, coverage: true }))
+    try {
+      const result = await autoTranslate(form.coverage)
+      setForm(f => ({ ...f, coverage_ru: result.ru || f.coverage_ru, coverage_en: result.en || f.coverage_en }))
+    } finally {
+      setTranslatingSections(s => ({ ...s, coverage: false }))
     }
   }
 
@@ -235,8 +250,8 @@ export default function ScholarshipsPage() {
     }
 
     const filteredDocs = requiredDocs.filter(d => d.uz.trim())
-    const filteredSteps = processSteps.filter(s => s.value.trim()).map(s => ({
-      key: s.key, type: s.type, value: s.value,
+    const filteredSteps = processSteps.filter(s => s.value.trim() || s.label.trim()).map(s => ({
+      key: s.key, label: s.label, type: s.type, value: s.value,
       description_uz: s.description_uz || null,
       description_ru: s.description_ru || null,
       description_en: s.description_en || null,
@@ -247,6 +262,8 @@ export default function ScholarshipsPage() {
       country: form.country,
       university: form.university || null,
       coverage: form.coverage ? form.coverage.split(',').map(s => s.trim()).filter(Boolean) : [],
+      coverage_ru: form.coverage_ru ? form.coverage_ru.split(',').map(s => s.trim()).filter(Boolean) : null,
+      coverage_en: form.coverage_en ? form.coverage_en.split(',').map(s => s.trim()).filter(Boolean) : null,
       application_url: form.application_url || null,
       status: form.status,
       category: form.category || null,
@@ -427,11 +444,39 @@ export default function ScholarshipsPage() {
 
               {/* Coverage */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (vergul bilan)</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Qamrov (vergul bilan) (UZ)</label>
+                  <button
+                    type="button"
+                    onClick={handleTranslateCoverage}
+                    disabled={!!translatingSections['coverage'] || !form.coverage.trim()}
+                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {translatingSections['coverage'] ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
+                  </button>
+                </div>
                 <input
                   value={form.coverage}
                   onChange={e => setForm({ ...form, coverage: e.target.value })}
                   placeholder="Turar joy, Ovqat, Stipendiya"
+                  className={inp}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (RU)</label>
+                <input
+                  value={form.coverage_ru}
+                  onChange={e => setForm({ ...form, coverage_ru: e.target.value })}
+                  placeholder="Жильё, Питание, Стипендия"
+                  className={inp}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (EN)</label>
+                <input
+                  value={form.coverage_en}
+                  onChange={e => setForm({ ...form, coverage_en: e.target.value })}
+                  placeholder="Housing, Meals, Stipend"
                   className={inp}
                 />
               </div>
@@ -519,7 +564,16 @@ export default function ScholarshipsPage() {
 
               {/* Grant Jarayoni — Scholarship Process */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Grant Jarayoni</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Grant Jarayoni</h3>
+                  <button
+                    type="button"
+                    onClick={() => setProcessSteps(ps => [...ps, { key: `custom_${Date.now()}`, label: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '', custom: true }])}
+                    className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline"
+                  >
+                    + Bosqich qo&apos;shish
+                  </button>
+                </div>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Bosqichlarni tortib qayta tartiblash mumkin</p>
                 <div className="space-y-2">
                   {processSteps.map((step, idx) => (
@@ -542,7 +596,25 @@ export default function ScholarshipsPage() {
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-gray-400 dark:text-gray-500 cursor-grab select-none">⠿</span>
-                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{step.label}</span>
+                        {step.custom ? (
+                          <input
+                            value={step.label}
+                            onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label: e.target.value } : p))}
+                            placeholder="Bosqich nomi..."
+                            className="flex-1 text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          />
+                        ) : (
+                          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{step.label}</span>
+                        )}
+                        {step.custom && (
+                          <button
+                            type="button"
+                            onClick={() => setProcessSteps(ps => ps.filter((_, j) => j !== idx))}
+                            className="ml-auto text-red-500 text-xs hover:underline flex-shrink-0"
+                          >
+                            O&apos;chirish
+                          </button>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-2 mb-2">
                         <select
@@ -637,32 +709,6 @@ export default function ScholarshipsPage() {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Qabul Muddati (Boshlanish)
-                  </label>
-                  <input
-                    type="date"
-                    value={form.open_date}
-                    onChange={e => setForm({ ...form, open_date: e.target.value })}
-                    className={inp}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Qabul Muddati (Tugash)
-                  </label>
-                  <input
-                    type="date"
-                    value={form.close_date}
-                    onChange={e => setForm({ ...form, close_date: e.target.value })}
-                    className={inp}
-                  />
-                </div>
               </div>
 
               {/* Results date type + results date */}
