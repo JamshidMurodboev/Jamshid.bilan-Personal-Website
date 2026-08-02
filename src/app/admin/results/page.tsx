@@ -7,6 +7,9 @@ import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
+import { slugify } from '@/lib/slugify'
+import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
+import type { MediaLink } from '@/lib/supabase/types'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -43,6 +46,7 @@ interface FormState {
   university_ranking: string
   photo_urls: string[]
   home_order: string
+  slug: string
 }
 
 const emptyForm: FormState = {
@@ -62,6 +66,7 @@ const emptyForm: FormState = {
   university_ranking: '',
   photo_urls: [],
   home_order: '',
+  slug: '',
 }
 
 // Inline searchable select component
@@ -187,6 +192,7 @@ export default function ResultsPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [translatingTestimonial, setTranslatingTestimonial] = useState(false)
+  const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
 
   async function handleTranslateTestimonial() {
     if (!form.testimonial.trim()) return
@@ -219,6 +225,7 @@ export default function ResultsPage() {
   function openCreate() {
     setEditId(null)
     setForm(emptyForm)
+    setMediaLinks([])
     setError(null)
     setShowModal(true)
   }
@@ -242,7 +249,9 @@ export default function ResultsPage() {
       university_ranking: item.university_ranking != null ? String(item.university_ranking) : '',
       photo_urls: item.photo_urls ?? [],
       home_order: item.home_order?.toString() ?? '',
+      slug: (item as any).slug ?? slugify(item.student_name),
     })
+    setMediaLinks((item as any).media_links ?? [])
     setError(null)
     setShowModal(true)
   }
@@ -266,6 +275,8 @@ export default function ResultsPage() {
       university_ranking: form.university_ranking ? Number(form.university_ranking) : null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
       home_order: form.home_order ? parseInt(form.home_order) : null,
+      slug: form.slug || slugify(form.student_name) || null,
+      media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
     }
 
     let payload: Record<string, unknown>
@@ -423,6 +434,12 @@ export default function ResultsPage() {
                   {error}
                 </div>
               )}
+
+              {/* Slug */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
+                <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="ism-familiya" />
+              </div>
 
               {/* Category */}
               <div>
@@ -659,6 +676,8 @@ export default function ResultsPage() {
                   label="Rasmlar"
                 />
               </div>
+
+              <MediaLinksAdmin links={mediaLinks} onChange={setMediaLinks} />
 
               <div className="flex gap-3 pt-2">
                 <button

@@ -34,19 +34,26 @@
   "homeSections": {
     "scholarships": {
       "title": "Scholarships",
-      "subtitle": "Fully Funded Scholarship Programs"
+      "subtitle": "Fully Funded Scholarship Programs",
+      "viewAll": "All scholarships",
+      "deadline": "Deadline",
+      "tuition": "Tuition"
     },
     "universities": {
       "title": "Universities",
-      "subtitle": "International universities on tuition basis"
+      "subtitle": "International universities on tuition basis",
+      "viewAll": "All universities",
+      "tuition": "Tuition"
     },
     "results": {
-      "title": "Results",
-      "subtitle": "Students who studied abroad with our help"
+      "title": "Success Stories",
+      "subtitle": "Students who studied abroad with our help",
+      "viewAll": "All results"
     },
     "news": {
-      "title": "News",
-      "subtitle": "Scholarship and university news"
+      "title": "Latest News",
+      "subtitle": "Scholarship and university news",
+      "viewAll": "All news"
     }
   },
   "auth": {
@@ -92,7 +99,13 @@
     "upcoming": "Upcoming",
     "comingSoon": "Coming Soon",
     "back": "Back",
-    "notFound": "Not found"
+    "home": "Home",
+    "notFound": "Not found",
+    "photos": "Photos",
+    "mediaLinks": "Media",
+    "previewDocs": "Preview documents",
+    "confirmSave": "Confirm & save",
+    "cancel": "Cancel"
   },
   "languages": {
     "turkish": "Turkish",
@@ -160,10 +173,27 @@
       "subject": "Subject",
       "message": "Message",
       "submit": "Send message",
+      "dob": "Date of birth",
+      "cert": "Language certificate",
+      "score": "Score",
+      "grantOrUniversity": "Scholarship or University",
+      "other": "Other option",
+      "certNone": "None",
+      "grantGroup": "Scholarships",
+      "universityGroup": "Universities",
+      "otherOption": "Other...",
       "subjects": {
         "scholarship": "Scholarship inquiry",
         "university": "University admission",
         "general": "General question"
+      },
+      "errors": {
+        "name": "Name is required",
+        "dob": "Date of birth is required",
+        "cert": "Please select a language certificate",
+        "score": "Score is required",
+        "target": "Please select a scholarship or university",
+        "other": "Please enter an option"
       }
     }
   },
@@ -202,13 +232,28 @@
     "chooseContact": "Choose your preferred platform",
     "officialWebsite": "Official Website →",
     "mandatory": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "mediaLinks": "Media"
   },
   "universities": {
     "ourResults": "Our Results",
     "requiredDocuments": "Required Documents",
     "officialWebsite": "Official Website →",
     "mandatory": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "mediaLinks": "Media"
+  },
+  "results": {
+    "degrees": {
+      "bachelor": "Bachelor's",
+      "master": "Master's",
+      "phd": "PhD"
+    },
+    "categories": {
+      "scholarship_winner": "Scholarship Winner",
+      "tuition_based": "Contract Basis"
+    },
+    "mediaLinks": "Media",
+    "photos": "Photos"
   }
 }

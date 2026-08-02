@@ -7,6 +7,9 @@ import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
+import { slugify } from '@/lib/slugify'
+import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
+import type { MediaLink } from '@/lib/supabase/types'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -35,6 +38,7 @@ type FormState = {
   description_en: string
   photo_urls: string[]
   home_order: string
+  slug: string
 }
 
 const emptyForm: FormState = {
@@ -50,6 +54,7 @@ const emptyForm: FormState = {
   description_en: '',
   photo_urls: [],
   home_order: '',
+  slug: '',
 }
 
 const DEGREE_OPTIONS = [
@@ -73,7 +78,9 @@ export default function UniversitiesPage() {
   const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
+  const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
+  const [showDocsPreview, setShowDocsPreview] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -124,6 +131,7 @@ export default function UniversitiesPage() {
     setMajors([emptyMajor()])
     setStudentResults([])
     setRequiredDocs([])
+    setMediaLinks([])
     setError(null)
     setShowModal(true)
   }
@@ -143,8 +151,10 @@ export default function UniversitiesPage() {
       description_en: item.description_en ?? '',
       photo_urls: item.photo_urls ?? [],
       home_order: item.home_order?.toString() ?? '',
+      slug: item.slug ?? slugify(item.name),
     })
     setRequiredDocs((item as any).required_documents ?? [])
+    setMediaLinks((item as any).media_links ?? [])
     setError(null)
     setShowModal(true)
     loadMajors(item.id)
@@ -212,6 +222,8 @@ export default function UniversitiesPage() {
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
       required_documents: requiredDocs.filter(d => d.uz.trim()).length > 0 ? requiredDocs.filter(d => d.uz.trim()) : null,
       home_order: form.home_order ? parseInt(form.home_order) : null,
+      slug: form.slug || slugify(form.name) || null,
+      media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
     }
 
     const supabase = createClient()
@@ -321,6 +333,35 @@ export default function UniversitiesPage() {
         </div>
       )}
 
+      {showDocsPreview && (
+        <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">Hujjatlar ko&apos;rinishi (ommaviy sahifa)</h3>
+              <button onClick={() => setShowDocsPreview(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+            </div>
+            <div className="p-5">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                {requiredDocs.filter(d => d.uz.trim()).map((doc, i) => (
+                  <div key={i} className={`flex items-center gap-3 px-5 py-3.5 ${i > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''}`}>
+                    <span className="text-base flex-shrink-0">{(doc as any).icon || '📄'}</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{doc.uz}</span>
+                    {doc.mandatory === false ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500">Ixtiyoriy</span>
+                    ) : doc.mandatory === true ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600">Majburiy</span>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setShowDocsPreview(false)} className="mt-4 w-full bg-teal-700 text-white py-2.5 rounded-lg font-medium text-sm">
+                Yopish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
@@ -342,7 +383,11 @@ export default function UniversitiesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Nomi *</label>
-                  <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inp} placeholder="Universitet nomi" />
+                  <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })} className={inp} placeholder="Universitet nomi" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">URL Slug (avtomatik)</label>
+                  <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="anadolu-universiteti" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Davlat *</label>
@@ -548,6 +593,9 @@ export default function UniversitiesPage() {
                 )}
               </div>
 
+              {/* Media Links */}
+              <MediaLinksAdmin links={mediaLinks} onChange={setMediaLinks} />
+
               {/* Student results (edit mode only) */}
               {editId && (
                 <div>
@@ -584,10 +632,15 @@ export default function UniversitiesPage() {
               )}
 
               <div className="flex gap-3 pt-2">
+                {requiredDocs.filter(d => d.uz.trim()).length > 0 && (
+                  <button type="button" onClick={() => setShowDocsPreview(true)} className="border border-teal-600 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-sm font-medium px-4 py-3 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-900/20">
+                    Hujjatlarni ko&apos;rish
+                  </button>
+                )}
                 <button type="submit" disabled={saving} className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-lg disabled:opacity-60">
                   {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                 </button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                <button type="button" onClick={() => setShowModal(false)} className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                   Bekor
                 </button>
               </div>

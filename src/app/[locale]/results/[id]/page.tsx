@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,30 +7,42 @@ import type { StudentResult, Scholarship, University } from '@/lib/supabase/type
 import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
 import { translateLanguage } from '@/lib/translateLanguage';
-
-const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
-const CATEGORY_LABELS = { scholarship_winner: "Grant g'olibi", tuition_based: 'Kontrakt asosida' };
+import MediaLinksSection from '@/components/shared/MediaLinksSection';
+import { isUUID } from '@/lib/slugify';
 
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'results' });
 
   const supabase = await createClient();
-  const { data } = await supabase.from('student_results').select('*').eq('id', id).single();
-  const r = data as StudentResult | null;
+
+  let r: StudentResult | null = null;
+  if (isUUID(id)) {
+    const { data } = await supabase.from('student_results').select('*').eq('id', id).single();
+    r = data as StudentResult | null;
+  } else {
+    const { data } = await supabase.from('student_results').select('*').eq('slug', id).single();
+    r = data as StudentResult | null;
+  }
   if (!r) notFound();
 
   let scholarship: Scholarship | null = null;
   let university: University | null = null;
   if ((r as any).scholarship_id) {
-    const { data: s } = await supabase.from('scholarships').select('id,title,country').eq('id', (r as any).scholarship_id).single();
+    const { data: s } = await supabase.from('scholarships').select('id,title,country,slug').eq('id', (r as any).scholarship_id).single();
     scholarship = s as Scholarship | null;
   }
   if ((r as any).university_id) {
-    const { data: u } = await supabase.from('universities').select('id,name,country').eq('id', (r as any).university_id).single();
+    const { data: u } = await supabase.from('universities').select('id,name,country,slug').eq('id', (r as any).university_id).single();
     university = u as University | null;
   }
 
   const photos: string[] = r.photo_urls?.length ? r.photo_urls : r.photo_url ? [r.photo_url] : [];
+  const testimonial = (r as any)[`testimonial_${locale}`] || r.testimonial;
+  const mediaLinks = r.media_links ?? [];
+
+  const degreeLabel = t.raw('degrees') as Record<string, string>;
+  const categoryLabel = t.raw('categories') as Record<string, string>;
 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
@@ -54,11 +66,11 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{r.student_name}</h1>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
-                  {DEGREE_LABELS[r.degree_level]}
+                  {degreeLabel[r.degree_level] ?? r.degree_level}
                 </span>
                 {r.category && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    {CATEGORY_LABELS[r.category]}
+                    {categoryLabel[r.category] ?? r.category}
                   </span>
                 )}
                 <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
@@ -70,9 +82,9 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
         <div className="lg:grid lg:grid-cols-[1fr_220px] lg:gap-8 lg:items-start">
           {/* Main */}
           <div>
-            {r.testimonial && (
+            {testimonial && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
-                <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">&ldquo;{r.testimonial}&rdquo;</p>
+                <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">&ldquo;{testimonial}&rdquo;</p>
               </div>
             )}
 
@@ -85,7 +97,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
                       <div className="font-medium text-gray-900 dark:text-white">{scholarship.title}</div>
                       <div className="text-xs text-gray-500">{scholarship.country}</div>
                     </div>
-                    <Link href={`/${locale}/scholarships/${scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
+                    <Link href={`/${locale}/scholarships/${(scholarship as any).slug ?? scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
                   </div>
                 )}
                 {university && (
@@ -95,15 +107,15 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
                       <div className="font-medium text-gray-900 dark:text-white">{university.name}</div>
                       <div className="text-xs text-gray-500">{university.country}</div>
                     </div>
-                    <Link href={`/${locale}/universities/${university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
+                    <Link href={`/${locale}/universities/${(university as any).slug ?? university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
                   </div>
                 )}
               </div>
             )}
 
             {photos.length > 1 && (
-              <div className="space-y-4 mt-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rasmlar</h2>
+              <div className="space-y-4 mt-4 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('photos')}</h2>
                 {photos.slice(1).map((url, i) => (
                   <div key={i} className="relative w-full rounded-xl overflow-hidden">
                     <Image src={url} alt={`${r.student_name} ${i + 2}`} width={800} height={600} className="w-full h-auto object-contain" />
@@ -111,6 +123,8 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
                 ))}
               </div>
             )}
+
+            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
           </div>
 
           {/* Sidebar — metadata */}
@@ -130,7 +144,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
               )}
               {r.language && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Ta'lim tili</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Ta&apos;lim tili</div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</div>
                 </div>
               )}

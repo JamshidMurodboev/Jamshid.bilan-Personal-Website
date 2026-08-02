@@ -9,8 +9,9 @@ import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
 import { translateLanguage } from '@/lib/translateLanguage';
 import { formatDate } from '@/lib/format';
+import MediaLinksSection from '@/components/shared/MediaLinksSection';
+import { isUUID } from '@/lib/slugify';
 
-const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
   private: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
@@ -26,24 +27,38 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   setRequestLocale(locale);
 
   const supabase = await createClient();
-  const [{ data }, { data: majorsData }, { data: resultsData }, { data: newsData }, t] = await Promise.all([
-    supabase.from('universities').select('*').eq('id', id).single(),
-    supabase.from('university_majors').select('*').eq('university_id', id).order('sort_order'),
-    supabase.from('student_results').select('id, student_name, degree_level, year, country').eq('university_id', id).order('year', { ascending: false }),
-    supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at').eq('university_id', id).eq('published', true).order('published_at', { ascending: false }).limit(3),
+
+  let uniData: University | null = null;
+  if (isUUID(id)) {
+    const { data } = await supabase.from('universities').select('*').eq('id', id).single();
+    uniData = data as University | null;
+  } else {
+    const { data } = await supabase.from('universities').select('*').eq('slug', id).single();
+    uniData = data as University | null;
+  }
+  const u = uniData;
+  if (!u) notFound();
+
+  const [{ data: majorsData }, { data: resultsData }, { data: newsData }, t] = await Promise.all([
+    supabase.from('university_majors').select('*').eq('university_id', u.id).order('sort_order'),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('university_id', u.id).order('year', { ascending: false }),
+    supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('university_id', u.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     getTranslations({ locale, namespace: 'universities' }),
   ]);
 
-  const u = data as University | null;
-  if (!u) notFound();
-
   const majors = (majorsData ?? []) as UniversityMajor[];
-  const linkedResults = (resultsData ?? []) as { id: string; student_name: string; degree_level: string; year: number; country: string }[];
-  const linkedNews = (newsData ?? []) as { id: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
+  const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const linkedNews = (newsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const description = (u as any)[`description_${locale}`] || u.description_uz || '';
   const photos = u.photo_urls ?? [];
   const requiredDocs: RequiredDocument[] = (u as any).required_documents ?? [];
   const docLocale = (d: RequiredDocument) => (d as any)[locale] || d.uz;
+  const mediaLinks = u.media_links ?? [];
+
+  const TYPE_LABELS = {
+    public: locale === 'ru' ? 'Государственный' : locale === 'en' ? 'Public' : 'Davlat',
+    private: locale === 'ru' ? 'Частный' : locale === 'en' ? 'Private' : 'Xususiy',
+  };
 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
@@ -81,7 +96,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
                 <div className="flex flex-wrap gap-2">
                   {linkedResults.map(r => (
-                    <Link key={r.id} href={`/${locale}/results/${r.id}`}
+                    <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
                       className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
                       <span className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xs flex-shrink-0">
                         {r.student_name[0]}
@@ -101,7 +116,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                   {requiredDocs.map((doc, i) => (
                     <div key={i} className={`flex items-center gap-3 px-5 py-3.5 ${i > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''}`}>
-                      <span className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-400 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span>
+                      <span className="text-base flex-shrink-0">{(doc as any).icon || '📄'}</span>
                       <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{docLocale(doc)}</span>
                       {(doc as any).mandatory === false ? (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex-shrink-0">{t('optional')}</span>
@@ -117,13 +132,15 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {/* Linked News */}
             {linkedNews.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">So'nggi yangiliklar</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  {locale === 'ru' ? 'Последние новости' : locale === 'en' ? 'Latest News' : "So'nggi yangiliklar"}
+                </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {linkedNews.map(post => {
                     const newsTitle = (post as any)[`title_${locale}`] || post.title_uz;
                     const thumb = post.cover_url || post.photo_urls?.[0];
                     return (
-                      <Link key={post.id} href={`/${locale}/news/${post.id}`}
+                      <Link key={post.id} href={`/${locale}/news/${post.slug ?? post.id}`}
                         className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition flex flex-col">
                         {thumb ? (
                           <div className="relative aspect-[16/9] w-full">
@@ -143,17 +160,30 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               </div>
             )}
 
+            {/* Media Links */}
+            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+
             {majors.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Mutaxassisliklar</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : 'Mutaxassisliklar'}
+                </h2>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                       <tr>
-                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Mutaxassislik</th>
-                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">Daraja</th>
-                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">Til</th>
-                        <th className="text-right px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Narx</th>
+                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
+                          {locale === 'ru' ? 'Специальность' : locale === 'en' ? 'Program' : 'Mutaxassislik'}
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
+                          {locale === 'ru' ? 'Степень' : locale === 'en' ? 'Degree' : 'Daraja'}
+                        </th>
+                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
+                          {locale === 'ru' ? 'Язык' : locale === 'en' ? 'Language' : 'Til'}
+                        </th>
+                        <th className="text-right px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
+                          {locale === 'ru' ? 'Стоимость' : locale === 'en' ? 'Tuition' : 'Narx'}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -180,26 +210,34 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
           <aside className="lg:sticky lg:top-6 space-y-4 mt-6 lg:mt-0">
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 space-y-4">
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Turi</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                  {locale === 'ru' ? 'Тип' : locale === 'en' ? 'Type' : 'Turi'}
+                </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>
                   {TYPE_LABELS[u.type]}
                 </span>
               </div>
               {u.ranking && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Dunyo reytingi</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                    {locale === 'ru' ? 'Мировой рейтинг' : locale === 'en' ? 'World Ranking' : 'Dunyo reytingi'}
+                  </div>
                   <div className="text-2xl font-extrabold text-gray-900 dark:text-white">#{u.ranking}</div>
                 </div>
               )}
               {u.city && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Joylashuv</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{u.city}, {u.country}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                    {locale === 'ru' ? 'Местоположение' : locale === 'en' ? 'Location' : 'Joylashuv'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">{u.city}, {translateCountry(u.country, locale)}</div>
                 </div>
               )}
               {majors.length > 0 && (
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Yo'nalishlar</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                    {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : "Yo'nalishlar"}
+                  </div>
                   <div className="text-2xl font-extrabold text-gray-900 dark:text-white">{majors.length}</div>
                 </div>
               )}

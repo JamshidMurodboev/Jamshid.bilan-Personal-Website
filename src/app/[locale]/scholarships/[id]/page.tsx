@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { Scholarship } from '@/lib/supabase/types';
 import PageNav from '@/components/shared/PageNav';
+import MediaLinksSection from '@/components/shared/MediaLinksSection';
+import { isUUID } from '@/lib/slugify';
 import { translateCountry } from '@/lib/translateCountry';
 import ApplyNowCTA from '@/components/scholarships/ApplyNowCTA';
 import { formatDate } from '@/lib/format';
@@ -32,17 +34,24 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
     getTranslations({ locale, namespace: 'universities' }),
   ]);
 
-  const { data } = await supabase.from('scholarships').select('*').eq('id', id).single();
-  const s = data as Scholarship | null;
+  let sData: Scholarship | null = null;
+  if (isUUID(id)) {
+    const { data } = await supabase.from('scholarships').select('*').eq('id', id).single();
+    sData = data as Scholarship | null;
+  } else {
+    const { data } = await supabase.from('scholarships').select('*').eq('slug', id).single();
+    sData = data as Scholarship | null;
+  }
+  const s = sData;
   if (!s) notFound();
 
   const [{ data: linkedResultsData }, { data: linkedNewsData }] = await Promise.all([
-    supabase.from('student_results').select('id, student_name, degree_level, year, country').eq('scholarship_id', id).order('year', { ascending: false }),
-    supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at').eq('scholarship_id', id).eq('published', true).order('published_at', { ascending: false }).limit(3),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('scholarship_id', s.id).order('year', { ascending: false }),
+    supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('scholarship_id', s.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
   ]);
-  const linkedResults_raw = linkedResultsData;
-  const results = (linkedResults_raw ?? []) as { id: string; student_name: string; degree_level: string; year: number; country: string }[];
-  const linkedNews = (linkedNewsData ?? []) as { id: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
+  const results = (linkedResultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const linkedNews = (linkedNewsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
+  const mediaLinks = s.media_links ?? [];
   const requiredDocs: Array<{ uz: string; ru: string; en: string; mandatory?: boolean }> = (s as any).required_documents ?? [];
   const docLocale = (d: { uz: string; ru: string; en: string }) => (d as any)[locale] || d.uz;
 
@@ -115,7 +124,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
                 <div className="flex flex-wrap gap-2">
                   {results.map(r => (
-                    <Link key={r.id} href={`/${locale}/results/${r.id}`}
+                    <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
                       className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition group shadow-sm">
                       <span className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xs flex-shrink-0">
                         {r.student_name[0]}
@@ -181,7 +190,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                     const newsTitle = (post as any)[`title_${locale}`] || post.title_uz;
                     const thumb = post.cover_url || post.photo_urls?.[0];
                     return (
-                      <Link key={post.id} href={`/${locale}/news/${post.id}`}
+                      <Link key={post.id} href={`/${locale}/news/${post.slug ?? post.id}`}
                         className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition flex flex-col">
                         {thumb ? (
                           <div className="relative aspect-[16/9] w-full">
@@ -200,6 +209,9 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                 </div>
               </div>
             )}
+
+            {/* Media Links */}
+            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
 
             {/* Apply Now CTA */}
             <ApplyNowCTA scholarshipTitle={s.title} />
