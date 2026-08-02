@@ -13,6 +13,7 @@ export default function ProfileContent() {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('auth');
+  const tp = useTranslations('profile');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
@@ -125,7 +126,7 @@ export default function ProfileContent() {
 
           {/* Language certificate */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Til sertifikati (ixtiyoriy)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('certLabel')}</label>
             <div className="flex gap-2">
               <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
                 <option value="">— Tanlang —</option>
@@ -134,7 +135,7 @@ export default function ProfileContent() {
               {certType && certType !== 'N/A' && (
                 <input
                   type="text"
-                  placeholder="Ball"
+                  placeholder={tp('scorePlaceholder')}
                   value={certScore}
                   onChange={e => setCertScore(e.target.value)}
                   className={`${inputCls} w-28`}
@@ -157,22 +158,22 @@ export default function ProfileContent() {
 
         {/* Password change */}
         <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Parolni o'zgartirish</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{tp('changePassword')}</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Joriy parol</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('currentPassword')}</label>
             <input type="password" required value={currentPw} onChange={e => setCurrentPw(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Yangi parol</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('newPassword')}</label>
             <input type="password" required value={newPw} onChange={e => setNewPw(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Yangi parolni tasdiqlang</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('confirmPassword')}</label>
             <input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)} className={inputCls} />
           </div>
           {pwError && <p className="text-sm text-red-600 dark:text-red-400">{pwError}</p>}
           <button type="submit" className="w-full bg-gray-800 hover:bg-gray-900 dark:bg-gray-600 dark:hover:bg-gray-500 text-white py-3 rounded-xl font-semibold text-sm transition">
-            {pwSaved ? 'Parol saqlandi ✓' : 'Parolni saqlash'}
+              {pwSaved ? `${tp('passwordSaved')} ✓` : tp('savePassword')}
           </button>
         </form>
       </div>

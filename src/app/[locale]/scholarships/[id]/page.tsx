@@ -231,7 +231,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
           <aside className="lg:sticky lg:top-6 space-y-4 mt-6 lg:mt-0">
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 space-y-5">
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide font-medium">Holat</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide font-medium">{t('statusLabel')}</div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[s.status]}`}>
                   {tc(s.status)}
                 </span>
@@ -244,7 +244,10 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                     {t('benefitsHeading')}
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {s.coverage?.map(c => (
+                    {(((s as any)[`coverage_${locale}`] as string[] | undefined)?.length
+                      ? (s as any)[`coverage_${locale}`] as string[]
+                      : s.coverage ?? []
+                    ).map((c: string) => (
                       <span key={c} className="bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs px-2.5 py-1 rounded-full">{c}</span>
                     ))}
                   </div>
@@ -262,22 +265,22 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
 
               {(s.open_date || s.close_date || s.results_date) && (
                 <div className="space-y-3 pt-1 border-t border-gray-100 dark:border-gray-700">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium pt-1">Sanalar</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium pt-1">{t('datesHeading')}</div>
                   {s.open_date && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-400">Ochilish</span>
+                      <span className="text-gray-500 dark:text-gray-400">{t('openDate')}</span>
                       <span className="font-medium text-gray-900 dark:text-white">{s.open_date}</span>
                     </div>
                   )}
                   {s.close_date && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-400">Yopilish</span>
+                      <span className="text-gray-500 dark:text-gray-400">{t('closeDate')}</span>
                       <span className="font-medium text-gray-900 dark:text-white">{s.close_date}</span>
                     </div>
                   )}
                   {s.results_date && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-400">Natijalar</span>
+                      <span className="text-gray-500 dark:text-gray-400">{t('resultsDateLabel')}</span>
                       <span className="font-medium text-gray-900 dark:text-white">{s.results_date}</span>
                     </div>
                   )}

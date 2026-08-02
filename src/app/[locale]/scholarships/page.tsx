@@ -1,29 +1,26 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
 import PageNav from '@/components/shared/PageNav';
 import type { Scholarship } from '@/lib/supabase/types';
 
-const SAMPLE_SCHOLARSHIPS: Scholarship[] = [
-  { id: '1', title: 'Turkiye Burslari', country: 'Turkiya', university: 'Barcha davlat universitetlari', coverage: ['tuition', 'housing', 'stipend', 'flights'], eligibility: '18-30 yosh', deadline: '2025-02-20', difficulty: 4, tip: "Motivatsiya xatiga alohida e'tibor bering.", application_url: 'https://turkiyeburslari.gov.tr', status: 'open', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-  { id: '2', title: 'Chevening Scholarship', country: 'Buyuk Britaniya', coverage: ['tuition', 'housing', 'stipend', 'flights'], eligibility: '2+ yil ish tajribasi', deadline: '2024-11-05', difficulty: 5, tip: 'Liderlik tajribangizni aniq misollar bilan ifodalang.', application_url: 'https://chevening.org', status: 'closed', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-  { id: '3', title: 'DAAD Scholarship', country: 'Germaniya', coverage: ['tuition', 'stipend'], eligibility: 'Bakalavriat yoki magistratura', deadline: '2025-10-15', difficulty: 3, tip: "Nemis tili sertifikati bo'lsa kuchli ustunlik.", application_url: 'https://daad.de', status: 'open', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-];
-
 export default function ScholarshipsPage() {
   const locale = useLocale();
+  const t = useTranslations('scholarships');
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
-  const [scholarships, setScholarships] = useState<Scholarship[]>(SAMPLE_SCHOLARSHIPS);
+  const [scholarships, setScholarships] = useState<Scholarship[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     createClient().from('scholarships').select('*').then(({ data, error }) => {
-      if (!error && data && data.length > 0) setScholarships(data as Scholarship[]);
+      if (!error && data) setScholarships(data as Scholarship[]);
+      setLoading(false);
     });
   }, []);
 
@@ -44,8 +41,8 @@ export default function ScholarshipsPage() {
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Grantlar</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">To'liq moliyalashtirilgan grant dasturlari katalogi</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         <div className="flex flex-col lg:flex-row gap-6">
           <aside className="lg:w-60 flex-shrink-0">
             <ScholarshipFilters
@@ -57,10 +54,15 @@ export default function ScholarshipsPage() {
             />
           </aside>
           <div className="flex-1">
-            {filtered.length === 0
-              ? <p className="text-gray-500 dark:text-gray-400">Hech narsa topilmadi.</p>
-              : <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}</div>
-            }
+            {loading ? (
+              <div className="text-teal-700 dark:text-teal-400 animate-pulse">Yuklanmoqda...</div>
+            ) : filtered.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">Hech narsa topilmadi.</p>
+            ) : (
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}
+              </div>
+            )}
           </div>
         </div>
       </div>

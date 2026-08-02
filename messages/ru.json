@@ -233,6 +233,13 @@
     "officialWebsite": "Официальный сайт →",
     "mandatory": "Обязательно",
     "optional": "Необязательно",
+    "pageTitle": "Гранты",
+    "pageSubtitle": "Каталог полностью финансируемых стипендиальных программ",
+    "statusLabel": "Статус",
+    "datesHeading": "Сроки поступления",
+    "openDate": "Открытие",
+    "closeDate": "Закрытие",
+    "resultsDateLabel": "Результаты",
     "mediaLinks": "Медиа"
   },
   "universities": {
@@ -241,7 +248,37 @@
     "officialWebsite": "Официальный сайт →",
     "mandatory": "Обязательно",
     "optional": "Необязательно",
-    "mediaLinks": "Медиа"
+    "mediaLinks": "Медиа",
+    "pageTitle": "Университеты",
+    "pageSubtitle": "Каталог зарубежных университетов на платной основе",
+    "applyNow": "Подать документы сейчас"
+  },
+  "filters": {
+    "title": "Фильтр",
+    "search": "Поиск",
+    "country": "Страна",
+    "funding": "Финансирование",
+    "status": "Статус",
+    "type": "Тип",
+    "all": "Все",
+    "fullyFunded": "Полностью финансируется",
+    "partiallyFunded": "Частично финансируется",
+    "selfFunded": "На контрактной основе",
+    "publicType": "Государственный",
+    "privateType": "Частный",
+    "clearFilters": "Сбросить фильтры",
+    "grantPlaceholder": "Название гранта...",
+    "universityPlaceholder": "Название университета..."
+  },
+  "profile": {
+    "certLabel": "Языковой сертификат (необязательно)",
+    "changePassword": "Изменить пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите новый пароль",
+    "savePassword": "Сохранить пароль",
+    "passwordSaved": "Пароль сохранён",
+    "scorePlaceholder": "Балл"
   },
   "results": {
     "degrees": {

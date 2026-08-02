@@ -8,16 +8,18 @@ interface Props {
   className?: string;
   platform?: 'telegram' | 'whatsapp';
   scholarshipContext?: string;
+  universityContext?: string;
 }
 
 const TELEGRAM_URL = 'https://t.me/jamshid_bilan';
 const WHATSAPP_NUMBER = '905052250893';
 
-export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext }: Props) {
+export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext, universityContext }: Props) {
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [noCert, setNoCert] = useState(false);
-  const [form, setForm] = useState({ name: '', applying: '', dob: '', certName: '', certScore: '' });
+  const context = scholarshipContext ? `Grant: ${scholarshipContext}` : universityContext ? `Universitet: ${universityContext}` : '';
+  const [form, setForm] = useState({ name: '', applying: context, dob: '', certName: '', certScore: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
   const [universities, setUniversities] = useState<{ id: string; name: string; country: string }[]>([]);
@@ -55,7 +57,8 @@ export default function TelegramContactButton({ children, className, platform = 
     setOpen(false);
     setSubmitted(false);
     setNoCert(false);
-    setForm({ name: '', applying: scholarshipContext ? `Grant: ${scholarshipContext}` : '', dob: '', certName: '', certScore: '' });
+    const ctx = scholarshipContext ? `Grant: ${scholarshipContext}` : universityContext ? `Universitet: ${universityContext}` : '';
+    setForm({ name: '', applying: ctx, dob: '', certName: '', certScore: '' });
     setErrors({});
   }
 
@@ -117,6 +120,7 @@ export default function TelegramContactButton({ children, className, platform = 
     <>
       <button type="button" onClick={() => {
         if (scholarshipContext) setForm(f => ({ ...f, applying: `Grant: ${scholarshipContext}` }));
+      else if (universityContext) setForm(f => ({ ...f, applying: `Universitet: ${universityContext}` }));
         setOpen(true);
       }} className={className}>
         {children}

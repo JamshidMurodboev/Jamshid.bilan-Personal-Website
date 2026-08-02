@@ -11,6 +11,7 @@ import { translateLanguage } from '@/lib/translateLanguage';
 import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
+import UniversityApplyCTA from '@/components/universities/UniversityApplyCTA';
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -89,6 +90,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 {description}
               </div>
             )}
+            <UniversityApplyCTA universityName={u.name} />
 
             {/* Our Results */}
             {linkedResults.length > 0 && (
