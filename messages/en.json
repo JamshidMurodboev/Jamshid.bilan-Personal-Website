@@ -233,6 +233,13 @@
     "officialWebsite": "Official Website →",
     "mandatory": "Required",
     "optional": "Optional",
+    "pageTitle": "Scholarships",
+    "pageSubtitle": "Catalog of fully funded scholarship programs",
+    "statusLabel": "Status",
+    "datesHeading": "Admission Deadline",
+    "openDate": "Opens",
+    "closeDate": "Closes",
+    "resultsDateLabel": "Results",
     "mediaLinks": "Media"
   },
   "universities": {
@@ -241,7 +248,37 @@
     "officialWebsite": "Official Website →",
     "mandatory": "Required",
     "optional": "Optional",
-    "mediaLinks": "Media"
+    "mediaLinks": "Media",
+    "pageTitle": "Universities",
+    "pageSubtitle": "Catalog of international universities on tuition basis",
+    "applyNow": "Apply Now"
+  },
+  "filters": {
+    "title": "Filter",
+    "search": "Search",
+    "country": "Country",
+    "funding": "Funding",
+    "status": "Status",
+    "type": "Type",
+    "all": "All",
+    "fullyFunded": "Fully funded",
+    "partiallyFunded": "Partially funded",
+    "selfFunded": "Self-funded",
+    "publicType": "Public",
+    "privateType": "Private",
+    "clearFilters": "Clear filters",
+    "grantPlaceholder": "Scholarship name...",
+    "universityPlaceholder": "University name..."
+  },
+  "profile": {
+    "certLabel": "Language certificate (optional)",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "savePassword": "Save password",
+    "passwordSaved": "Password saved",
+    "scorePlaceholder": "Score"
   },
   "results": {
     "degrees": {

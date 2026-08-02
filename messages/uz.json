@@ -233,6 +233,13 @@
     "officialWebsite": "Rasmiy sayt →",
     "mandatory": "Majburiy",
     "optional": "Ixtiyoriy",
+    "pageTitle": "Grantlar",
+    "pageSubtitle": "To'liq moliyalashtirilgan grant dasturlari katalogi",
+    "statusLabel": "Holat",
+    "datesHeading": "Qabul Muddati",
+    "openDate": "Ochilish",
+    "closeDate": "Yopilish",
+    "resultsDateLabel": "Natijalar",
     "mediaLinks": "Media"
   },
   "universities": {
@@ -241,7 +248,37 @@
     "officialWebsite": "Rasmiy sayt →",
     "mandatory": "Majburiy",
     "optional": "Ixtiyoriy",
-    "mediaLinks": "Media"
+    "mediaLinks": "Media",
+    "pageTitle": "Universitetlar",
+    "pageSubtitle": "To'lov asosida xorijiy universitetlar katalogi",
+    "applyNow": "Hoziroq Hujjat Topshirish"
+  },
+  "filters": {
+    "title": "Filtr",
+    "search": "Qidirish",
+    "country": "Mamlakat",
+    "funding": "Moliyalashtirish",
+    "status": "Holat",
+    "type": "Turi",
+    "all": "Hammasi",
+    "fullyFunded": "To'liq moliyalashtirilgan",
+    "partiallyFunded": "Qisman moliyalashtirilgan",
+    "selfFunded": "Kontrakt asosida",
+    "publicType": "Davlat",
+    "privateType": "Xususiy",
+    "clearFilters": "Filtrni tozalash",
+    "grantPlaceholder": "Grant nomi...",
+    "universityPlaceholder": "Universitet nomi..."
+  },
+  "profile": {
+    "certLabel": "Til sertifikati (ixtiyoriy)",
+    "changePassword": "Parolni o'zgartirish",
+    "currentPassword": "Joriy parol",
+    "newPassword": "Yangi parol",
+    "confirmPassword": "Yangi parolni tasdiqlang",
+    "savePassword": "Parolni saqlash",
+    "passwordSaved": "Parol saqlandi",
+    "scorePlaceholder": "Ball"
   },
   "results": {
     "degrees": {
