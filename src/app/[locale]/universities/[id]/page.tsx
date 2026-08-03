@@ -13,6 +13,7 @@ import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import UniversityApplyCTA from '@/components/universities/UniversityApplyCTA';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -84,7 +85,10 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               )}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{u.name}</h1>
+            <div className="flex items-start gap-3">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex-1">{u.name}</h1>
+              <FavouriteButton entityType="university" entityId={u.id} />
+            </div>
             <p className="text-gray-500 dark:text-gray-400 mb-6">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
 
             {description && (

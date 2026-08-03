@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { uploadFiles } from '@/lib/upload';
 
 interface AboutContent {
   id?: string;
@@ -25,6 +26,7 @@ export default function AdminAboutPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -95,8 +97,28 @@ export default function AdminAboutPage() {
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rasm URL</label>
-          <input value={form.photo_url} onChange={e => setForm(prev => ({ ...prev, photo_url: e.target.value }))} className={inputCls} placeholder="/jamshid.jpg or https://..." />
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rasm</label>
+          {form.photo_url && (
+            <div className="mb-2 relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+              <img src={form.photo_url} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => setForm(prev => ({ ...prev, photo_url: '' }))} className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>
+            </div>
+          )}
+          <label className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-teal-500 hover:text-teal-600 cursor-pointer transition-colors w-fit">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            {uploadingPhoto ? 'Yuklanmoqda...' : 'Rasm yuklash'}
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={uploadingPhoto}
+              onChange={async e => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploadingPhoto(true);
+                try {
+                  const urls = await uploadFiles('uploads', [file]);
+                  if (urls[0]) setForm(prev => ({ ...prev, photo_url: urls[0] }));
+                } finally { setUploadingPhoto(false); }
+              }}
+            />
+          </label>
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">

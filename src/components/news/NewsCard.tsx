@@ -13,7 +13,7 @@ export default function NewsCard({ post }: { post: NewsPost }) {
   const coverImage = post.cover_url || (post as any).photo_urls?.[0];
   return (
     <Link
-      href={`/${locale}/news/${post.id}`}
+      href={`/${locale}/news/${(post as any).slug ?? post.id}`}
       className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 overflow-hidden"
     >
       <FavouriteButton entityType="news" entityId={post.id} className="absolute top-2 right-2 z-10" />

@@ -6,6 +6,7 @@ import type { Service } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
+import { uploadFiles } from '@/lib/upload'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -57,6 +58,11 @@ export default function ServicesAdminPage() {
   const [saving, setSaving] = useState(false)
   const [translatingName, setTranslatingName] = useState(false)
   const [translatingDesc, setTranslatingDesc] = useState(false)
+  const [allScholarships, setAllScholarships] = useState<{id: string; title: string}[]>([])
+  const [allUniversities, setAllUniversities] = useState<{id: string; name: string}[]>([])
+  const [selectedScholarships, setSelectedScholarships] = useState<string[]>([])
+  const [selectedUniversities, setSelectedUniversities] = useState<string[]>([])
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -66,16 +72,35 @@ export default function ServicesAdminPage() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const sb = createClient()
+    sb.from('scholarships').select('id,title').order('title').then(({ data }) => setAllScholarships(data ?? []))
+    sb.from('universities').select('id,name').order('name').then(({ data }) => setAllUniversities(data ?? []))
+  }, [])
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingPhoto(true)
+    try {
+      const urls = await uploadFiles('uploads', [file])
+      if (urls[0]) setForm(f => ({ ...f, photo_url: urls[0] }))
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   function openCreate() {
     setEditId(null)
     setForm(emptyForm)
+    setSelectedScholarships([])
+    setSelectedUniversities([])
     setError(null)
     setShowModal(true)
   }
 
-  function openEdit(item: Service) {
+  async function openEdit(item: Service) {
     setEditId(item.id)
     setForm({
       name_uz: item.name_uz,
@@ -94,6 +119,14 @@ export default function ServicesAdminPage() {
     })
     setError(null)
     setShowModal(true)
+    // Load existing connections
+    const sb = createClient()
+    const [schRes, uniRes] = await Promise.all([
+      sb.from('service_scholarships').select('scholarship_id').eq('service_id', item.id),
+      sb.from('service_universities').select('university_id').eq('service_id', item.id),
+    ])
+    setSelectedScholarships((schRes.data ?? []).map((r: any) => r.scholarship_id))
+    setSelectedUniversities((uniRes.data ?? []).map((r: any) => r.university_id))
   }
 
   async function handleTranslateName() {
@@ -140,16 +173,30 @@ export default function ServicesAdminPage() {
     }
 
     const sb = createClient()
-    const res = editId
-      ? await sb.from('services').update(payload).eq('id', editId)
-      : await sb.from('services').insert(payload)
-
-    if (res.error) {
-      setError(res.error.message)
+    let serviceId = editId
+    if (editId) {
+      const res = await sb.from('services').update(payload).eq('id', editId)
+      if (res.error) { setError(res.error.message); setSaving(false); return }
     } else {
-      setShowModal(false)
-      load()
+      const res = await sb.from('services').insert(payload).select('id').single()
+      if (res.error || !res.data) { setError(res.error?.message ?? 'Insert failed'); setSaving(false); return }
+      serviceId = res.data.id
     }
+
+    // Save connections
+    if (serviceId) {
+      await sb.from('service_scholarships').delete().eq('service_id', serviceId)
+      await sb.from('service_universities').delete().eq('service_id', serviceId)
+      if (selectedScholarships.length > 0) {
+        await sb.from('service_scholarships').insert(selectedScholarships.map(sid => ({ service_id: serviceId, scholarship_id: sid })))
+      }
+      if (selectedUniversities.length > 0) {
+        await sb.from('service_universities').insert(selectedUniversities.map(uid => ({ service_id: serviceId, university_id: uid })))
+      }
+    }
+
+    setShowModal(false)
+    load()
     setSaving(false)
   }
 
@@ -265,10 +312,54 @@ export default function ServicesAdminPage() {
                 <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} />
               </div>
 
-              {/* Photo URL */}
+              {/* Photo upload */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Rasm URL</label>
-                <input type="url" value={form.photo_url} onChange={e => setForm({ ...form, photo_url: e.target.value })} className={inp} placeholder="https://..." />
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Rasm</label>
+                {form.photo_url && (
+                  <div className="mb-2 relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+                    <img src={form.photo_url} alt="" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => setForm(f => ({ ...f, photo_url: '' }))} className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>
+                  </div>
+                )}
+                <label className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-teal-500 hover:text-teal-600 cursor-pointer transition-colors w-fit">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  {uploadingPhoto ? 'Yuklanmoqda...' : 'Rasm yuklash'}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
+                </label>
+              </div>
+
+              {/* Scholarship connections */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bog&apos;langan grantlar</label>
+                <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2 space-y-1">
+                  {allScholarships.map(s => (
+                    <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="checkbox" checked={selectedScholarships.includes(s.id)}
+                        onChange={e => setSelectedScholarships(prev => e.target.checked ? [...prev, s.id] : prev.filter(id => id !== s.id))}
+                        className="w-4 h-4 accent-teal-600"
+                      />
+                      <span className="text-gray-700 dark:text-gray-300">{s.title}</span>
+                    </label>
+                  ))}
+                  {allScholarships.length === 0 && <p className="text-xs text-gray-400">Grant yo&apos;q</p>}
+                </div>
+              </div>
+
+              {/* University connections */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bog&apos;langan universitetlar</label>
+                <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2 space-y-1">
+                  {allUniversities.map(u => (
+                    <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="checkbox" checked={selectedUniversities.includes(u.id)}
+                        onChange={e => setSelectedUniversities(prev => e.target.checked ? [...prev, u.id] : prev.filter(id => id !== u.id))}
+                        className="w-4 h-4 accent-teal-600"
+                      />
+                      <span className="text-gray-700 dark:text-gray-300">{u.name}</span>
+                    </label>
+                  ))}
+                  {allUniversities.length === 0 && <p className="text-xs text-gray-400">Universitet yo&apos;q</p>}
+                </div>
               </div>
 
               {/* Price + Currency */}

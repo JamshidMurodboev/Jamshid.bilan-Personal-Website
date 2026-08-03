@@ -11,6 +11,7 @@ import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import { translateCountry } from '@/lib/translateCountry';
 import ApplyNowCTA from '@/components/scholarships/ApplyNowCTA';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 import { formatDate } from '@/lib/format';
 
 const STATUS_COLORS = {
@@ -111,7 +112,10 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
               )}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{s.title}</h1>
+            <div className="flex items-start gap-3">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex-1">{s.title}</h1>
+              <FavouriteButton entityType="scholarship" entityId={s.id} />
+            </div>
             <p className="text-gray-500 dark:text-gray-400 mb-6">{translateCountry(s.country, locale)}{s.university ? ` · ${s.university}` : ''}</p>
 
             {description && (

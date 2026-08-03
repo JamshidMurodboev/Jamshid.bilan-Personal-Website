@@ -10,6 +10,7 @@ import ActivityTracker from '@/components/shared/ActivityTracker';
 import { translateLanguage } from '@/lib/translateLanguage';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
@@ -65,7 +66,10 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{r.student_name}</h1>
+              <div className="flex items-start gap-3">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{r.student_name}</h1>
+              <FavouriteButton entityType="result" entityId={r.id} />
+            </div>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
                   {degreeLabel[r.degree_level] ?? r.degree_level}
@@ -132,16 +136,20 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
           {/* Sidebar — metadata */}
           <aside className="lg:sticky lg:top-6 mt-6 lg:mt-0">
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 space-y-4">
-              {r.university_name && (
+              {(r.university_name || r.university_name_ru || r.university_name_en) && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Universitet</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{r.university_name}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {(r as any)[`university_name_${locale}`] || r.university_name}
+                  </div>
                 </div>
               )}
-              {r.major && (
+              {(r.major || r.major_ru || r.major_en) && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Mutaxassislik</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{r.major}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {(r as any)[`major_${locale}`] || r.major}
+                  </div>
                 </div>
               )}
               {r.language && (

@@ -30,6 +30,15 @@ const statusCfg: Record<Inquiry['status'], { label: string; cls: string; darkCls
   },
 }
 
+interface AuditEntry {
+  id: string
+  inquiry_id: string
+  changed_by: string
+  old_status: string
+  new_status: string
+  created_at: string
+}
+
 interface DetailPanelProps {
   item: Inquiry
   onClose: () => void
@@ -37,6 +46,16 @@ interface DetailPanelProps {
 }
 
 function DetailPanel({ item, onClose, onNotesChange }: DetailPanelProps) {
+  const [auditLog, setAuditLog] = useState<AuditEntry[]>([])
+
+  useEffect(() => {
+    createClient()
+      .from('inquiry_audit')
+      .select('*')
+      .eq('inquiry_id', item.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setAuditLog(data ?? []))
+  }, [item.id])
   const [notes, setNotes] = useState(item.notes ?? '')
   const savedNotes = useRef(item.notes ?? '')
   const lastChangeTime = useRef<number | null>(null)
@@ -138,9 +157,31 @@ function DetailPanel({ item, onClose, onNotesChange }: DetailPanelProps) {
               className={`${inp} resize-y`}
             />
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              O'zgarishlar 5 soniyadan so'ng avtomatik saqlanadi
+              O&apos;zgarishlar 5 soniyadan so&apos;ng avtomatik saqlanadi
             </p>
           </div>
+
+          {/* Audit log */}
+          {auditLog.length > 0 && (
+            <div className="mt-5">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                Status tarixi
+              </p>
+              <ul className="space-y-1.5">
+                {auditLog.map(entry => (
+                  <li key={entry.id} className="text-xs text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400 flex-shrink-0 mt-1.5" />
+                    <div>
+                      <span className="font-medium">{entry.old_status}</span>
+                      <span className="mx-1 text-gray-400">→</span>
+                      <span className="font-medium">{entry.new_status}</span>
+                      <span className="text-gray-400 ml-2">{new Date(entry.created_at).toLocaleString('uz-UZ')}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </aside>
     </div>
@@ -170,11 +211,22 @@ export default function InquiriesPage() {
   }, [])
 
   async function updateStatus(id: string, status: Inquiry['status']) {
-    const { error } = await createClient().from('inquiries').update({ status }).eq('id', id)
+    const oldItem = items.find(i => i.id === id)
+    const sb = createClient()
+    const { error } = await sb.from('inquiries').update({ status }).eq('id', id)
     if (error) setError(error.message)
     else {
       setItems(prev => prev.map(item => (item.id === id ? { ...item, status } : item)))
       if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : prev)
+      // Audit log
+      if (oldItem && oldItem.status !== status) {
+        await sb.from('inquiry_audit').insert({
+          inquiry_id: id,
+          changed_by: 'admin',
+          old_status: oldItem.status,
+          new_status: status,
+        })
+      }
     }
   }
 

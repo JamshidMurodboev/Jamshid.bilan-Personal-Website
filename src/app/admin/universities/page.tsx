@@ -19,9 +19,11 @@ type MajorRow = {
   language: string
   tuition: string
   currency: 'USD' | 'UZS' | 'EUR' | 'TL'
+  tuition_estimated: boolean
+  tuition_note_uz: string
 }
 
-const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD' })
+const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD', tuition_estimated: false, tuition_note_uz: '' })
 
 type DocRow = RequiredDocument & { mandatory?: boolean }
 
@@ -116,6 +118,8 @@ export default function UniversitiesPage() {
         language: m.language ?? '',
         tuition: m.tuition?.toString() ?? '',
         currency: m.currency,
+        tuition_estimated: (m as any).tuition_estimated ?? false,
+        tuition_note_uz: (m as any).tuition_note_uz ?? '',
       })))
     } else {
       setMajors([emptyMajor()])
@@ -209,6 +213,8 @@ export default function UniversitiesPage() {
         tuition: m.tuition ? Number(m.tuition) : null,
         currency: m.currency,
         sort_order: i,
+        tuition_estimated: m.tuition_estimated,
+        tuition_note_uz: m.tuition_estimated ? (m.tuition_note_uz || null) : null,
       }))
     if (rows.length > 0) {
       await supabase.from('university_majors').insert(rows)
@@ -623,6 +629,25 @@ export default function UniversitiesPage() {
                             <option value="EUR">EUR — Evro</option>
                             <option value="TL">TL — Turk lirasi</option>
                           </select>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="flex items-center gap-2 cursor-pointer mb-1.5">
+                            <input
+                              type="checkbox"
+                              checked={m.tuition_estimated}
+                              onChange={e => setMajors(prev => prev.map((r, j) => j === i ? { ...r, tuition_estimated: e.target.checked } : r))}
+                              className="w-4 h-4 rounded accent-teal-600"
+                            />
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Taxminiy narx</span>
+                          </label>
+                          {m.tuition_estimated && (
+                            <input
+                              value={m.tuition_note_uz}
+                              onChange={e => setMajors(prev => prev.map((r, j) => j === i ? { ...r, tuition_note_uz: e.target.value } : r))}
+                              placeholder="Taxminiy narx izohi (UZ)"
+                              className={inp}
+                            />
+                          )}
                         </div>
                       </div>
                     </div>

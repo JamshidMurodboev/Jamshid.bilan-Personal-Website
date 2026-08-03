@@ -9,6 +9,7 @@ import PageNav from '@/components/shared/PageNav';
 import ActivityTracker from '@/components/shared/ActivityTracker';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default async function NewsPostPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
@@ -42,7 +43,10 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
             <Image src={post.cover_url} alt={title} fill className="object-cover" />
           </div>
         )}
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-4 mb-2">{title}</h1>
+        <div className="flex items-start gap-3 mt-4 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex-1">{title}</h1>
+          <FavouriteButton entityType="news" entityId={post.id} />
+        </div>
         {post.published_at && (
           <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">{formatDate(post.published_at)}</p>
         )}

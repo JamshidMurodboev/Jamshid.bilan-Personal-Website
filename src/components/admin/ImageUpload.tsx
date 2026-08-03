@@ -27,20 +27,34 @@ export default function ImageUpload({ bucket, urls, onChange, multiple = false, 
     onChange(urls.filter(u => u !== url))
   }
 
+  function moveUrl(index: number, dir: -1 | 1) {
+    const swap = index + dir
+    if (swap < 0 || swap >= urls.length) return
+    const n = [...urls]
+    ;[n[index], n[swap]] = [n[swap], n[index]]
+    onChange(n)
+  }
+
   return (
     <div className="space-y-2">
       {urls.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {urls.map(url => (
+          {urls.map((url, index) => (
             <div key={url} className="relative group w-20 h-20 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
               <img src={url} alt="" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => remove(url)}
-                className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-              >
-                O'chir
-              </button>
+              <div className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between py-1">
+                <div className="flex gap-1">
+                  <button type="button" onClick={() => moveUrl(index, -1)} disabled={index === 0} className="text-white disabled:opacity-30 text-xs leading-none px-1 hover:text-teal-300">▲</button>
+                  <button type="button" onClick={() => moveUrl(index, 1)} disabled={index === urls.length - 1} className="text-white disabled:opacity-30 text-xs leading-none px-1 hover:text-teal-300">▼</button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => remove(url)}
+                  className="text-white text-xs flex items-center justify-center"
+                >
+                  O&apos;chir
+                </button>
+              </div>
             </div>
           ))}
         </div>
