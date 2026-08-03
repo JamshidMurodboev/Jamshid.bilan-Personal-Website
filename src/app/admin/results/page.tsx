@@ -38,10 +38,14 @@ interface FormState {
   // scholarship_winner fields
   scholarship_id: string
   university_name: string
+  university_name_ru: string
+  university_name_en: string
   // tuition_based fields
   university_id: string
   // shared
   major: string
+  major_ru: string
+  major_en: string
   language: string
   university_ranking: string
   photo_urls: string[]
@@ -60,8 +64,12 @@ const emptyForm: FormState = {
   testimonial_en: '',
   scholarship_id: '',
   university_name: '',
+  university_name_ru: '',
+  university_name_en: '',
   university_id: '',
   major: '',
+  major_ru: '',
+  major_en: '',
   language: '',
   university_ranking: '',
   photo_urls: [],
@@ -192,7 +200,27 @@ export default function ResultsPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [translatingTestimonial, setTranslatingTestimonial] = useState(false)
+  const [translatingUniName, setTranslatingUniName] = useState(false)
+  const [translatingMajor, setTranslatingMajor] = useState(false)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
+
+  async function handleTranslateUniName() {
+    if (!form.university_name.trim()) return
+    setTranslatingUniName(true)
+    try {
+      const result = await autoTranslate(form.university_name)
+      setForm(f => ({ ...f, university_name_ru: result.ru || f.university_name_ru, university_name_en: result.en || f.university_name_en }))
+    } finally { setTranslatingUniName(false) }
+  }
+
+  async function handleTranslateMajor() {
+    if (!form.major.trim()) return
+    setTranslatingMajor(true)
+    try {
+      const result = await autoTranslate(form.major)
+      setForm(f => ({ ...f, major_ru: result.ru || f.major_ru, major_en: result.en || f.major_en }))
+    } finally { setTranslatingMajor(false) }
+  }
 
   async function handleTranslateTestimonial() {
     if (!form.testimonial.trim()) return
@@ -243,8 +271,12 @@ export default function ResultsPage() {
       testimonial_en: (item as any).testimonial_en ?? '',
       scholarship_id: item.scholarship_id ?? '',
       university_name: item.university_name ?? '',
+      university_name_ru: (item as any).university_name_ru ?? '',
+      university_name_en: (item as any).university_name_en ?? '',
       university_id: item.university_id ?? '',
       major: item.major ?? '',
+      major_ru: (item as any).major_ru ?? '',
+      major_en: (item as any).major_en ?? '',
       language: item.language ?? '',
       university_ranking: item.university_ranking != null ? String(item.university_ranking) : '',
       photo_urls: item.photo_urls ?? [],
@@ -271,6 +303,8 @@ export default function ResultsPage() {
       testimonial_ru: form.testimonial_ru || null,
       testimonial_en: form.testimonial_en || null,
       major: form.major || null,
+      major_ru: form.major_ru || null,
+      major_en: form.major_en || null,
       language: form.language || null,
       university_ranking: form.university_ranking ? Number(form.university_ranking) : null,
       photo_urls: form.photo_urls.length > 0 ? form.photo_urls : null,
@@ -286,6 +320,8 @@ export default function ResultsPage() {
         ...base,
         scholarship_id: form.scholarship_id || null,
         university_name: form.university_name || null,
+        university_name_ru: form.university_name_ru || null,
+        university_name_en: form.university_name_en || null,
         university_id: null,
       }
     } else {
@@ -494,15 +530,17 @@ export default function ResultsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      Universitet nomi (o&apos;qish joyi)
-                    </label>
-                    <input
-                      value={form.university_name}
-                      onChange={(e) => setForm({ ...form, university_name: e.target.value })}
-                      className={inp}
-                      placeholder="Masalan: Seoul National University"
-                    />
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Universitet nomi (o&apos;qish joyi)</label>
+                      <button type="button" onClick={handleTranslateUniName} disabled={translatingUniName || !form.university_name.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                        {translatingUniName ? 'Tarjimon...' : 'RU/EN tarjima'}
+                      </button>
+                    </div>
+                    <input value={form.university_name} onChange={(e) => setForm({ ...form, university_name: e.target.value })} className={inp} placeholder="Masalan: Seoul National University" />
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <input value={form.university_name_ru} onChange={e => setForm({ ...form, university_name_ru: e.target.value })} className={inp} placeholder="Uni name (RU)" />
+                      <input value={form.university_name_en} onChange={e => setForm({ ...form, university_name_en: e.target.value })} className={inp} placeholder="Uni name (EN)" />
+                    </div>
                   </div>
                 </>
               )}
@@ -525,15 +563,17 @@ export default function ResultsPage() {
 
               {/* Shared: major */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                  Mutaxassislik
-                </label>
-                <input
-                  value={form.major}
-                  onChange={(e) => setForm({ ...form, major: e.target.value })}
-                  className={inp}
-                  placeholder="Masalan: Computer Science"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Mutaxassislik</label>
+                  <button type="button" onClick={handleTranslateMajor} disabled={translatingMajor || !form.major.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                    {translatingMajor ? 'Tarjimon...' : 'RU/EN tarjima'}
+                  </button>
+                </div>
+                <input value={form.major} onChange={(e) => setForm({ ...form, major: e.target.value })} className={inp} placeholder="Masalan: Computer Science" />
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <input value={form.major_ru} onChange={e => setForm({ ...form, major_ru: e.target.value })} className={inp} placeholder="Mutaxassislik (RU)" />
+                  <input value={form.major_en} onChange={e => setForm({ ...form, major_en: e.target.value })} className={inp} placeholder="Major (EN)" />
+                </div>
               </div>
 
               {/* Shared: language */}

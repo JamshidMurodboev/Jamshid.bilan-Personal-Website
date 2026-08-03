@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { SiteUser } from '@/lib/supabase/types'
+import type { SiteUser, UserActivity } from '@/lib/supabase/types'
 
 const inp =
   'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
@@ -59,6 +59,18 @@ interface DetailModalProps {
 }
 
 function DetailModal({ user, onClose }: DetailModalProps) {
+  const [activities, setActivities] = useState<UserActivity[]>([])
+
+  useEffect(() => {
+    createClient()
+      .from('user_activities')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('visited_at', { ascending: false })
+      .limit(20)
+      .then(({ data }) => setActivities(data ?? []))
+  }, [user.id])
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
@@ -105,6 +117,24 @@ function DetailModal({ user, onClose }: DetailModalProps) {
             <Field label="Til sertifikati" value={user.language_certificate} />
           </div>
         </div>
+        {activities.length > 0 && (
+          <div className="px-6 pb-5">
+            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">So&apos;nggi faollik</h3>
+            <ul className="space-y-1.5 max-h-48 overflow-y-auto">
+              {activities.map(a => (
+                <li key={a.id} className="flex items-start gap-2 text-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 flex-shrink-0 mt-1.5" />
+                  <div>
+                    <span className="text-gray-800 dark:text-gray-200">
+                      {a.entity_name || a.entity_type} — {a.entity_type}
+                    </span>
+                    <span className="text-gray-400 ml-2">{a.visited_at ? formatDateTime(a.visited_at) : '—'}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
           <button
             onClick={onClose}

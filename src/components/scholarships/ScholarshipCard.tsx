@@ -64,7 +64,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
       <div className="flex gap-2 pt-2">
         {locale && (
           <Link
-            href={`/${locale}/scholarships/${s.id}`}
+            href={`/${locale}/scholarships/${s.slug ?? s.id}`}
             className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
           >
             {t('detailBtn')}

@@ -54,7 +54,7 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
   );
 
   if (locale) {
-    return <Link href={`/${locale}/results/${r.id}`}>{card}</Link>;
+    return <Link href={`/${locale}/results/${(r as any).slug ?? r.id}`}>{card}</Link>;
   }
   return card;
 }

@@ -111,9 +111,13 @@ export interface StudentResult {
   // New fields (admin overhaul)
   category?: 'scholarship_winner' | 'tuition_based'
   major?: string
+  major_ru?: string
+  major_en?: string
   language?: string
   university_ranking?: number
   university_name?: string
+  university_name_ru?: string
+  university_name_en?: string
   home_order?: number
   slug?: string
   media_links?: MediaLink[]
