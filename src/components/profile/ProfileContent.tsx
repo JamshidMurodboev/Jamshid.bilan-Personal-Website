@@ -3,8 +3,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
 import DateInput from '@/components/shared/DateInput';
 import PageNav from '@/components/shared/PageNav';
+import { createClient } from '@/lib/supabase/client';
 
 const CERT_TYPES = ['IELTS', 'TOEFL', 'SAT', 'TYS', 'Multilevel', 'Duolingo', 'N/A', 'Other'];
 
@@ -32,6 +34,11 @@ export default function ProfileContent() {
   const [pwError, setPwError] = useState('');
   const [pwSaved, setPwSaved] = useState(false);
 
+  // Saved items
+  type FavItem = { entity_type: string; entity_id: string; label?: string; href?: string };
+  const [savedItems, setSavedItems] = useState<FavItem[]>([]);
+  const [savedLoading, setSavedLoading] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -48,6 +55,38 @@ export default function ProfileContent() {
         setCertType(user.languageCertificate.type);
         setCertScore(user.languageCertificate.score);
       }
+      // Load saved items
+      setSavedLoading(true);
+      const sb = createClient();
+      sb.from('user_favorites').select('entity_type,entity_id').eq('user_id', user.id).then(async ({ data }) => {
+        if (!data || data.length === 0) { setSavedItems([]); setSavedLoading(false); return; }
+        const grouped: Record<string, string[]> = {};
+        for (const f of data) {
+          if (!grouped[f.entity_type]) grouped[f.entity_type] = [];
+          grouped[f.entity_type].push(f.entity_id);
+        }
+        const items: FavItem[] = [];
+        for (const [type, ids] of Object.entries(grouped)) {
+          if (type === 'scholarship') {
+            const { data: rows } = await sb.from('scholarships').select('id,title,slug').in('id', ids);
+            for (const r of rows ?? []) items.push({ entity_type: type, entity_id: r.id, label: r.title, href: `/${locale}/scholarships/${r.slug ?? r.id}` });
+          } else if (type === 'university') {
+            const { data: rows } = await sb.from('universities').select('id,name,slug').in('id', ids);
+            for (const r of rows ?? []) items.push({ entity_type: type, entity_id: r.id, label: r.name, href: `/${locale}/universities/${r.slug ?? r.id}` });
+          } else if (type === 'news') {
+            const { data: rows } = await sb.from('news_posts').select('id,title_uz,slug').in('id', ids);
+            for (const r of rows ?? []) items.push({ entity_type: type, entity_id: r.id, label: r.title_uz, href: `/${locale}/news/${r.slug ?? r.id}` });
+          } else if (type === 'result') {
+            const { data: rows } = await sb.from('student_results').select('id,student_name,slug').in('id', ids);
+            for (const r of rows ?? []) items.push({ entity_type: type, entity_id: r.id, label: r.student_name, href: `/${locale}/results/${r.slug ?? r.id}` });
+          } else if (type === 'service') {
+            const { data: rows } = await sb.from('services').select('id,name_uz,slug').in('id', ids);
+            for (const r of rows ?? []) items.push({ entity_type: type, entity_id: r.id, label: r.name_uz, href: `/${locale}/services/${r.slug ?? r.id}` });
+          }
+        }
+        setSavedItems(items);
+        setSavedLoading(false);
+      });
     }
   }, [user, mounted, locale, router]);
 
@@ -155,6 +194,34 @@ export default function ProfileContent() {
             </button>
           </div>
         </form>
+
+        {/* Saved items */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">{t('savedItems')}</h2>
+          {savedLoading ? (
+            <p className="text-sm text-gray-400 animate-pulse">Yuklanmoqda...</p>
+          ) : savedItems.length === 0 ? (
+            <p className="text-sm text-gray-400">Saqlangan elementlar yo&apos;q</p>
+          ) : (
+            <ul className="space-y-2">
+              {savedItems.map(item => (
+                <li key={`${item.entity_type}:${item.entity_id}`}>
+                  {item.href ? (
+                    <Link href={item.href} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 capitalize flex-shrink-0">{item.entity_type}</span>
+                      <span className="text-sm text-gray-800 dark:text-gray-200 line-clamp-1">{item.label}</span>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 capitalize">{item.entity_type}</span>
+                      <span className="text-sm text-gray-800 dark:text-gray-200">{item.label || item.entity_id}</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Password change */}
         <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">

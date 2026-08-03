@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Scholarship } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -22,7 +23,8 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
   const currentLocale = useLocale();
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
+      <FavouriteButton entityType="scholarship" entityId={s.id} className="absolute top-2 right-2" />
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>

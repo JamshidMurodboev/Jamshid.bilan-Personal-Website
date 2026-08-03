@@ -1,8 +1,10 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import type { NewsPost } from '@/lib/supabase/types';
 import { formatDate } from '@/lib/format';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function NewsCard({ post }: { post: NewsPost }) {
   const locale = useLocale();
@@ -12,8 +14,9 @@ export default function NewsCard({ post }: { post: NewsPost }) {
   return (
     <Link
       href={`/${locale}/news/${post.id}`}
-      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 overflow-hidden"
+      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 overflow-hidden"
     >
+      <FavouriteButton entityType="news" entityId={post.id} className="absolute top-2 right-2 z-10" />
       {coverImage && (
         <div className="relative w-full aspect-[16/9]">
           <Image src={coverImage} alt={title} fill className="object-cover rounded-t-2xl" />

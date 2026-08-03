@@ -1,6 +1,8 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { StudentResult } from '@/lib/supabase/types';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 const DEGREE_LABELS = { bachelor: 'Bakalavriat', master: 'Magistratura', phd: 'PhD' };
 const CATEGORY_LABELS = { scholarship_winner: "Grant g'olibi", tuition_based: 'Kontrakt asosida' };
@@ -11,14 +13,15 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
     : r.photo_url ? [r.photo_url] : [];
 
   const card = (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+      <FavouriteButton entityType="result" entityId={r.id} className="absolute top-2 right-2 z-10" />
       {/* Main photo — large, like a document/letter preview */}
       {photos.length > 0 ? (
-        <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-gray-700">
-          <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
+        <div className="relative w-full max-h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+          <Image src={photos[0]} alt={r.student_name} width={600} height={400} className="w-full h-full object-cover max-h-48" />
         </div>
       ) : (
-        <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
+        <div className="w-full h-36 bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
           <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl">
             {r.student_name[0]}
           </div>

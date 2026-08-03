@@ -6,7 +6,8 @@
     "universities": "Universitetlar",
     "results": "Natijalar",
     "news": "Yangiliklar",
-    "contact": "Bog'lanish"
+    "contact": "Bog'lanish",
+    "services": "Xizmatlar"
   },
   "hero": {
     "badge": "Grantlar Bo'yicha Mentor",
@@ -46,7 +47,7 @@
       "tuition": "O'qish narxi"
     },
     "results": {
-      "title": "Muvaffaqiyat tarihlari",
+      "title": "Muvaffaqiyat Hikoyalari",
       "subtitle": "Biz orqali chet elda o'qishga muyassar bo'lganlar",
       "viewAll": "Barcha natijalar"
     },
@@ -54,6 +55,11 @@
       "title": "So'nggi yangiliklar",
       "subtitle": "Grant va universitetlar yangiliklari",
       "viewAll": "Barcha yangiliklar"
+    },
+    "services": {
+      "title": "Xizmatlar",
+      "subtitle": "Kurslar va professional xizmatlar",
+      "viewAll": "Barcha xizmatlar"
     }
   },
   "auth": {
@@ -84,7 +90,8 @@
     "profile": "Profil",
     "logout": "Chiqish",
     "saved": "Saqlandi",
-    "save": "Saqlash"
+    "save": "Saqlash",
+    "savedItems": "Saqlangan"
   },
   "common": {
     "loading": "Yuklanmoqda...",
@@ -105,7 +112,9 @@
     "mediaLinks": "Media",
     "previewDocs": "Hujjatlarni ko'rish",
     "confirmSave": "Tasdiqlash va saqlash",
-    "cancel": "Bekor qilish"
+    "cancel": "Bekor qilish",
+    "savedToFavourites": "Sevimlilaringizga saqlandi",
+    "removedFromFavourites": "Sevimlilardan olib tashlandi"
   },
   "languages": {
     "turkish": "Turk tili",
@@ -288,9 +297,19 @@
     },
     "categories": {
       "scholarship_winner": "Grant g'olibi",
-      "tuition_based": "Kontrakt asosida"
+      "tuition_based": "Kontrakt asosida",
+      "all": "Hammasi"
     },
     "mediaLinks": "Media",
     "photos": "Rasmlar"
+  },
+  "services": {
+    "pageTitle": "Xizmatlar",
+    "pageSubtitle": "Biz taklif etadigan xizmatlar va kurslar",
+    "loginRequired": "Xizmatlarni ko'rish uchun tizimga kiring",
+    "free": "Bepul",
+    "price": "Narx",
+    "applyNow": "Bog'lanish",
+    "viewAll": "Barcha xizmatlar"
   }
 }

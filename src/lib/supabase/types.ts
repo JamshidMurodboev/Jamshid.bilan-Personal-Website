@@ -199,6 +199,42 @@ export interface Stat {
   sort_order: number
 }
 
+export interface Service {
+  id: string;
+  name_uz: string;
+  name_ru?: string;
+  name_en?: string;
+  description_uz?: string;
+  description_ru?: string;
+  description_en?: string;
+  photo_url?: string;
+  price?: number;
+  currency?: 'USD' | 'UZS' | 'EUR' | 'TL' | 'FREE' | 'OTHER';
+  currency_custom?: string;
+  status?: 'active' | 'inactive';
+  home_order?: number;
+  slug?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UserFavorite {
+  id: string;
+  user_id: string;
+  entity_type: 'scholarship' | 'university' | 'news' | 'result' | 'service';
+  entity_id: string;
+  created_at?: string;
+}
+
+export interface UserActivity {
+  id: string;
+  user_id: string;
+  entity_type: string;
+  entity_id: string;
+  entity_name?: string;
+  visited_at?: string;
+}
+
 export interface SiteUser {
   id: string
   full_name: string
