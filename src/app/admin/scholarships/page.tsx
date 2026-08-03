@@ -709,7 +709,9 @@ export default function ScholarshipsPage() {
                               <span className="text-xs text-gray-600 dark:text-gray-400">Majburiy</span>
                             </label>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i-1], a[i]] = [a[i], a[i-1]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
+                            <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i], a[i+1]] = [a[i+1], a[i]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
                             <button
                               type="button"
                               disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}

@@ -199,6 +199,7 @@ function HeaderInner() {
     { href: `/${locale}/universities`, label: t('universities') },
     { href: `/${locale}/results`, label: t('results') },
     { href: `/${locale}/news`, label: t('news') },
+    { href: `/${locale}/services`, label: t('services') },
     { href: `/${locale}/contact`, label: t('contact') },
   ];
 

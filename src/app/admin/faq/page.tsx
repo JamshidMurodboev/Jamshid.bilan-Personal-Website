@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Faq } from '@/lib/supabase/types'
+import { autoTranslate } from '@/lib/translate'
 
 const emptyForm = { question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' }
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
@@ -15,6 +16,30 @@ export default function FaqAdminPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [translatingQuestion, setTranslatingQuestion] = useState(false)
+  const [translatingAnswer, setTranslatingAnswer] = useState(false)
+
+  async function handleTranslateQuestion() {
+    if (!form.question_uz.trim()) return
+    setTranslatingQuestion(true)
+    try {
+      const result = await autoTranslate(form.question_uz)
+      setForm(f => ({ ...f, question_ru: result.ru || f.question_ru, question_en: result.en || f.question_en }))
+    } finally {
+      setTranslatingQuestion(false)
+    }
+  }
+
+  async function handleTranslateAnswer() {
+    if (!form.answer_uz.trim()) return
+    setTranslatingAnswer(true)
+    try {
+      const result = await autoTranslate(form.answer_uz)
+      setForm(f => ({ ...f, answer_ru: result.ru || f.answer_ru, answer_en: result.en || f.answer_en }))
+    } finally {
+      setTranslatingAnswer(false)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -116,10 +141,22 @@ export default function FaqAdminPage() {
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-3">
               {error && <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (UZ) *</label><input required value={form.question_uz} onChange={e => setForm({...form, question_uz: e.target.value})} className={inp} /></div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Savol (UZ) *</label>
+                  <button type="button" onClick={handleTranslateQuestion} disabled={translatingQuestion || !form.question_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">{translatingQuestion ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+                </div>
+                <input required value={form.question_uz} onChange={e => setForm({...form, question_uz: e.target.value})} className={inp} />
+              </div>
               <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (RU)</label><input value={form.question_ru} onChange={e => setForm({...form, question_ru: e.target.value})} className={inp} /></div>
               <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (EN)</label><input value={form.question_en} onChange={e => setForm({...form, question_en: e.target.value})} className={inp} /></div>
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (UZ) *</label><textarea required rows={3} value={form.answer_uz} onChange={e => setForm({...form, answer_uz: e.target.value})} className={inp} /></div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Javob (UZ) *</label>
+                  <button type="button" onClick={handleTranslateAnswer} disabled={translatingAnswer || !form.answer_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">{translatingAnswer ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+                </div>
+                <textarea required rows={3} value={form.answer_uz} onChange={e => setForm({...form, answer_uz: e.target.value})} className={inp} />
+              </div>
               <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (RU)</label><textarea rows={2} value={form.answer_ru} onChange={e => setForm({...form, answer_ru: e.target.value})} className={inp} /></div>
               <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (EN)</label><textarea rows={2} value={form.answer_en} onChange={e => setForm({...form, answer_en: e.target.value})} className={inp} /></div>
               <div className="flex gap-3 pt-2">

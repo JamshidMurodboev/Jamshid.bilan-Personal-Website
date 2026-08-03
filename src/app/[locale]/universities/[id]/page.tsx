@@ -7,6 +7,7 @@ import type { University, UniversityMajor, RequiredDocument } from '@/lib/supaba
 import UniversityGallery from '@/components/universities/UniversityGallery';
 import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
+import ActivityTracker from '@/components/shared/ActivityTracker';
 import { translateLanguage } from '@/lib/translateLanguage';
 import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
@@ -65,6 +66,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav />
+        <ActivityTracker entityType="university" entityId={u.id} entityName={u.name} />
 
         {photos.length > 0 && <UniversityGallery photos={photos} name={u.name} />}
 
@@ -164,6 +166,15 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
 
             {/* Media Links */}
             <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+
+            {(u as any).tuition_estimated && (
+              <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40">
+                <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                  <span className="font-medium">(taxminiy)</span>{' '}
+                  {(u as any)[`tuition_note_${locale}`] || (u as any).tuition_note_uz || ''}
+                </p>
+              </div>
+            )}
 
             {majors.length > 0 && (
               <div className="mb-8">

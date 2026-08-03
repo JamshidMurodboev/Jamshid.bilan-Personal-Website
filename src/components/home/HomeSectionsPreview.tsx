@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
 import { formatDate } from '@/lib/format';
-import type { Scholarship, University, StudentResult, NewsPost } from '@/lib/supabase/types';
+import type { Scholarship, University, StudentResult, NewsPost, Service } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
 
 const STATUS_COLORS = {
@@ -40,17 +40,19 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
     getTranslations({ locale, namespace: 'common' }),
   ]);
 
-  const [scholarshipsRes, universitiesRes, resultsRes, newsRes] = await Promise.allSettled([
+  const [scholarshipsRes, universitiesRes, resultsRes, newsRes, servicesRes] = await Promise.allSettled([
     supabase.from('scholarships').select('id,title,country,status,category,close_date,photo_urls,degrees_available,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('universities').select('id,name,country,city,type,status,tuition_usd,photo_urls,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('news_posts').select('id,title_uz,title_ru,title_en,body_uz,body_ru,body_en,published_at,cover_url,photo_urls,slug').eq('published', true).order('published_at', { ascending: false }).limit(3),
+    supabase.from('services').select('id,name_uz,name_ru,name_en,photo_url,price,currency,currency_custom,slug,home_order').eq('status', 'active').not('home_order', 'is', null).order('home_order', { ascending: true }).limit(4),
   ]);
 
   const scholarships: Scholarship[] = scholarshipsRes.status === 'fulfilled' && scholarshipsRes.value.data?.length ? scholarshipsRes.value.data as Scholarship[] : [];
   const universities: University[] = universitiesRes.status === 'fulfilled' && universitiesRes.value.data?.length ? universitiesRes.value.data as University[] : [];
   const results: StudentResult[] = resultsRes.status === 'fulfilled' && resultsRes.value.data?.length ? resultsRes.value.data as StudentResult[] : [];
   const news: NewsPost[] = newsRes.status === 'fulfilled' && newsRes.value.data?.length ? newsRes.value.data as NewsPost[] : [];
+  const services: Service[] = servicesRes.status === 'fulfilled' && servicesRes.value.data?.length ? servicesRes.value.data as Service[] : [];
 
   const statusLabel = (s: string) => ({ open: tC('open'), closed: tC('closed'), upcoming: tC('upcoming') })[s as 'open' | 'closed' | 'upcoming'] ?? s;
   const uniTypeLabel = (type: string) => ({ public: 'Davlat', private: 'Xususiy' })[type] ?? type;
@@ -183,7 +185,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
       {/* News */}
       {news.length > 0 && (
-        <section className="py-14 px-4">
+        <section className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`📰 ${t('news.title')}`} href={`/${locale}/news`} label={t('news.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -205,6 +207,42 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                       <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">{title}</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 flex-1">{body}</p>
                       {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">{formatDate(post.published_at)}</span>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Services */}
+      {services.length > 0 && (
+        <section className="py-14 px-4">
+          <div className="max-w-6xl mx-auto">
+            <SectionHeader title={`🎯 ${t('services.title')}`} href={`/${locale}/services`} label={t('services.viewAll')} />
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {services.map(svc => {
+                const svcName = (svc as any)[`name_${locale}`] || svc.name_uz;
+                const href = `/${locale}/services/${svc.slug ?? svc.id}`;
+                let priceLabel = '';
+                if (svc.currency === 'FREE') priceLabel = locale === 'ru' ? 'Бесплатно' : locale === 'en' ? 'Free' : 'Bepul';
+                else if (svc.price) {
+                  const cur = svc.currency === 'OTHER' ? (svc.currency_custom || '') : (svc.currency || '');
+                  priceLabel = `${svc.price.toLocaleString()} ${cur}`;
+                }
+                return (
+                  <Link key={svc.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                    {svc.photo_url ? (
+                      <div className="relative w-full aspect-[4/3]">
+                        <Image src={svc.photo_url} alt={svcName} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-5xl">🎯</div>
+                    )}
+                    <div className="p-4 flex flex-col gap-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-white leading-snug line-clamp-2">{svcName}</h3>
+                      {priceLabel && <p className="text-sm font-medium text-teal-700 dark:text-teal-400">{priceLabel}</p>}
                     </div>
                   </Link>
                 );

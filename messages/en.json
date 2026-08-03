@@ -6,7 +6,8 @@
     "universities": "Universities",
     "results": "Results",
     "news": "News",
-    "contact": "Contact"
+    "contact": "Contact",
+    "services": "Services"
   },
   "hero": {
     "badge": "Scholarships Mentor",
@@ -54,6 +55,11 @@
       "title": "Latest News",
       "subtitle": "Scholarship and university news",
       "viewAll": "All news"
+    },
+    "services": {
+      "title": "Services",
+      "subtitle": "Courses and professional services",
+      "viewAll": "All services"
     }
   },
   "auth": {
@@ -84,7 +90,8 @@
     "profile": "Profile",
     "logout": "Log out",
     "saved": "Saved",
-    "save": "Save"
+    "save": "Save",
+    "savedItems": "Saved"
   },
   "common": {
     "loading": "Loading...",
@@ -105,7 +112,9 @@
     "mediaLinks": "Media",
     "previewDocs": "Preview documents",
     "confirmSave": "Confirm & save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "savedToFavourites": "Saved to your favourites",
+    "removedFromFavourites": "Removed from favourites"
   },
   "languages": {
     "turkish": "Turkish",
@@ -288,9 +297,19 @@
     },
     "categories": {
       "scholarship_winner": "Scholarship Winner",
-      "tuition_based": "Contract Basis"
+      "tuition_based": "Contract Basis",
+      "all": "All"
     },
     "mediaLinks": "Media",
     "photos": "Photos"
+  },
+  "services": {
+    "pageTitle": "Services",
+    "pageSubtitle": "Our services and courses",
+    "loginRequired": "Sign in to view services",
+    "free": "Free",
+    "price": "Price",
+    "applyNow": "Contact",
+    "viewAll": "All services"
   }
 }

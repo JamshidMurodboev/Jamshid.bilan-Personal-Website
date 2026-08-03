@@ -39,6 +39,10 @@ type FormState = {
   photo_urls: string[]
   home_order: string
   slug: string
+  tuition_estimated: boolean
+  tuition_note_uz: string
+  tuition_note_ru: string
+  tuition_note_en: string
 }
 
 const emptyForm: FormState = {
@@ -55,6 +59,10 @@ const emptyForm: FormState = {
   photo_urls: [],
   home_order: '',
   slug: '',
+  tuition_estimated: false,
+  tuition_note_uz: '',
+  tuition_note_ru: '',
+  tuition_note_en: '',
 }
 
 const DEGREE_OPTIONS = [
@@ -152,6 +160,10 @@ export default function UniversitiesPage() {
       photo_urls: item.photo_urls ?? [],
       home_order: item.home_order?.toString() ?? '',
       slug: item.slug ?? slugify(item.name),
+      tuition_estimated: (item as any).tuition_estimated ?? false,
+      tuition_note_uz: (item as any).tuition_note_uz ?? '',
+      tuition_note_ru: (item as any).tuition_note_ru ?? '',
+      tuition_note_en: (item as any).tuition_note_en ?? '',
     })
     setRequiredDocs((item as any).required_documents ?? [])
     setMediaLinks((item as any).media_links ?? [])
@@ -224,6 +236,10 @@ export default function UniversitiesPage() {
       home_order: form.home_order ? parseInt(form.home_order) : null,
       slug: form.slug || slugify(form.name) || null,
       media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
+      tuition_estimated: form.tuition_estimated,
+      tuition_note_uz: form.tuition_estimated ? (form.tuition_note_uz || null) : null,
+      tuition_note_ru: form.tuition_estimated ? (form.tuition_note_ru || null) : null,
+      tuition_note_en: form.tuition_estimated ? (form.tuition_note_en || null) : null,
     }
 
     const supabase = createClient()
@@ -426,6 +442,30 @@ export default function UniversitiesPage() {
                 </div>
               </div>
 
+              {/* Tuition estimated */}
+              <div className="pt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.tuition_estimated} onChange={e => setForm({ ...form, tuition_estimated: e.target.checked })} className="w-4 h-4 rounded accent-teal-600" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Kutilgan narx (oldingi yil asosida)</span>
+                </label>
+                {form.tuition_estimated && (
+                  <div className="mt-3 space-y-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Izoh (UZ)</label>
+                      <input value={form.tuition_note_uz} onChange={e => setForm({ ...form, tuition_note_uz: e.target.value })} className={inp} placeholder="Masalan: Narx oldingi yil asosida" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Izoh (RU)</label>
+                      <input value={form.tuition_note_ru} onChange={e => setForm({ ...form, tuition_note_ru: e.target.value })} className={inp} placeholder="Цена основана на прошлом году" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Izoh (EN)</label>
+                      <input value={form.tuition_note_en} onChange={e => setForm({ ...form, tuition_note_en: e.target.value })} className={inp} placeholder="Price based on previous year" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Description UZ + auto-translate */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
@@ -479,7 +519,9 @@ export default function UniversitiesPage() {
                               <span className="text-xs text-gray-600 dark:text-gray-400">Majburiy</span>
                             </label>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i-1], a[i]] = [a[i], a[i-1]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
+                            <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i], a[i+1]] = [a[i+1], a[i]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
                             <button
                               type="button"
                               disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}

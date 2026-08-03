@@ -1,6 +1,8 @@
+'use client';
 import Link from 'next/link';
 import type { University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -17,11 +19,17 @@ const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Tez orada' };
 
 export default function UniversityCard({ university: u, locale = 'uz' }: { university: University; locale?: string }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
+      <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 right-2" />
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
+            {u.ranking != null && (
+              <span className="inline-block mt-0.5 mb-0.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                #{u.ranking}
+              </span>
+            )}
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -40,7 +48,6 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
             <span className="font-medium">O'qish narxi:</span> ${u.tuition_usd.toLocaleString()}/yil
           </div>
         )}
-        {u.ranking != null && <div className="text-xs text-gray-500 dark:text-gray-400">Reyting: #{u.ranking}</div>}
         {u.programs.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {u.programs.slice(0, 3).map((p) => (

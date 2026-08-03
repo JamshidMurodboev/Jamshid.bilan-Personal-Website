@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { StudentResult, Scholarship, University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
 import PageNav from '@/components/shared/PageNav';
+import ActivityTracker from '@/components/shared/ActivityTracker';
 import { translateLanguage } from '@/lib/translateLanguage';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
@@ -48,6 +49,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav />
+        <ActivityTracker entityType="result" entityId={r.id} entityName={r.student_name} />
 
         {/* Student header */}
         <div className="mt-6 mb-6">
