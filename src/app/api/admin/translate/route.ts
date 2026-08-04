@@ -34,8 +34,12 @@ IMPORTANT rules:
     const json = await res.json()
     if (!res.ok) throw new Error(json.error?.message || 'Groq error')
     let raw = json.choices[0].message.content.trim()
-    raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
-    const parsed = JSON.parse(raw)
+    // Strip markdown fences wherever they appear
+    raw = raw.replace(/```(?:json)?/gi, '').trim()
+    // Try to extract a JSON object from the response
+    const match = raw.match(/\{[\s\S]*\}/)
+    if (!match) throw new Error('No JSON object found in LLM response')
+    const parsed = JSON.parse(match[0])
     return NextResponse.json({ ru: parsed.ru || '', en: parsed.en || '' })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })

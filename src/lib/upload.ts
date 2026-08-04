@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 
-export type UploadBucket = 'scholarships' | 'universities' | 'results' | 'news' | 'uploads'
+export type UploadBucket = 'scholarships' | 'universities' | 'results' | 'news' | 'testimonials' | 'services' | 'uploads'
 
 export async function uploadFile(bucket: UploadBucket, file: File): Promise<string | null> {
   const supabase = createClient()
