@@ -93,7 +93,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
         {/* Linked scholarships */}
         {(scholarships?.length ?? 0) > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Bog&apos;liq grantlar</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedScholarships')}</h2>
             <div className="flex flex-wrap gap-2">
               {(scholarships ?? []).map((sch: { id: string; title: string; slug?: string }) => (
                 <Link key={sch.id} href={`/${locale}/scholarships/${sch.slug ?? sch.id}`}
@@ -108,7 +108,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
         {/* Linked universities */}
         {(universities?.length ?? 0) > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Bog&apos;liq universitetlar</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedUniversities')}</h2>
             <div className="flex flex-wrap gap-2">
               {(universities ?? []).map((u: { id: string; name: string; slug?: string }) => (
                 <Link key={u.id} href={`/${locale}/universities/${u.slug ?? u.id}`}
@@ -123,7 +123,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
         {/* Linked results */}
         {(results?.length ?? 0) > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Bizning natijalarimiz</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedResults')}</h2>
             <div className="flex flex-wrap gap-2">
               {(results ?? []).map((r: { id: string; student_name: string; slug?: string }) => (
                 <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}

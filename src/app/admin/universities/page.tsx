@@ -77,6 +77,7 @@ const DEGREE_OPTIONS = [
 
 export default function UniversitiesPage() {
   const [items, setItems] = useState<University[]>([])
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -91,6 +92,27 @@ export default function UniversitiesPage() {
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
   const [showDocsPreview, setShowDocsPreview] = useState(false)
+
+  function handleDragStart(index: number) { setDragIndex(index) }
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    const newItems = [...items]
+    const [moved] = newItems.splice(dragIndex, 1)
+    newItems.splice(index, 0, moved)
+    setItems(newItems)
+    setDragIndex(index)
+  }
+  function handleDrop() {
+    setDragIndex(null)
+    saveOrder()
+  }
+  async function saveOrder() {
+    const sb = createClient()
+    for (let i = 0; i < items.length; i++) {
+      await sb.from('universities').update({ home_order: i + 1 }).eq('id', items[i].id)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -323,6 +345,7 @@ export default function UniversitiesPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
+                <th className="px-4 py-3 w-8"></th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Nomi</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Davlat</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Turi</th>
@@ -331,8 +354,16 @@ export default function UniversitiesPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800">
+              {items.map((item, index) => (
+                <tr
+                  key={item.id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={e => handleDragOver(e, index)}
+                  onDrop={handleDrop}
+                  className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800 ${dragIndex === index ? 'opacity-50' : ''}`}
+                >
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{item.name}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.country}</td>
                   <td className="px-4 py-3">
@@ -343,7 +374,7 @@ export default function UniversitiesPage() {
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.ranking ?? '—'}</td>
                   <td className="px-4 py-3 text-right space-x-2">
                     <button onClick={() => openEdit(item)} className="text-teal-700 text-xs font-medium px-2 py-1 rounded hover:bg-teal-50 dark:hover:bg-teal-900/30">Tahrir</button>
-                    <button onClick={() => del(item.id)} className="text-red-600 text-xs font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30">O'chir</button>
+                    <button onClick={() => del(item.id)} className="text-red-600 text-xs font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30">O&apos;chir</button>
                   </td>
                 </tr>
               ))}
@@ -457,7 +488,23 @@ export default function UniversitiesPage() {
                 {form.tuition_estimated && (
                   <div className="mt-3 space-y-2">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Izoh (UZ)</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Izoh (UZ)</label>
+                        <button
+                          type="button"
+                          disabled={!!translatingSections['tuition_note'] || !form.tuition_note_uz.trim()}
+                          onClick={async () => {
+                            setTranslatingSections(s => ({ ...s, tuition_note: true }))
+                            try {
+                              const result = await autoTranslate(form.tuition_note_uz)
+                              setForm(f => ({ ...f, tuition_note_ru: result.ru || f.tuition_note_ru, tuition_note_en: result.en || f.tuition_note_en }))
+                            } finally { setTranslatingSections(s => ({ ...s, tuition_note: false })) }
+                          }}
+                          className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40"
+                        >
+                          {translatingSections['tuition_note'] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                        </button>
+                      </div>
                       <input value={form.tuition_note_uz} onChange={e => setForm({ ...form, tuition_note_uz: e.target.value })} className={inp} placeholder="Masalan: Narx oldingi yil asosida" />
                     </div>
                     <div>
@@ -485,15 +532,15 @@ export default function UniversitiesPage() {
                     {translating ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
                   </button>
                 </div>
-                <textarea rows={4} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} placeholder="O'zbek tilida tavsif..." />
+                <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
-                <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} placeholder="Описание на русском..." />
+                <textarea rows={6} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={`${inp} min-h-32`} placeholder="Описание на русском..." />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
-                <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} placeholder="Description in English..." />
+                <textarea rows={6} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={`${inp} min-h-32`} placeholder="Description in English..." />
               </div>
 
               <div>

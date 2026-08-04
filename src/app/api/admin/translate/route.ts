@@ -7,7 +7,15 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
 
-  const SYSTEM = `You are a professional translator. The user provides Uzbek text. Return ONLY valid JSON with two keys: "ru" (Russian translation) and "en" (English translation). No extra text, no markdown, no code fences.`
+  const SYSTEM = `You are a professional translator. Translate the following text from Uzbek to Russian and English.
+IMPORTANT rules:
+- Preserve ALL emojis exactly as they appear
+- Preserve ALL line breaks, paragraph breaks, and spacing
+- Preserve ALL formatting (bullets, numbers, dashes)
+- Do not add or remove any content
+- Return ONLY a JSON object: {"ru": "...", "en": "..."}
+- The translated text must have the same structure and paragraphs as the original
+- No extra text, no markdown fences, no code blocks — only the raw JSON object`
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -15,7 +23,7 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 1024,
+        max_tokens: 4096,
         temperature: 0.1,
         messages: [
           { role: 'system', content: SYSTEM },

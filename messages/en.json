@@ -214,6 +214,7 @@
     "title": "Frequently asked questions"
   },
   "scholarships": {
+    "relatedServices": "Related Services",
     "fundingType": {
       "fully_funded": "Fully Funded",
       "partially_funded": "Partially Funded",
@@ -252,6 +253,7 @@
     "mediaLinks": "Media"
   },
   "universities": {
+    "relatedServices": "Related Services",
     "ourResults": "Our Results",
     "requiredDocuments": "Required Documents",
     "officialWebsite": "Official Website →",
@@ -310,6 +312,10 @@
     "free": "Free",
     "price": "Price",
     "applyNow": "Contact",
-    "viewAll": "All services"
+    "viewAll": "All services",
+    "linkedScholarships": "Related Scholarships",
+    "linkedUniversities": "Related Universities",
+    "linkedResults": "Related Results",
+    "contactUs": "Contact"
   }
 }

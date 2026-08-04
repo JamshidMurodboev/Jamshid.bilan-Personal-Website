@@ -214,6 +214,7 @@
     "title": "Ko'p so'raladigan savollar"
   },
   "scholarships": {
+    "relatedServices": "Tegishli xizmatlar",
     "fundingType": {
       "fully_funded": "To'liq moliyalashtirilgan",
       "partially_funded": "Qisman moliyalashtirilgan",
@@ -252,6 +253,7 @@
     "mediaLinks": "Media"
   },
   "universities": {
+    "relatedServices": "Tegishli xizmatlar",
     "ourResults": "Bizning natijalarimiz",
     "requiredDocuments": "Talab qilinadigan hujjatlar",
     "officialWebsite": "Rasmiy sayt →",
@@ -310,6 +312,10 @@
     "free": "Bepul",
     "price": "Narx",
     "applyNow": "Bog'lanish",
-    "viewAll": "Barcha xizmatlar"
+    "viewAll": "Barcha xizmatlar",
+    "linkedScholarships": "Bog'liq grantlar",
+    "linkedUniversities": "Bog'liq universitetlar",
+    "linkedResults": "Bog'liq natijalar",
+    "contactUs": "Bog'lanish"
   }
 }

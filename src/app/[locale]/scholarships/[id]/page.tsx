@@ -47,10 +47,15 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   const s = sData;
   if (!s) notFound();
 
-  const [{ data: linkedResultsData }, { data: linkedNewsData }] = await Promise.all([
+  const [{ data: linkedResultsData }, { data: linkedNewsData }, { data: serviceLinks }] = await Promise.all([
     supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('scholarship_id', s.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('scholarship_id', s.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
+    supabase.from('service_scholarships').select('service_id').eq('scholarship_id', s.id),
   ]);
+  const serviceIds = (serviceLinks ?? []).map((r: { service_id: string }) => r.service_id);
+  const { data: linkedServices } = serviceIds.length > 0
+    ? await supabase.from('services').select('id,name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url,price,currency,currency_custom,slug').in('id', serviceIds).eq('status', 'active')
+    : { data: [] };
   const results = (linkedResultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
   const linkedNews = (linkedNewsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const mediaLinks = s.media_links ?? [];
@@ -218,6 +223,35 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
 
             {/* Media Links */}
             <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+
+            {/* Linked Services */}
+            {(linkedServices ?? []).length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('relatedServices')}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(linkedServices ?? []).map((svc: any) => {
+                    const svcName = svc[`name_${locale}`] || svc.name_uz;
+                    const svcDesc = svc[`description_${locale}`] || svc.description_uz || '';
+                    const svcPrice = svc.currency === 'FREE' ? 'Bepul' : svc.price ? `${svc.price.toLocaleString()} ${svc.currency === 'OTHER' ? svc.currency_custom : svc.currency}` : '';
+                    return (
+                      <Link key={svc.id} href={`/${locale}/services/${svc.slug ?? svc.id}`}
+                        className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 transition shadow-sm group">
+                        {svc.photo_url && (
+                          <div className="relative w-full h-40 overflow-hidden">
+                            <Image src={svc.photo_url} alt={svcName} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{svcName}</h3>
+                          {svcPrice && <p className="text-teal-700 dark:text-teal-400 font-bold text-sm mb-2">{svcPrice}</p>}
+                          {svcDesc && <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{svcDesc}</p>}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Apply Now CTA */}
             <ApplyNowCTA scholarshipTitle={s.title} />
