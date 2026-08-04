@@ -8,6 +8,7 @@ import PageNav from '@/components/shared/PageNav';
 import ActivityTracker from '@/components/shared/ActivityTracker';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { isUUID } from '@/lib/slugify';
+import AskQuestionButton from '@/components/shared/AskQuestionButton';
 
 function priceDisplay(s: Service, freeLabel: string) {
   if (s.currency === 'FREE') return freeLabel;
@@ -80,15 +81,23 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
         )}
 
-        {/* Contact button */}
-        <a
-          href="https://t.me/jamshid_bilan"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block mb-8 bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-xl font-semibold transition"
-        >
-          {t('applyNow')}
-        </a>
+        {/* Contact buttons */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          <a
+            href="https://t.me/jamshid_bilan"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-xl font-semibold transition"
+          >
+            {t('applyNow')}
+          </a>
+          <AskQuestionButton
+            serviceContext={svc.name_uz}
+            className="inline-flex items-center gap-2 border-2 border-teal-700 text-teal-700 dark:border-teal-400 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 px-6 py-3 rounded-xl font-semibold text-sm transition"
+          >
+            {t('askQuestion')}
+          </AskQuestionButton>
+        </div>
 
         {/* Linked scholarships */}
         {(scholarships?.length ?? 0) > 0 && (

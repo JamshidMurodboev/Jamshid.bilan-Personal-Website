@@ -202,8 +202,13 @@
         "cert": "Please select a language certificate",
         "score": "Score is required",
         "target": "Please select a scholarship or university",
-        "other": "Please enter an option"
-      }
+        "other": "Please enter an option",
+        "question": "Please enter your question"
+      },
+      "askQuestion": "Ask a question",
+      "questionLabel": "Your question",
+      "questionPlaceholder": "Write your question...",
+      "sendBtn": "Send"
     }
   },
   "footer": {
@@ -250,7 +255,8 @@
     "openDate": "Opens",
     "closeDate": "Closes",
     "resultsDateLabel": "Results",
-    "mediaLinks": "Media"
+    "mediaLinks": "Media",
+    "askQuestion": "Ask a question"
   },
   "universities": {
     "relatedServices": "Related Services",
@@ -262,7 +268,8 @@
     "mediaLinks": "Media",
     "pageTitle": "Universities",
     "pageSubtitle": "Catalog of international universities on tuition basis",
-    "applyNow": "Apply Now"
+    "applyNow": "Apply Now",
+    "askQuestion": "Ask a question"
   },
   "filters": {
     "title": "Filter",
@@ -316,6 +323,7 @@
     "linkedScholarships": "Related Scholarships",
     "linkedUniversities": "Related Universities",
     "linkedResults": "Related Results",
-    "contactUs": "Contact"
+    "contactUs": "Contact",
+    "askQuestion": "Ask a question"
   }
 }

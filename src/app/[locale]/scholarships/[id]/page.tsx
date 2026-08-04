@@ -48,7 +48,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   if (!s) notFound();
 
   const [{ data: linkedResultsData }, { data: linkedNewsData }, { data: serviceLinks }] = await Promise.all([
-    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('scholarship_id', s.id).order('year', { ascending: false }),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug, photo_url, photo_urls, university_name, major').eq('scholarship_id', s.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('scholarship_id', s.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     supabase.from('service_scholarships').select('service_id').eq('scholarship_id', s.id),
   ]);
@@ -56,7 +56,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   const { data: linkedServices } = serviceIds.length > 0
     ? await supabase.from('services').select('id,name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url,price,currency,currency_custom,slug').in('id', serviceIds).eq('status', 'active')
     : { data: [] };
-  const results = (linkedResultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const results = (linkedResultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string; photo_url?: string; photo_urls?: string[]; university_name?: string; major?: string }[];
   const linkedNews = (linkedNewsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const mediaLinks = s.media_links ?? [];
   const requiredDocs: Array<{ uz: string; ru: string; en: string; mandatory?: boolean }> = (s as any).required_documents ?? [];
@@ -133,15 +133,25 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
             {results.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                   {results.map(r => (
-                    <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
-                      className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition group shadow-sm">
-                      <span className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xs flex-shrink-0">
-                        {r.student_name[0]}
-                      </span>
-                      <span>{r.student_name}</span>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">· {r.year}</span>
+                    <Link href={`/${locale}/results/${r.slug ?? r.id}`} key={r.id}
+                      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 transition shadow-sm group">
+                      {(r.photo_urls?.[0] || r.photo_url) ? (
+                        <div className="relative h-40 overflow-hidden">
+                          <Image src={r.photo_urls?.[0] || r.photo_url!} alt={r.student_name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                      ) : (
+                        <div className="h-20 flex items-center justify-center bg-teal-50 dark:bg-teal-900/20">
+                          <span className="text-3xl font-bold text-teal-600">{r.student_name?.[0]}</span>
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm">{r.student_name}</p>
+                        {r.university_name && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.university_name}</p>}
+                        {r.major && <p className="text-xs text-gray-500 dark:text-gray-400">{r.major}</p>}
+                        <p className="text-xs text-teal-600 dark:text-teal-400 font-medium mt-1">{r.year}</p>
+                      </div>
                     </Link>
                   ))}
                 </div>

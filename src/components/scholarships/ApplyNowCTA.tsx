@@ -1,12 +1,14 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import TelegramContactButton from '@/components/contact/TelegramContactButton';
+import AskQuestionButton from '@/components/shared/AskQuestionButton';
 
 export default function ApplyNowCTA({ scholarshipTitle }: { scholarshipTitle: string }) {
   const t = useTranslations('scholarships');
+  const tc = useTranslations('contact.form');
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 flex flex-wrap gap-3">
       <TelegramContactButton
         platform="telegram"
         scholarshipContext={scholarshipTitle}
@@ -17,6 +19,12 @@ export default function ApplyNowCTA({ scholarshipTitle }: { scholarshipTitle: st
         </svg>
         {t('applyNow')}
       </TelegramContactButton>
+      <AskQuestionButton
+        scholarshipContext={scholarshipTitle}
+        className="w-full sm:w-auto inline-flex items-center gap-2 border-2 border-teal-700 text-teal-700 dark:border-teal-400 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 px-6 py-3 rounded-xl font-semibold text-sm transition"
+      >
+        {tc('askQuestion')}
+      </AskQuestionButton>
     </div>
   );
 }

@@ -202,8 +202,13 @@
         "cert": "Выберите языковой сертификат",
         "score": "Введите балл",
         "target": "Выберите грант или университет",
-        "other": "Введите вариант"
-      }
+        "other": "Введите вариант",
+        "question": "Введите вопрос"
+      },
+      "askQuestion": "Задать вопрос",
+      "questionLabel": "Ваш вопрос",
+      "questionPlaceholder": "Напишите ваш вопрос...",
+      "sendBtn": "Отправить"
     }
   },
   "footer": {
@@ -250,7 +255,8 @@
     "openDate": "Открытие",
     "closeDate": "Закрытие",
     "resultsDateLabel": "Результаты",
-    "mediaLinks": "Медиа"
+    "mediaLinks": "Медиа",
+    "askQuestion": "Задать вопрос"
   },
   "universities": {
     "relatedServices": "Связанные услуги",
@@ -262,7 +268,8 @@
     "mediaLinks": "Медиа",
     "pageTitle": "Университеты",
     "pageSubtitle": "Каталог зарубежных университетов на платной основе",
-    "applyNow": "Подать документы сейчас"
+    "applyNow": "Подать документы сейчас",
+    "askQuestion": "Задать вопрос"
   },
   "filters": {
     "title": "Фильтр",
@@ -316,6 +323,7 @@
     "linkedScholarships": "Связанные стипендии",
     "linkedUniversities": "Связанные университеты",
     "linkedResults": "Связанные результаты",
-    "contactUs": "Связаться"
+    "contactUs": "Связаться",
+    "askQuestion": "Задать вопрос"
   }
 }
