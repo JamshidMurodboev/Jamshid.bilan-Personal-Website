@@ -15,15 +15,19 @@ const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 
 
 type MajorRow = {
   name: string
+  name_ru: string
+  name_en: string
   degree: string
   language: string
   tuition: string
   currency: 'USD' | 'UZS' | 'EUR' | 'TL'
   tuition_estimated: boolean
   tuition_note_uz: string
+  tuition_note_ru: string
+  tuition_note_en: string
 }
 
-const emptyMajor = (): MajorRow => ({ name: '', degree: '', language: '', tuition: '', currency: 'USD', tuition_estimated: false, tuition_note_uz: '' })
+const emptyMajor = (): MajorRow => ({ name: '', name_ru: '', name_en: '', degree: '', language: '', tuition: '', currency: 'USD', tuition_estimated: false, tuition_note_uz: '', tuition_note_ru: '', tuition_note_en: '' })
 
 type DocRow = RequiredDocument & { mandatory?: boolean }
 
@@ -136,12 +140,16 @@ export default function UniversitiesPage() {
     if (data && data.length > 0) {
       setMajors(data.map((m: UniversityMajor) => ({
         name: m.name,
+        name_ru: m.name_ru ?? '',
+        name_en: m.name_en ?? '',
         degree: m.degree ?? '',
         language: m.language ?? '',
         tuition: m.tuition?.toString() ?? '',
         currency: m.currency,
-        tuition_estimated: (m as any).tuition_estimated ?? false,
-        tuition_note_uz: (m as any).tuition_note_uz ?? '',
+        tuition_estimated: m.tuition_estimated ?? false,
+        tuition_note_uz: m.tuition_note_uz ?? '',
+        tuition_note_ru: m.tuition_note_ru ?? '',
+        tuition_note_en: m.tuition_note_en ?? '',
       })))
     } else {
       setMajors([emptyMajor()])
@@ -230,6 +238,8 @@ export default function UniversitiesPage() {
       .map((m, i) => ({
         university_id: universityId,
         name: m.name.trim(),
+        name_ru: m.name_ru.trim() || null,
+        name_en: m.name_en.trim() || null,
         degree: m.degree || null,
         language: m.language.trim() || null,
         tuition: m.tuition ? Number(m.tuition) : null,
@@ -237,6 +247,8 @@ export default function UniversitiesPage() {
         sort_order: i,
         tuition_estimated: m.tuition_estimated,
         tuition_note_uz: m.tuition_estimated ? (m.tuition_note_uz || null) : null,
+        tuition_note_ru: m.tuition_estimated ? (m.tuition_note_ru || null) : null,
+        tuition_note_en: m.tuition_estimated ? (m.tuition_note_en || null) : null,
       }))
     if (rows.length > 0) {
       await supabase.from('university_majors').insert(rows)
@@ -320,6 +332,10 @@ export default function UniversitiesPage() {
 
   function removeMajor(index: number) {
     setMajors(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function updateMajor(index: number, fields: Partial<MajorRow>) {
+    setMajors(prev => prev.map((m, i) => i === index ? { ...m, ...fields } : m))
   }
 
   return (
@@ -629,13 +645,39 @@ export default function UniversitiesPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Yo'nalish nomi *</label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Yo'nalish nomi *</label>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!m.name) return
+                                setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: true }))
+                                const result = await autoTranslate(m.name)
+                                updateMajor(i, { name_ru: result.ru, name_en: result.en })
+                                setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: false }))
+                              }}
+                              disabled={!!translatingSections[`major_${i}`] || !m.name.trim()}
+                              className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50 whitespace-nowrap"
+                            >
+                              {translatingSections[`major_${i}`] ? '...' : 'RU/EN tarjima'}
+                            </button>
+                          </div>
                           <input
                             value={m.name}
                             onChange={e => setMajorField(i, 'name', e.target.value)}
                             placeholder="Masalan: Kompyuter muhandisligi"
                             className={inp}
                           />
+                          <div className="mt-1.5 grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Rus tilida:</label>
+                              <input value={m.name_ru} onChange={e => updateMajor(i, { name_ru: e.target.value })} placeholder="RU nomi" className={inp} />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Ingliz tilida:</label>
+                              <input value={m.name_en} onChange={e => updateMajor(i, { name_en: e.target.value })} placeholder="EN name" className={inp} />
+                            </div>
+                          </div>
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Daraja</label>
@@ -688,12 +730,28 @@ export default function UniversitiesPage() {
                             <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Taxminiy narx</span>
                           </label>
                           {m.tuition_estimated && (
-                            <input
-                              value={m.tuition_note_uz}
-                              onChange={e => setMajors(prev => prev.map((r, j) => j === i ? { ...r, tuition_note_uz: e.target.value } : r))}
-                              placeholder="Taxminiy narx izohi (UZ)"
-                              className={inp}
-                            />
+                            <div className="space-y-1.5 mt-1.5">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs text-gray-500 dark:text-gray-400">Izoh (UZ)</label>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (!m.tuition_note_uz.trim()) return
+                                    setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: true }))
+                                    const result = await autoTranslate(m.tuition_note_uz)
+                                    updateMajor(i, { tuition_note_ru: result.ru, tuition_note_en: result.en })
+                                    setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: false }))
+                                  }}
+                                  disabled={!!translatingSections[`major_note_${i}`] || !m.tuition_note_uz.trim()}
+                                  className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50"
+                                >
+                                  {translatingSections[`major_note_${i}`] ? '...' : 'RU/EN tarjima'}
+                                </button>
+                              </div>
+                              <input value={m.tuition_note_uz} onChange={e => updateMajor(i, { tuition_note_uz: e.target.value })} placeholder="Taxminiy narx izohi (UZ)" className={inp} />
+                              <input value={m.tuition_note_ru} onChange={e => updateMajor(i, { tuition_note_ru: e.target.value })} placeholder="Примерная стоимость (RU)" className={inp} />
+                              <input value={m.tuition_note_en} onChange={e => updateMajor(i, { tuition_note_en: e.target.value })} placeholder="Estimated tuition note (EN)" className={inp} />
+                            </div>
                           )}
                         </div>
                       </div>

@@ -44,7 +44,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
 
   const [{ data: majorsData }, { data: resultsData }, { data: newsData }, t, { data: serviceLinks }] = await Promise.all([
     supabase.from('university_majors').select('*').eq('university_id', u.id).order('sort_order'),
-    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('university_id', u.id).order('year', { ascending: false }),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug, photo_url, photo_urls, university_name, major').eq('university_id', u.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('university_id', u.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     getTranslations({ locale, namespace: 'universities' }),
     supabase.from('service_universities').select('service_id').eq('university_id', u.id),
@@ -55,7 +55,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
     : { data: [] };
 
   const majors = (majorsData ?? []) as UniversityMajor[];
-  const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
+  const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string; photo_url?: string; photo_urls?: string[]; university_name?: string; major?: string }[];
   const linkedNews = (newsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const description = (u as any)[`description_${locale}`] || u.description_uz || '';
   const photos = u.photo_urls ?? [];
@@ -71,7 +71,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav />
+        <PageNav backHref={`/${locale}/universities`} />
         <ActivityTracker entityType="university" entityId={u.id} entityName={u.name} />
 
         {photos.length > 0 && <UniversityGallery photos={photos} name={u.name} />}
@@ -107,15 +107,25 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {linkedResults.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                   {linkedResults.map(r => (
-                    <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
-                      className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
-                      <span className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xs flex-shrink-0">
-                        {r.student_name[0]}
-                      </span>
-                      <span>{r.student_name}</span>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">· {r.year}</span>
+                    <Link href={`/${locale}/results/${r.slug ?? r.id}`} key={r.id}
+                      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 transition shadow-sm group">
+                      {(r.photo_urls?.[0] || r.photo_url) ? (
+                        <div className="relative h-40 overflow-hidden">
+                          <Image src={r.photo_urls?.[0] || r.photo_url!} alt={r.student_name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        </div>
+                      ) : (
+                        <div className="h-20 flex items-center justify-center bg-teal-50 dark:bg-teal-900/20">
+                          <span className="text-3xl font-bold text-teal-600">{r.student_name?.[0]}</span>
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm">{r.student_name}</p>
+                        {r.university_name && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.university_name}</p>}
+                        {r.major && <p className="text-xs text-gray-500 dark:text-gray-400">{r.major}</p>}
+                        <p className="text-xs text-teal-600 dark:text-teal-400 font-medium mt-1">{r.year}</p>
+                      </div>
                     </Link>
                   ))}
                 </div>

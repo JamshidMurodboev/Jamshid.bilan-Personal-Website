@@ -49,7 +49,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav />
+        <PageNav backHref={`/${locale}/results`} />
         <ActivityTracker entityType="result" entityId={r.id} entityName={r.student_name} />
 
         {/* Student header */}

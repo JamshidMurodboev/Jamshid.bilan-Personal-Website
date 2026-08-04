@@ -202,8 +202,13 @@
         "cert": "Til sertifikati tanlanmagan",
         "score": "Ball kiritilmagan",
         "target": "Grant yoki universitet tanlanmagan",
-        "other": "Boshqa variant kiritilmagan"
-      }
+        "other": "Boshqa variant kiritilmagan",
+        "question": "Savol kiritilmagan"
+      },
+      "askQuestion": "Savol berish",
+      "questionLabel": "Savolingiz",
+      "questionPlaceholder": "Savolingizni yozing...",
+      "sendBtn": "Yuborish"
     }
   },
   "footer": {
@@ -250,7 +255,8 @@
     "openDate": "Ochilish",
     "closeDate": "Yopilish",
     "resultsDateLabel": "Natijalar",
-    "mediaLinks": "Media"
+    "mediaLinks": "Media",
+    "askQuestion": "Savol berish"
   },
   "universities": {
     "relatedServices": "Tegishli xizmatlar",
@@ -262,7 +268,8 @@
     "mediaLinks": "Media",
     "pageTitle": "Universitetlar",
     "pageSubtitle": "To'lov asosida xorijiy universitetlar katalogi",
-    "applyNow": "Hoziroq Hujjat Topshirish"
+    "applyNow": "Hoziroq Hujjat Topshirish",
+    "askQuestion": "Savol berish"
   },
   "filters": {
     "title": "Filtr",
@@ -316,6 +323,7 @@
     "linkedScholarships": "Bog'liq grantlar",
     "linkedUniversities": "Bog'liq universitetlar",
     "linkedResults": "Bog'liq natijalar",
-    "contactUs": "Bog'lanish"
+    "contactUs": "Bog'lanish",
+    "askQuestion": "Savol berish"
   }
 }

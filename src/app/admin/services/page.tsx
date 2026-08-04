@@ -6,7 +6,6 @@ import type { Service } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
-import { uploadFiles } from '@/lib/upload'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -107,14 +106,21 @@ export default function ServicesAdminPage() {
     setUploadingPhoto(true)
     try {
       const sb = createClient()
-      const path = `services/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`
-      const { data, error } = await sb.storage.from('uploads').upload(path, file, { upsert: false })
+      const ext = file.name.split('.').pop() || 'jpg'
+      const fileName = `${Date.now()}.${ext}`
+      const { data, error } = await sb.storage
+        .from('services')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true })
       if (error) {
-        console.error('Photo upload error:', error.message)
-      } else if (data) {
-        const { data: urlData } = sb.storage.from('uploads').getPublicUrl(data.path)
-        if (urlData?.publicUrl) setForm(f => ({ ...f, photo_url: urlData.publicUrl }))
+        console.error('Upload error:', error)
+        alert('Upload failed: ' + error.message)
+        return
       }
+      const { data: urlData } = sb.storage.from('services').getPublicUrl(fileName)
+      setForm(f => ({ ...f, photo_url: urlData.publicUrl }))
+    } catch (err) {
+      console.error('Upload exception:', err)
+      alert('Upload failed')
     } finally {
       setUploadingPhoto(false)
     }

@@ -90,11 +90,17 @@ export interface UniversityMajor {
   id: string
   university_id: string
   name: string
+  name_ru?: string
+  name_en?: string
   language?: string
   tuition?: number
   currency: 'USD' | 'UZS' | 'EUR' | 'TL'
   degree?: 'bachelor' | 'master_thesis' | 'master_no_thesis' | 'phd'
   sort_order: number
+  tuition_estimated?: boolean
+  tuition_note_uz?: string
+  tuition_note_ru?: string
+  tuition_note_en?: string
 }
 
 export interface StudentResult {
