@@ -36,7 +36,7 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav />
+        <PageNav backHref={`/${locale}/news`} />
         <ActivityTracker entityType="news" entityId={post.id} entityName={title} />
         {post.cover_url && (
           <div className="relative w-full h-64 rounded-2xl mt-4 mb-6 overflow-hidden">

@@ -94,7 +94,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav />
+        <PageNav backHref={`/${locale}/scholarships`} />
         <ActivityTracker entityType="scholarship" entityId={s.id} entityName={s.title} />
 
         {s.photo_urls && s.photo_urls.length > 0 && (

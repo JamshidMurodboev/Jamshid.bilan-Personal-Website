@@ -71,7 +71,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav />
+        <PageNav backHref={`/${locale}/universities`} />
         <ActivityTracker entityType="university" entityId={u.id} entityName={u.name} />
 
         {photos.length > 0 && <UniversityGallery photos={photos} name={u.name} />}

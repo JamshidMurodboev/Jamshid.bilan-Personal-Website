@@ -49,7 +49,7 @@ export default function ResultsPage() {
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Stats */}
-        <PageNav />
+        <PageNav backHref={`/${locale}`} />
         <div className="grid grid-cols-3 gap-4 mb-12">
           {[
             { label: 'Talaba', value: studentsHelped, suffix: '+' },
