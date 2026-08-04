@@ -42,12 +42,17 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   const u = uniData;
   if (!u) notFound();
 
-  const [{ data: majorsData }, { data: resultsData }, { data: newsData }, t] = await Promise.all([
+  const [{ data: majorsData }, { data: resultsData }, { data: newsData }, t, { data: serviceLinks }] = await Promise.all([
     supabase.from('university_majors').select('*').eq('university_id', u.id).order('sort_order'),
     supabase.from('student_results').select('id, student_name, degree_level, year, country, slug').eq('university_id', u.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('university_id', u.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     getTranslations({ locale, namespace: 'universities' }),
+    supabase.from('service_universities').select('service_id').eq('university_id', u.id),
   ]);
+  const serviceIds = (serviceLinks ?? []).map((r: { service_id: string }) => r.service_id);
+  const { data: linkedServices } = serviceIds.length > 0
+    ? await supabase.from('services').select('id,name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url,price,currency,currency_custom,slug').in('id', serviceIds).eq('status', 'active')
+    : { data: [] };
 
   const majors = (majorsData ?? []) as UniversityMajor[];
   const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string }[];
@@ -160,6 +165,35 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                         <div className="p-3 flex flex-col gap-1">
                           <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2">{newsTitle}</p>
                           {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(post.published_at)}</span>}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Linked Services */}
+            {(linkedServices ?? []).length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('relatedServices')}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(linkedServices ?? []).map((svc: any) => {
+                    const svcName = svc[`name_${locale}`] || svc.name_uz;
+                    const svcDesc = svc[`description_${locale}`] || svc.description_uz || '';
+                    const svcPrice = svc.currency === 'FREE' ? 'Bepul' : svc.price ? `${svc.price.toLocaleString()} ${svc.currency === 'OTHER' ? svc.currency_custom : svc.currency}` : '';
+                    return (
+                      <Link key={svc.id} href={`/${locale}/services/${svc.slug ?? svc.id}`}
+                        className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 transition shadow-sm group">
+                        {svc.photo_url && (
+                          <div className="relative w-full h-40 overflow-hidden">
+                            <Image src={svc.photo_url} alt={svcName} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{svcName}</h3>
+                          {svcPrice && <p className="text-teal-700 dark:text-teal-400 font-bold text-sm mb-2">{svcPrice}</p>}
+                          {svcDesc && <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{svcDesc}</p>}
                         </div>
                       </Link>
                     );

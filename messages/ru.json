@@ -214,6 +214,7 @@
     "title": "Часто задаваемые вопросы"
   },
   "scholarships": {
+    "relatedServices": "Связанные услуги",
     "fundingType": {
       "fully_funded": "Полное финансирование",
       "partially_funded": "Частичное финансирование",
@@ -252,6 +253,7 @@
     "mediaLinks": "Медиа"
   },
   "universities": {
+    "relatedServices": "Связанные услуги",
     "ourResults": "Наши результаты",
     "requiredDocuments": "Необходимые документы",
     "officialWebsite": "Официальный сайт →",
@@ -310,6 +312,10 @@
     "free": "Бесплатно",
     "price": "Цена",
     "applyNow": "Связаться",
-    "viewAll": "Все услуги"
+    "viewAll": "Все услуги",
+    "linkedScholarships": "Связанные стипендии",
+    "linkedUniversities": "Связанные университеты",
+    "linkedResults": "Связанные результаты",
+    "contactUs": "Связаться"
   }
 }

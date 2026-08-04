@@ -50,6 +50,7 @@ function formatPrice(price?: number, currency?: string, custom?: string) {
 
 export default function ServicesAdminPage() {
   const [items, setItems] = useState<Service[]>([])
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -79,13 +80,41 @@ export default function ServicesAdminPage() {
     sb.from('universities').select('id,name').order('name').then(({ data }) => setAllUniversities(data ?? []))
   }, [])
 
+  function handleDragStart(index: number) { setDragIndex(index) }
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    const newItems = [...items]
+    const [moved] = newItems.splice(dragIndex, 1)
+    newItems.splice(index, 0, moved)
+    setItems(newItems)
+    setDragIndex(index)
+  }
+  function handleDrop() {
+    setDragIndex(null)
+    saveOrder()
+  }
+  async function saveOrder() {
+    const sb = createClient()
+    for (let i = 0; i < items.length; i++) {
+      await sb.from('services').update({ home_order: i + 1 }).eq('id', items[i].id)
+    }
+  }
+
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingPhoto(true)
     try {
-      const urls = await uploadFiles('uploads', [file])
-      if (urls[0]) setForm(f => ({ ...f, photo_url: urls[0] }))
+      const sb = createClient()
+      const path = `services/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`
+      const { data, error } = await sb.storage.from('uploads').upload(path, file, { upsert: false })
+      if (error) {
+        console.error('Photo upload error:', error.message)
+      } else if (data) {
+        const { data: urlData } = sb.storage.from('uploads').getPublicUrl(data.path)
+        if (urlData?.publicUrl) setForm(f => ({ ...f, photo_url: urlData.publicUrl }))
+      }
     } finally {
       setUploadingPhoto(false)
     }
@@ -227,6 +256,7 @@ export default function ServicesAdminPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
+                <th className="px-4 py-3 w-8"></th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Nomi</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Narx</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Status</th>
@@ -235,8 +265,16 @@ export default function ServicesAdminPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              {items.map((item, index) => (
+                <tr
+                  key={item.id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={e => handleDragOver(e, index)}
+                  onDrop={handleDrop}
+                  className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
+                >
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{item.name_uz}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{formatPrice(item.price, item.currency, item.currency_custom)}</td>
                   <td className="px-4 py-3">

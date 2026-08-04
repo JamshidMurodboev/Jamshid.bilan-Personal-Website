@@ -84,6 +84,7 @@ function StatusBadge({ status }: { status: Scholarship['status'] }) {
 
 export default function ScholarshipsPage() {
   const [items, setItems] = useState<Scholarship[]>([])
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -99,6 +100,27 @@ export default function ScholarshipsPage() {
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [showDocsPreview, setShowDocsPreview] = useState(false)
   const dragIdx = useRef<number | null>(null)
+
+  function handleDragStart(index: number) { setDragIndex(index) }
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    const newItems = [...items]
+    const [moved] = newItems.splice(dragIndex, 1)
+    newItems.splice(index, 0, moved)
+    setItems(newItems)
+    setDragIndex(index)
+  }
+  function handleDrop() {
+    setDragIndex(null)
+    saveOrder()
+  }
+  async function saveOrder() {
+    const sb = createClient()
+    for (let i = 0; i < items.length; i++) {
+      await sb.from('scholarships').update({ home_order: i + 1 }).eq('id', items[i].id)
+    }
+  }
 
   async function load() {
     setLoading(true)
@@ -371,6 +393,7 @@ export default function ScholarshipsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
+                <th className="px-4 py-3 w-8"></th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Nomi</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Davlat</th>
                 <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-400 font-medium">Kategoriya</th>
@@ -380,8 +403,16 @@ export default function ScholarshipsPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              {items.map((item, index) => (
+                <tr
+                  key={item.id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={e => handleDragOver(e, index)}
+                  onDrop={handleDrop}
+                  className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
+                >
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{item.title}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.country}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">
