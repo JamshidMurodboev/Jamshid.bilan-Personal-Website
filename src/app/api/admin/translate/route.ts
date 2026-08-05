@@ -7,15 +7,16 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
 
-  const SYSTEM = `You are a professional translator. Translate the following text from Uzbek to Russian and English.
-IMPORTANT rules:
-- Preserve ALL emojis exactly as they appear
-- Preserve ALL line breaks, paragraph breaks, and spacing
-- Preserve ALL formatting (bullets, numbers, dashes)
-- Do not add or remove any content
-- Return ONLY a JSON object: {"ru": "...", "en": "..."}
-- The translated text must have the same structure and paragraphs as the original
-- No extra text, no markdown fences, no code blocks — only the raw JSON object`
+  const SYSTEM = `You are a professional translator. Translate the following Uzbek text to Russian and English.
+
+STRICT rules — follow exactly:
+1. Preserve ALL emojis exactly as they appear (do NOT remove or change them)
+2. Preserve ALL paragraph breaks — each paragraph in the original becomes its own paragraph
+3. Preserve ALL formatting: bullet points, numbered lists, dashes, icons, line breaks
+4. Do NOT merge paragraphs into one — if the original has 5 paragraphs, the translation must also have 5 paragraphs
+5. Return ONLY valid JSON — no markdown, no code fences, no extra text
+6. In the JSON string values, represent line breaks as \\n (escaped backslash-n)
+7. Format: {"ru": "translated text here", "en": "translated text here"}`
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -24,22 +25,61 @@ IMPORTANT rules:
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         max_tokens: 4096,
-        temperature: 0.1,
+        temperature: 0.05,
         messages: [
           { role: 'system', content: SYSTEM },
-          { role: 'user', content: text },
+          { role: 'user', content: `Translate this text:\n\n${text}` },
         ],
       }),
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json.error?.message || 'Groq error')
     let raw = json.choices[0].message.content.trim()
-    // Strip markdown fences wherever they appear
-    raw = raw.replace(/```(?:json)?/gi, '').trim()
-    // Try to extract a JSON object from the response
+
+    // Strip markdown fences
+    raw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim()
+
+    // Extract the JSON object
     const match = raw.match(/\{[\s\S]*\}/)
     if (!match) throw new Error('No JSON object found in LLM response')
-    const parsed = JSON.parse(match[0])
+
+    let jsonStr = match[0]
+
+    // Fix literal newlines inside JSON string values (invalid JSON).
+    // Replace unescaped literal newlines that appear INSIDE quoted strings.
+    // Strategy: walk through the string, track if inside a JSON string, escape literal newlines.
+    let fixed = ''
+    let inString = false
+    let escaped = false
+    for (let i = 0; i < jsonStr.length; i++) {
+      const ch = jsonStr[i]
+      if (escaped) {
+        fixed += ch
+        escaped = false
+        continue
+      }
+      if (ch === '\\') {
+        fixed += ch
+        escaped = true
+        continue
+      }
+      if (ch === '"') {
+        inString = !inString
+        fixed += ch
+        continue
+      }
+      if (inString && ch === '\n') {
+        fixed += '\\n'
+        continue
+      }
+      if (inString && ch === '\r') {
+        fixed += '\\r'
+        continue
+      }
+      fixed += ch
+    }
+
+    const parsed = JSON.parse(fixed)
     return NextResponse.json({ ru: parsed.ru || '', en: parsed.en || '' })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
