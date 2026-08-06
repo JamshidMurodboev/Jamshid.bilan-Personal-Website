@@ -11,7 +11,7 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
   let universities: University[] = [];
   try {
     const supabase = createClient();
-    const { data, error } = await supabase.from('universities').select('*').order('name');
+    const { data, error } = await supabase.from('universities').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('name', { ascending: true });
     if (!error && data) universities = data as University[];
   } catch {}
 

@@ -25,7 +25,7 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from('student_results').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
+    supabase.from('student_results').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).then(({ data, error }) => {
       if (!error && data && data.length > 0) setResults(data as StudentResult[])
     })
   }, [])

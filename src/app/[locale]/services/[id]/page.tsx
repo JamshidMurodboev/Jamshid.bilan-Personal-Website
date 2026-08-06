@@ -8,7 +8,7 @@ import PageNav from '@/components/shared/PageNav';
 import ActivityTracker from '@/components/shared/ActivityTracker';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { isUUID } from '@/lib/slugify';
-import AskQuestionButton from '@/components/shared/AskQuestionButton';
+import ServiceContactButtons from '@/components/services/ServiceContactButtons';
 
 function priceDisplay(s: Service, freeLabel: string) {
   if (s.currency === 'FREE') return freeLabel;
@@ -37,7 +37,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
   const description = (svc as any)[`description_${locale}`] || svc.description_uz || '';
   const price = priceDisplay(svc, t('free'));
 
-  // Fetch linked scholarships, universities, results
   const [{ data: schLinks }, { data: uniLinks }, { data: resLinks }] = await Promise.all([
     supabase.from('service_scholarships').select('scholarship_id').eq('service_id', svc.id),
     supabase.from('service_universities').select('university_id').eq('service_id', svc.id),
@@ -49,9 +48,15 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
   const resultIds = (resLinks ?? []).map((r: { result_id: string }) => r.result_id);
 
   const [{ data: scholarships }, { data: universities }, { data: results }] = await Promise.all([
-    scholarshipIds.length > 0 ? supabase.from('scholarships').select('id,title,slug').in('id', scholarshipIds) : Promise.resolve({ data: [] }),
-    universityIds.length > 0 ? supabase.from('universities').select('id,name,slug').in('id', universityIds) : Promise.resolve({ data: [] }),
-    resultIds.length > 0 ? supabase.from('student_results').select('id,student_name,slug').in('id', resultIds) : Promise.resolve({ data: [] }),
+    scholarshipIds.length > 0
+      ? supabase.from('scholarships').select('id,title,slug,photo_urls,country,status').in('id', scholarshipIds)
+      : Promise.resolve({ data: [] }),
+    universityIds.length > 0
+      ? supabase.from('universities').select('id,name,slug,photo_urls,country,city,type').in('id', universityIds)
+      : Promise.resolve({ data: [] }),
+    resultIds.length > 0
+      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year').in('id', resultIds)
+      : Promise.resolve({ data: [] }),
   ]);
 
   return (
@@ -81,65 +86,85 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
         )}
 
-        {/* Contact buttons */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          <a
-            href="https://t.me/jamshid_bilan"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-xl font-semibold transition"
-          >
-            {t('applyNow')}
-          </a>
-          <AskQuestionButton
-            serviceContext={svc.name_uz}
-            className="inline-flex items-center gap-2 border-2 border-teal-700 text-teal-700 dark:border-teal-400 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 px-6 py-3 rounded-xl font-semibold text-sm transition"
-          >
-            {t('askQuestion')}
-          </AskQuestionButton>
-        </div>
+        <ServiceContactButtons
+          serviceContext={svc.name_uz}
+          applyLabel={t('applyNow')}
+          askLabel={t('askQuestion')}
+        />
 
-        {/* Linked scholarships */}
         {(scholarships?.length ?? 0) > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedScholarships')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {(scholarships ?? []).map((sch: { id: string; title: string; slug?: string }) => (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedScholarships')}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(scholarships ?? []).map((sch: any) => (
                 <Link key={sch.id} href={`/${locale}/scholarships/${sch.slug ?? sch.id}`}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 rounded-xl px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
-                  {sch.title}
+                  className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+                  {sch.photo_urls?.[0] ? (
+                    <div className="relative w-full aspect-[4/3]">
+                      <Image src={sch.photo_urls[0]} alt={sch.title} fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-4xl">🎓</div>
+                  )}
+                  <div className="p-3">
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{sch.title}</p>
+                    {sch.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sch.country}</p>}
+                  </div>
                 </Link>
               ))}
             </div>
           </div>
         )}
 
-        {/* Linked universities */}
         {(universities?.length ?? 0) > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedUniversities')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {(universities ?? []).map((u: { id: string; name: string; slug?: string }) => (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedUniversities')}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(universities ?? []).map((u: any) => (
                 <Link key={u.id} href={`/${locale}/universities/${u.slug ?? u.id}`}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 rounded-xl px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
-                  {u.name}
+                  className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+                  {u.photo_urls?.[0] ? (
+                    <div className="relative w-full aspect-[4/3]">
+                      <Image src={u.photo_urls[0]} alt={u.name} fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏫</div>
+                  )}
+                  <div className="p-3">
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{u.name}</p>
+                    {u.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{u.country}</p>}
+                  </div>
                 </Link>
               ))}
             </div>
           </div>
         )}
 
-        {/* Linked results */}
         {(results?.length ?? 0) > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('linkedResults')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {(results ?? []).map((r: { id: string; student_name: string; slug?: string }) => (
-                <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-teal-400 rounded-xl px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition shadow-sm">
-                  {r.student_name}
-                </Link>
-              ))}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedResults')}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(results ?? []).map((r: any) => {
+                const photo = r.photo_urls?.[0] || r.photo_url;
+                return (
+                  <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
+                    className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+                    {photo ? (
+                      <div className="relative w-full aspect-[4/3]">
+                        <Image src={photo} alt={r.student_name} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+                        <span className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xl">{r.student_name[0]}</span>
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <p className="font-semibold text-sm text-gray-900 dark:text-white">{r.student_name}</p>
+                      {r.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.country} · {r.year}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

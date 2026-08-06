@@ -18,7 +18,7 @@ export default function ScholarshipsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    createClient().from('scholarships').select('*').then(({ data, error }) => {
+    createClient().from('scholarships').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).then(({ data, error }) => {
       if (!error && data) setScholarships(data as Scholarship[]);
       setLoading(false);
     });
