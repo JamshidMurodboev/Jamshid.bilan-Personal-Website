@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
 import { createClient } from '@/lib/supabase/client';
@@ -8,11 +8,11 @@ import { createClient } from '@/lib/supabase/client';
 const CERTS = ['IELTS', 'TOEFL', 'TYS', 'SAT', 'Other', 'None'];
 
 function buildMessage(name: string, dob: string, cert: string, score: string, target: string, other: string, noneLabel: string) {
-  const targetStr = target === 'other' ? other : target;
+  const targetStr = target === 'other' ? other : target === 'all' ? 'Barchasi' : target;
   const certStr = cert === 'None' ? noneLabel : cert;
   const scoreStr = cert === 'None' || !score.trim() ? '—' : score;
   return encodeURIComponent(
-    `Assalomu Alaykum.\n\nHujjat topshirish bo'yicha yozayapman.\n\nIsm: ${name}\nTug'ilgan sana: ${dob}\nTil sertifikati: ${certStr}\nBall: ${scoreStr}\nAriza: ${targetStr}`
+    `Assalomu Alaykum.\n\nHujjat topshirish bo'yicha yozayapman.\n\nIsm: ${name}\nTug'ilgan sana: ${dob}\nTil sertifikati: ${certStr}\nBall: ${scoreStr}\nMaqsad: ${targetStr}`
   );
 }
 
@@ -26,6 +26,7 @@ type FieldErrors = Partial<Record<'name' | 'dob' | 'cert' | 'score' | 'target' |
 export default function ContactForm() {
   const { user } = useAuth();
   const t = useTranslations('contact.form');
+  const locale = useLocale();
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [cert, setCert] = useState('');
@@ -35,6 +36,7 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
   const [universities, setUniversities] = useState<{ id: string; name: string; country: string }[]>([]);
+  const [services, setServices] = useState<{ id: string; name_uz: string; name_ru?: string; name_en?: string }[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -50,6 +52,9 @@ export default function ContactForm() {
     });
     sb.from('universities').select('id,name,country').order('name').then(({ data }) => {
       if (data && data.length > 0) setUniversities(data);
+    });
+    sb.from('services').select('id,name_uz,name_ru,name_en').eq('status', 'active').order('home_order', { ascending: true, nullsFirst: false }).then(({ data }) => {
+      if (data && data.length > 0) setServices(data);
     });
   }, []);
 
@@ -105,6 +110,7 @@ export default function ContactForm() {
         <label className={labelCls}>{t('grantOrUniversity')} *</label>
         <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
           <option value="">Tanlang...</option>
+          <option value="all">Barchasi</option>
           {scholarships.length > 0 && (
             <optgroup label={t('grantGroup')}>
               {scholarships.map(s => (
@@ -117,6 +123,16 @@ export default function ContactForm() {
               {universities.map(u => (
                 <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
               ))}
+            </optgroup>
+          )}
+          {services.length > 0 && (
+            <optgroup label="Xizmatlar">
+              {services.map(s => {
+                const svcName = (s as any)[`name_${locale}`] || s.name_uz;
+                return (
+                  <option key={s.id} value={`Xizmat: ${svcName}`}>{svcName}</option>
+                );
+              })}
             </optgroup>
           )}
           <option value="other">{t('otherOption')}</option>

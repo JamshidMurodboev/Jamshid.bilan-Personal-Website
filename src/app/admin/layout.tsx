@@ -16,7 +16,7 @@ const navLinks = [
   { href: '/admin/results', label: 'Natijalar' },
   { href: '/admin/news', label: 'Yangiliklar' },
   { href: '/admin/services', label: 'Xizmatlar' },
-
+  { href: '/admin/process', label: 'Jarayon' },
   { href: '/admin/faq', label: 'Savollar' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
   { href: '/admin/users', label: 'Foydalanuvchilar' },

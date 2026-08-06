@@ -2,7 +2,6 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import ContactModal from '@/components/shared/ContactModal';
 
 export default function HeroSection() {
@@ -59,15 +58,12 @@ export default function HeroSection() {
                 </svg>
                 {t('cta')}
               </button>
-              <Link
-                href={`/${locale}/scholarships`}
+              <button
+                onClick={() => setOpen(true)}
                 className="inline-flex items-center justify-center gap-2 border-2 border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 hover:bg-teal-700 hover:text-white dark:hover:bg-teal-700 dark:hover:text-white px-8 py-4 rounded-2xl font-bold text-base transition-all duration-200 hover:-translate-y-0.5"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
                 {t('ctaWhatsApp')}
-              </Link>
+              </button>
             </div>
 
             {/* Achievement badges row */}
@@ -107,8 +103,8 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              {/* Floating badge — bottom left */}
-              <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
+              {/* Floating badge — left center */}
+              <div className="absolute top-1/2 -translate-y-1/2 -left-3 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
                 <span className="text-xl">🎓</span>
                 <div>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Mentorship</p>
