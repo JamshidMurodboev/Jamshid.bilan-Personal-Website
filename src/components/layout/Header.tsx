@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import AuthModal from '@/components/auth/AuthModal';
+import ContactModal from '@/components/shared/ContactModal';
 
 function ThemeToggle() {
   const [dark, setDark] = useState(false);
@@ -178,6 +179,8 @@ function HeaderInner() {
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [authModal, setAuthModal] = useState<{ open: boolean; tab: 'signin' | 'signup' }>({ open: false, tab: 'signin' });
+  const [contactOpen, setContactOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const callbackUrl = searchParams.get('callbackUrl');
 
   useEffect(() => {
@@ -185,6 +188,15 @@ function HeaderInner() {
       setAuthModal({ open: true, tab: 'signin' });
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 60);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   function handleAuthClose() {
     setAuthModal(prev => ({ ...prev, open: false }));
@@ -205,7 +217,13 @@ function HeaderInner() {
 
   return (
     <>
-      <header className="bg-white/90 dark:bg-[#0d1117]/90 dark:backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
+      <header
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-800'
+            : 'bg-transparent border-b border-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link href={`/${locale}`} className="font-bold text-[#0d9488] dark:text-[#2dd4bf] text-lg">
             Jamshid.bilan
@@ -224,6 +242,12 @@ function HeaderInner() {
             <div className="flex items-center gap-1 ml-2">
               <LanguageDropdown />
               <ThemeToggle />
+              <button
+                onClick={() => setContactOpen(true)}
+                className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition ml-1"
+              >
+                {t('contact')}
+              </button>
               {user ? (
                 <AvatarMenu />
               ) : (
@@ -273,6 +297,12 @@ function HeaderInner() {
                 {l.label}
               </Link>
             ))}
+            <button
+              onClick={() => { setOpen(false); setContactOpen(true); }}
+              className="text-left text-sm font-semibold text-teal-700 dark:text-teal-400 py-2"
+            >
+              {t('contact')}
+            </button>
             {!user && (
               <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                 <button
@@ -293,6 +323,7 @@ function HeaderInner() {
         onClose={handleAuthClose}
         initialTab={authModal.tab}
       />
+      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
     </>
   );
 }
