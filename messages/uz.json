@@ -209,7 +209,17 @@
       "questionLabel": "Savolingiz",
       "questionPlaceholder": "Savolingizni yozing...",
       "sendBtn": "Yuborish"
-    }
+    },
+    "include1": "Grant strategiyasi",
+    "include2": "CV va motivatsion xat ko'rib chiqish",
+    "include3": "Grant mos tanlash",
+    "include4": "Ariza yo'l xaritasi",
+    "include5": "Suhbat tayyorgarligi",
+    "include6": "SOP yozishda yordam",
+    "slots": "Oylik o'rindiqlar cheklangan",
+    "trust1": "Maxfiy",
+    "trust2": "Jonli chat",
+    "trust3": "Tasdiqlangan"
   },
   "footer": {
     "rights": "Barcha huquqlar himoyalangan.",
@@ -325,5 +335,19 @@
     "linkedResults": "Bog'liq natijalar",
     "contactUs": "Bog'lanish",
     "askQuestion": "Savol berish"
+  },
+  "process": {
+    "label": "Jarayon",
+    "title": "Qanday ishlaydi?",
+    "subtitle": "To'rt oddiy qadam — ariza topshirishdan qabulgacha",
+    "step1Title": "Murojaat qiling",
+    "step1Desc": "Telegram orqali bog'laning va qulay vaqtni tanlang",
+    "step2Title": "Profil ko'rib chiqish",
+    "step2Desc": "CV, attestat va til sertifikatingizni birga tahlil qilamiz",
+    "step3Title": "Strategiya",
+    "step3Desc": "Shaxsiy yo'l xaritasi — qaysi grantlar, qachon va qanday",
+    "step4Title": "Ariza topshirish",
+    "step4Desc": "SOP, motivatsion xat va intervyu tayyorgarligida yordam",
+    "cta": "Konsultatsiya band qiling"
   }
 }
