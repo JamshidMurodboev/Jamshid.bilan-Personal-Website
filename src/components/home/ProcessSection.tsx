@@ -32,7 +32,7 @@ export default function ProcessSection() {
   const t = useTranslations('process');
   const locale = useLocale();
   const [open, setOpen] = useState(false);
-  const [dbSteps, setDbSteps] = useState<ProcessStep[]>([]);
+  const [dbSteps, setDbSteps] = useState<ProcessStep[] | null>(null);
 
   useEffect(() => {
     createClient()
@@ -40,19 +40,23 @@ export default function ProcessSection() {
       .select('*')
       .order('sort_order', { ascending: true })
       .then(({ data }) => {
-        if (data && data.length > 0) setDbSteps(data as ProcessStep[]);
+        setDbSteps(data && data.length > 0 ? data as ProcessStep[] : []);
       });
   }, []);
 
-  const steps = dbSteps.length > 0
+  const steps = dbSteps !== null && dbSteps.length > 0
     ? dbSteps.map(s => ({
+        id: s.id,
         number: s.number,
         icon: s.icon,
         title: (s as any)[`title_${locale}`] || s.title_uz || '',
         desc: (s as any)[`desc_${locale}`] || s.desc_uz || '',
         colorKey: s.color_key || 'teal',
       }))
+    : dbSteps === null
+    ? null
     : FALLBACK.map(s => ({
+        id: s.number,
         number: s.number,
         icon: s.icon,
         title: t(s.titleKey as any),
@@ -69,19 +73,21 @@ export default function ProcessSection() {
           <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">{t('subtitle')}</p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {steps.map(step => {
-            const colors = COLOR_MAP[step.colorKey] || COLOR_MAP.teal;
-            return (
-              <div key={step.number} className={`border-2 ${colors.card} rounded-2xl p-6 h-full`}>
-                <div className={`text-3xl font-black ${colors.num} mb-3 font-mono`}>{step.number}</div>
-                <div className="text-3xl mb-3">{step.icon}</div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
-              </div>
-            );
-          })}
-        </div>
+        {steps !== null && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {steps.map(step => {
+              const colors = COLOR_MAP[step.colorKey] || COLOR_MAP.teal;
+              return (
+                <div key={step.id} className={`border-2 ${colors.card} rounded-2xl p-6 h-full`}>
+                  <div className={`text-3xl font-black ${colors.num} mb-3 font-mono`}>{step.number}</div>
+                  <div className="text-3xl mb-3">{step.icon}</div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="text-center">
           <button
