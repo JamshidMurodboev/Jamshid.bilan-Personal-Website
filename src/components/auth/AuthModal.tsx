@@ -54,15 +54,15 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   if (!isOpen) return null;
 
-  function handleSignIn(e: React.FormEvent) {
+  async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (!siEmail.trim() || !siPass) { setSiError(t('invalidCredentials')); return; }
-    const err = login(siEmail, siPass);
-    if (err) { setSiError(t('invalidCredentials')); return; }
+    const err = await login(siEmail, siPass);
+    if (err) { setSiError(err); return; }
     onClose();
   }
 
-  function handleSignUp(e: React.FormEvent) {
+  async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     if (!suName.trim()) { setSuError(t('nameRequired')); return; }
     if (!suDob) { setSuError(t('dobRequired')); return; }
@@ -70,7 +70,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     if (!suPhone.trim()) { setSuError(t('phoneRequired')); return; }
     if (suPass.length < 6) { setSuError(t('error')); return; }
     setSuError('');
-    const err = signup({
+    const err = await signup({
       fullName: suName,
       dob: suDob,
       gender: suGender,
@@ -110,7 +110,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             {locale === 'ru' ? 'Переходим на главную страницу...' : locale === 'en' ? 'Taking you to the home page...' : "Bosh sahifaga o'tmoqdamiz..."}
           </p>
           <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1 overflow-hidden">
-            <div className="bg-teal-600 h-1 rounded-full" style={{ animation: 'shrink 2.5s linear forwards', width: '100%' }} />
+            <div className="bg-teal-600 h-1 rounded-full animate-[progress_2.5s_linear_forwards]" style={{ width: '100%', transformOrigin: 'left', animation: 'shrink 2.5s linear forwards' }} />
           </div>
         </div>
         <style>{`@keyframes shrink { from { width: 100%; } to { width: 0%; } }`}</style>

@@ -161,7 +161,7 @@ function AvatarMenu() {
             className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
           >{t('profile')}</Link>
           <button
-            onClick={() => { logout(); setOpen(false); router.push(`/${locale}`); }}
+            onClick={async () => { await logout(); setOpen(false); router.push(`/${locale}`); }}
             className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
           >{t('logout')}</button>
         </div>
