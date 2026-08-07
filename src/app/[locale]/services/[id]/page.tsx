@@ -168,6 +168,12 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
             </div>
           </div>
         )}
+
+        <ServiceContactButtons
+          serviceContext={svc.name_uz}
+          applyLabel={t('applyNow')}
+          askLabel={t('askQuestion')}
+        />
       </div>
     </div>
   );
