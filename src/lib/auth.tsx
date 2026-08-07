@@ -59,7 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem('auth_user');
       if (stored) {
         const u: AuthUser = JSON.parse(stored);
-        // Reload photo from separate key if not embedded
         if (!u.photoDataUrl) {
           const photo = localStorage.getItem(`auth_photo_${u.id}`);
           if (photo) u.photoDataUrl = photo;
@@ -77,14 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!found) return "Email yoki parol noto'g'ri";
       const { password: _, ...u } = found;
       // Reload photo from separate key
-      if (!u.photoDataUrl) {
-        const photo = localStorage.getItem(`auth_photo_${u.id}`);
-        if (photo) u.photoDataUrl = photo;
-      }
-      setUser(u);
+      const photo = localStorage.getItem(`auth_photo_${u.id}`);
+      const userWithPhoto = photo ? { ...u, photoDataUrl: photo } : u;
+      setUser(userWithPhoto);
       localStorage.setItem('auth_user', JSON.stringify(u));
       setSessionCookie();
-      // Sync login to Supabase site_users (best-effort)
       createClient().from('site_users').update({ last_active_at: new Date().toISOString(), login_count: (found as any).login_count + 1 }).eq('id', u.id).then(() => {});
       return null;
     } catch { return 'Xatolik yuz berdi'; }
@@ -95,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const users: StoredUser[] = JSON.parse(localStorage.getItem('auth_users') || '[]');
       if (users.find(u => u.email.toLowerCase() === data.email.toLowerCase())) return "Bu email allaqachon ro'yxatdan o'tgan";
       const newUser: AuthUser = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         fullName: data.fullName,
         dob: data.dob,
         gender: data.gender,
@@ -103,17 +99,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.email,
         photoDataUrl: data.photoDataUrl,
       };
-      // Store photo separately to avoid localStorage quota issues with large base64 images
+      // Store photo separately — never embed in users array or auth_user (5MB quota)
       if (data.photoDataUrl) {
-        try { localStorage.setItem(`auth_photo_${newUser.id}`, data.photoDataUrl); } catch { newUser.photoDataUrl = undefined; }
+        try { localStorage.setItem(`auth_photo_${newUser.id}`, data.photoDataUrl); } catch {}
       }
       const userForStorage = { ...newUser, photoDataUrl: undefined, password: data.password };
       users.push(userForStorage as StoredUser);
       localStorage.setItem('auth_users', JSON.stringify(users));
       setUser(newUser);
-      localStorage.setItem('auth_user', JSON.stringify(newUser));
+      localStorage.setItem('auth_user', JSON.stringify({ ...newUser, photoDataUrl: undefined }));
       setSessionCookie();
-      // Sync new user to Supabase site_users (best-effort)
       createClient().from('site_users').upsert({
         id: newUser.id,
         full_name: newUser.fullName,
@@ -140,14 +135,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const updated = { ...user, ...data };
     setUser(updated);
-    localStorage.setItem('auth_user', JSON.stringify(updated));
+    localStorage.setItem('auth_user', JSON.stringify({ ...updated, photoDataUrl: undefined }));
     try {
       const users: StoredUser[] = JSON.parse(localStorage.getItem('auth_users') || '[]');
       const idx = users.findIndex(u => u.id === user.id);
       if (idx >= 0) users[idx] = { ...users[idx], ...data };
       localStorage.setItem('auth_users', JSON.stringify(users));
     } catch {}
-    // Sync language certificate to Supabase
     if (data.languageCertificate !== undefined) {
       createClient().from('site_users').update({
         language_certificate: data.languageCertificate ? `${data.languageCertificate.type}:${data.languageCertificate.score}` : null,
