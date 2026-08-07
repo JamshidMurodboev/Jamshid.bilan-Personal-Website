@@ -14,6 +14,7 @@ import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import UniversityApplyCTA from '@/components/universities/UniversityApplyCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ServiceContactButtons from '@/components/services/ServiceContactButtons';
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -44,7 +45,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
 
   const [{ data: majorsData }, { data: resultsData }, { data: newsData }, t, { data: serviceLinks }] = await Promise.all([
     supabase.from('university_majors').select('*').eq('university_id', u.id).order('sort_order'),
-    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug, photo_url, photo_urls, university_name, major').eq('university_id', u.id).order('year', { ascending: false }),
+    supabase.from('student_results').select('id, student_name, degree_level, year, country, slug, photo_url, photo_urls, university_name, university_name_ru, university_name_en, major, major_ru, major_en, language').eq('university_id', u.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('university_id', u.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     getTranslations({ locale, namespace: 'universities' }),
     supabase.from('service_universities').select('service_id').eq('university_id', u.id),
@@ -55,7 +56,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
     : { data: [] };
 
   const majors = (majorsData ?? []) as UniversityMajor[];
-  const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string; photo_url?: string; photo_urls?: string[]; university_name?: string; major?: string }[];
+  const linkedResults = (resultsData ?? []) as { id: string; slug?: string; student_name: string; degree_level: string; year: number; country: string; photo_url?: string; photo_urls?: string[]; university_name?: string; university_name_ru?: string; university_name_en?: string; major?: string; major_ru?: string; major_en?: string; language?: string }[];
   const linkedNews = (newsData ?? []) as { id: string; slug?: string; title_uz: string; title_ru?: string; title_en?: string; cover_url?: string; photo_urls?: string[]; published_at?: string }[];
   const description = (u as any)[`description_${locale}`] || u.description_uz || '';
   const photos = u.photo_urls ?? [];
@@ -108,26 +109,39 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('ourResults')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {linkedResults.map(r => (
-                    <Link href={`/${locale}/results/${r.slug ?? r.id}`} key={r.id}
-                      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 transition shadow-sm group">
-                      {(r.photo_urls?.[0] || r.photo_url) ? (
-                        <div className="relative h-40 overflow-hidden">
-                          <Image src={r.photo_urls?.[0] || r.photo_url!} alt={r.student_name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {linkedResults.map(r => {
+                    const photos = r.photo_urls?.length ? r.photo_urls : r.photo_url ? [r.photo_url] : [];
+                    const uniName = (r as any)[`university_name_${locale}`] || r.university_name || '';
+                    const major = (r as any)[`major_${locale}`] || r.major || '';
+                    return (
+                      <Link href={`/${locale}/results/${r.slug ?? r.id}`} key={r.id}
+                        className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 transition shadow-sm flex flex-col">
+                        {photos.length > 0 ? (
+                          <div className="relative w-full aspect-[4/3]">
+                            <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+                            <span className="text-3xl font-bold text-teal-600">{r.student_name?.[0]}</span>
+                          </div>
+                        )}
+                        <div className="p-3 flex flex-col gap-1 flex-1">
+                          <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug">
+                            {r.student_name}{uniName ? ` — ${uniName}` : ''}
+                          </p>
+                          {major && <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{major}</p>}
+                          <div className="flex items-center gap-2 mt-auto pt-1 flex-wrap">
+                            {r.language && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                                {translateLanguage(r.language, locale)}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto">{r.year}</span>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="h-20 flex items-center justify-center bg-teal-50 dark:bg-teal-900/20">
-                          <span className="text-3xl font-bold text-teal-600">{r.student_name?.[0]}</span>
-                        </div>
-                      )}
-                      <div className="p-3">
-                        <p className="font-semibold text-gray-900 dark:text-white text-sm">{r.student_name}</p>
-                        {r.university_name && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.university_name}</p>}
-                        {r.major && <p className="text-xs text-gray-500 dark:text-gray-400">{r.major}</p>}
-                        <p className="text-xs text-teal-600 dark:text-teal-400 font-medium mt-1">{r.year}</p>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -215,6 +229,12 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {/* Media Links */}
             <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
 
+            <ServiceContactButtons
+              serviceContext={u.name}
+              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
+              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
+            />
+
             {(u as any).tuition_estimated && (
               <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
@@ -256,7 +276,14 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                           </td>
                           <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell">{m.language ? translateLanguage(m.language, locale) : '—'}</td>
                           <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
-                            {m.tuition ? `${m.tuition.toLocaleString()} ${m.currency}` : '—'}
+                            <div className="text-right">
+                              <div>{m.tuition ? `${m.tuition.toLocaleString()} ${m.currency}` : '—'}</div>
+                              {(m as any).tuition_estimated && (
+                                <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+                                  {locale === 'ru' ? 'Прошлогодняя цена' : locale === 'en' ? "Previous year's fee" : "O'tgan yilgi narx"}
+                                </div>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
