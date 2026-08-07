@@ -1,6 +1,8 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
 
@@ -13,7 +15,10 @@ interface Props {
 export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Props) {
   const t = useTranslations('auth');
   const { login, signup } = useAuth();
+  const router = useRouter();
+  const locale = useLocale();
   const [tab, setTab] = useState(initialTab);
+  const [registered, setRegistered] = useState(false);
 
   const [siEmail, setSiEmail] = useState('');
   const [siPass, setSiPass] = useState('');
@@ -34,8 +39,18 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setTab(initialTab);
       setSiError('');
       setSuError('');
+      setRegistered(false);
     }
   }, [initialTab, isOpen]);
+
+  useEffect(() => {
+    if (!registered) return;
+    const timer = setTimeout(() => {
+      onClose();
+      router.push(`/${locale}`);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [registered, onClose, router, locale]);
 
   if (!isOpen) return null;
 
@@ -65,7 +80,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       photoDataUrl: suPhoto || undefined,
     });
     if (err) { setSuError(err); return; }
-    onClose();
+    setRegistered(true);
   }
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -78,6 +93,30 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500';
   const errInputCls = 'w-full border border-red-400 dark:border-red-500 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500';
+
+  if (registered) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center gap-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center">
+            <svg className="w-8 h-8 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            {locale === 'ru' ? 'Вы успешно зарегистрировались!' : locale === 'en' ? 'You have been registered!' : "Siz muvaffaqiyatli ro'yxatdan o'tdingiz!"}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {locale === 'ru' ? 'Переходим на главную страницу...' : locale === 'en' ? 'Taking you to the home page...' : "Bosh sahifaga o'tmoqdamiz..."}
+          </p>
+          <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1 overflow-hidden">
+            <div className="bg-teal-600 h-1 rounded-full" style={{ animation: 'shrink 2.5s linear forwards', width: '100%' }} />
+          </div>
+        </div>
+        <style>{`@keyframes shrink { from { width: 100%; } to { width: 0%; } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div

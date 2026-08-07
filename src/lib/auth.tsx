@@ -58,7 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('auth_user');
       if (stored) {
-        setUser(JSON.parse(stored));
+        const u: AuthUser = JSON.parse(stored);
+        // Reload photo from separate key if not embedded
+        if (!u.photoDataUrl) {
+          const photo = localStorage.getItem(`auth_photo_${u.id}`);
+          if (photo) u.photoDataUrl = photo;
+        }
+        setUser(u);
         setSessionCookie();
       }
     } catch {}
@@ -70,6 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
       if (!found) return "Email yoki parol noto'g'ri";
       const { password: _, ...u } = found;
+      // Reload photo from separate key
+      if (!u.photoDataUrl) {
+        const photo = localStorage.getItem(`auth_photo_${u.id}`);
+        if (photo) u.photoDataUrl = photo;
+      }
       setUser(u);
       localStorage.setItem('auth_user', JSON.stringify(u));
       setSessionCookie();
@@ -92,7 +103,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.email,
         photoDataUrl: data.photoDataUrl,
       };
-      users.push({ ...newUser, password: data.password });
+      // Store photo separately to avoid localStorage quota issues with large base64 images
+      if (data.photoDataUrl) {
+        try { localStorage.setItem(`auth_photo_${newUser.id}`, data.photoDataUrl); } catch { newUser.photoDataUrl = undefined; }
+      }
+      const userForStorage = { ...newUser, photoDataUrl: undefined, password: data.password };
+      users.push(userForStorage as StoredUser);
       localStorage.setItem('auth_users', JSON.stringify(users));
       setUser(newUser);
       localStorage.setItem('auth_user', JSON.stringify(newUser));
