@@ -51,7 +51,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
   const scholarships: Scholarship[] = scholarshipsRes.status === 'fulfilled' && scholarshipsRes.value.data?.length ? scholarshipsRes.value.data as Scholarship[] : [];
   const universities: University[] = universitiesRes.status === 'fulfilled' && universitiesRes.value.data?.length ? universitiesRes.value.data as University[] : [];
-  const results: StudentResult[] = resultsRes.status === 'fulfilled' && resultsRes.value.data?.length ? resultsRes.value.data as StudentResult[] : [];
+  const results: StudentResult[] = resultsRes.status === 'fulfilled' && resultsRes.value.data?.length ? resultsRes.value.data as unknown as StudentResult[] : [];
   const news: NewsPost[] = newsRes.status === 'fulfilled' && newsRes.value.data?.length ? newsRes.value.data as NewsPost[] : [];
   const services: Service[] = servicesRes.status === 'fulfilled' && servicesRes.value.data?.length ? servicesRes.value.data as Service[] : [];
 
