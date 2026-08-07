@@ -20,7 +20,7 @@ const degreeLabels: Record<StudentResult['degree_level'], string> = {
 }
 
 const categoryLabels: Record<string, string> = {
-  scholarship_winner: "Stipendiya g'olibi",
+  scholarship_winner: 'Stipendiya g\'olibi',
   tuition_based: 'Kontrakt asosida',
 }
 
@@ -261,7 +261,7 @@ export default function ResultsPage() {
     setLoading(true)
     const supabase = createClient()
     const [resultsRes, schRes, uniRes] = await Promise.all([
-      supabase.from('student_results').select('*').order('created_at', { ascending: false }),
+      supabase.from('student_results').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
       supabase.from('scholarships').select('id,title,country').order('title'),
       supabase.from('universities').select('id,name,country').order('name'),
     ])
@@ -437,7 +437,7 @@ export default function ResultsPage() {
                   onDrop={handleDrop}
                   className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
                 >
-                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠣</td>
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
                     {item.student_name}
                   </td>

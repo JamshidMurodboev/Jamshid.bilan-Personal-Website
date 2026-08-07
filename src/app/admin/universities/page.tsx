@@ -139,6 +139,7 @@ export default function UniversitiesPage() {
     const { data, error } = await createClient()
       .from('universities')
       .select('*')
+      .order('home_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     if (error) setError(error.message)
     else setItems(data ?? [])
@@ -374,7 +375,7 @@ export default function UniversitiesPage() {
           onClick={openCreate}
           className="bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium px-4 py-2 rounded-lg"
         >
-          + Qo&apos;shish
+          + Qo'shish
         </button>
       </div>
 
@@ -423,7 +424,7 @@ export default function UniversitiesPage() {
                 </tr>
               ))}
               {items.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Ma&apos;lumot yo&apos;q</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Ma'lumot yo'q</td></tr>
               )}
             </tbody>
           </table>
@@ -711,7 +712,7 @@ export default function UniversitiesPage() {
               {/* Majors — redesigned as cards */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Yo&apos;nalishlar</label>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Yo'nalishlar</label>
                   <span className="text-xs text-gray-400">{majors.length}/35</span>
                 </div>
                 <div className="space-y-3">
@@ -719,20 +720,20 @@ export default function UniversitiesPage() {
                     <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Yo&apos;nalish {i + 1}
+                          Yo'nalish {i + 1}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeMajor(i)}
                           className="text-red-500 hover:text-red-700 text-xs font-medium hover:underline"
                         >
-                          O&apos;chirish
+                          O'chirish
                         </button>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="sm:col-span-2">
                           <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Yo&apos;nalish nomi *</label>
+                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Yo'nalish nomi *</label>
                             <button
                               type="button"
                               onClick={async () => {
@@ -778,11 +779,11 @@ export default function UniversitiesPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">O&apos;qitish tili</label>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">O'qitish tili</label>
                           <LanguageSelect value={m.language} onChange={v => setMajorField(i, 'language', v)} className={inp} />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">To&apos;lov miqdori</label>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">To'lov miqdori</label>
                           <input
                             type="number"
                             min={0}
@@ -800,7 +801,7 @@ export default function UniversitiesPage() {
                             className={inp}
                           >
                             <option value="USD">USD — Dollar</option>
-                            <option value="UZS">UZS — So&apos;m</option>
+                            <option value="UZS">UZS — So'm</option>
                             <option value="EUR">EUR — Evro</option>
                             <option value="TL">TL — Turk lirasi</option>
                           </select>
@@ -846,7 +847,7 @@ export default function UniversitiesPage() {
                 </div>
                 {majors.length < 35 && (
                   <button type="button" onClick={addMajor} className="mt-3 text-sm text-teal-700 dark:text-teal-400 font-medium hover:underline">
-                    + Yo&apos;nalish qo&apos;shish
+                    + Yo'nalish qo'shish
                   </button>
                 )}
               </div>
@@ -861,7 +862,7 @@ export default function UniversitiesPage() {
                   {resultsLoading ? (
                     <div className="text-xs text-gray-400 animate-pulse">Yuklanmoqda...</div>
                   ) : studentResults.length === 0 ? (
-                    <div className="text-xs text-gray-400">Natijalar yo&apos;q</div>
+                    <div className="text-xs text-gray-400">Natijalar yo'q</div>
                   ) : (
                     <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
                       <table className="w-full text-xs">

@@ -69,7 +69,7 @@ export default function ServicesAdminPage() {
 
   async function load() {
     setLoading(true)
-    const { data, error } = await createClient().from('services').select('*').order('created_at', { ascending: false })
+    const { data, error } = await createClient().from('services').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
     if (error) setError(error.message)
     else setItems(data ?? [])
     setLoading(false)
@@ -292,7 +292,7 @@ export default function ServicesAdminPage() {
                   onDrop={handleDrop}
                   className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
                 >
-                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠣</td>
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{item.name_uz}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{formatPrice(item.price, item.currency, item.currency_custom)}</td>
                   <td className="px-4 py-3">

@@ -12,7 +12,6 @@ import { translateLanguage } from '@/lib/translateLanguage';
 import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
-import UniversityApplyCTA from '@/components/universities/UniversityApplyCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
 
@@ -123,7 +122,6 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 {description}
               </div>
             )}
-            <UniversityApplyCTA universityName={u.name} />
 
             {/* Our Results */}
             {linkedResults.length > 0 && (
@@ -247,15 +245,6 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               </div>
             )}
 
-            {/* Media Links */}
-            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
-
-            <ServiceContactButtons
-              serviceContext={u.name}
-              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
-              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
-            />
-
             {(u as any).tuition_estimated && (
               <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
@@ -264,6 +253,9 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 </p>
               </div>
             )}
+
+            {/* Media Links */}
+            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
 
             {majors.length > 0 && (
               <div className="mb-8">
@@ -313,6 +305,12 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 </div>
               </div>
             )}
+
+            <ServiceContactButtons
+              serviceContext={u.name}
+              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
+              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
+            />
           </div>
 
           {/* Sidebar */}
