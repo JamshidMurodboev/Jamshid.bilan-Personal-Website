@@ -129,6 +129,7 @@ export default function ScholarshipsPage() {
     const { data, error } = await createClient()
       .from('scholarships')
       .select('*')
+      .order('home_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     if (error) setError(error.message)
     else setItems(data ?? [])
@@ -835,7 +836,7 @@ export default function ScholarshipsPage() {
 
               {/* Home order */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo&apos;sh = ko&apos;rsatilmaydi)</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo'sh = ko'rsatilmaydi)</label>
                 <input
                   type="number"
                   min="1"
