@@ -20,7 +20,7 @@ const degreeLabels: Record<StudentResult['degree_level'], string> = {
 }
 
 const categoryLabels: Record<string, string> = {
-  scholarship_winner: 'Stipendiya g\'olibi',
+  scholarship_winner: "Stipendiya g'olibi",
   tuition_based: 'Kontrakt asosida',
 }
 
@@ -204,6 +204,7 @@ export default function ResultsPage() {
   const [translatingUniName, setTranslatingUniName] = useState(false)
   const [translatingMajor, setTranslatingMajor] = useState(false)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
+  const [orderPending, setOrderPending] = useState(false)
 
   function handleDragStart(index: number) { setDragIndex(index) }
   function handleDragOver(e: React.DragEvent, index: number) {
@@ -214,16 +215,17 @@ export default function ResultsPage() {
     newItems.splice(index, 0, moved)
     setItems(newItems)
     setDragIndex(index)
+    setOrderPending(true)
   }
   function handleDrop() {
     setDragIndex(null)
-    saveOrder()
   }
-  async function saveOrder() {
+  async function handleSaveOrder() {
     const sb = createClient()
     for (let i = 0; i < items.length; i++) {
       await sb.from('student_results').update({ home_order: i + 1 }).eq('id', items[i].id)
     }
+    setOrderPending(false)
   }
 
   async function handleTranslateUniName() {
@@ -347,11 +349,14 @@ export default function ResultsPage() {
         university_id: null,
       }
     } else {
+      const linkedUni = universities.find(u => u.id === form.university_id)
       payload = {
         ...base,
         university_id: form.university_id || null,
         scholarship_id: null,
-        university_name: null,
+        university_name: form.university_name || (linkedUni ? linkedUni.name : null),
+        university_name_ru: form.university_name_ru || null,
+        university_name_en: form.university_name_en || null,
       }
     }
 
@@ -432,7 +437,7 @@ export default function ResultsPage() {
                   onDrop={handleDrop}
                   className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
                 >
-                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠣</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
                     {item.student_name}
                   </td>
@@ -469,6 +474,15 @@ export default function ResultsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {orderPending && (
+        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-700 shadow-xl rounded-2xl px-4 py-3">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tartib o&apos;zgardi</span>
+          <button onClick={handleSaveOrder} className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">
+            Saqlash
+          </button>
         </div>
       )}
 
@@ -575,18 +589,36 @@ export default function ResultsPage() {
 
               {/* Tuition based fields */}
               {form.category === 'tuition_based' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Universitet *
-                  </label>
-                  <SearchSelect
-                    options={universityOptions}
-                    value={form.university_id}
-                    onChange={(v) => setForm({ ...form, university_id: v })}
-                    placeholder="Universitetni tanlang..."
-                    required
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Universitet *
+                    </label>
+                    <SearchSelect
+                      options={universityOptions}
+                      value={form.university_id}
+                      onChange={(v) => {
+                        const uni = universities.find(u => u.id === v)
+                        setForm({ ...form, university_id: v, university_name: uni ? uni.name : form.university_name })
+                      }}
+                      placeholder="Universitetni tanlang..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Universitet nomi (tarjima)</label>
+                      <button type="button" onClick={handleTranslateUniName} disabled={translatingUniName || !form.university_name.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                        {translatingUniName ? 'Tarjimon...' : 'RU/EN tarjima'}
+                      </button>
+                    </div>
+                    <input value={form.university_name} onChange={(e) => setForm({ ...form, university_name: e.target.value })} className={inp} placeholder="Masalan: Anadolu University" />
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <input value={form.university_name_ru} onChange={e => setForm({ ...form, university_name_ru: e.target.value })} className={inp} placeholder="Uni name (RU)" />
+                      <input value={form.university_name_en} onChange={e => setForm({ ...form, university_name_en: e.target.value })} className={inp} placeholder="Uni name (EN)" />
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* Shared: major */}
