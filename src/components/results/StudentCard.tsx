@@ -18,7 +18,6 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
     <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition flex flex-col">
       <FavouriteButton entityType="result" entityId={r.id} className="absolute top-2 right-2 z-10" />
 
-      {/* Photo */}
       {photos.length > 0 ? (
         <div className="relative w-full aspect-[4/3] flex-shrink-0">
           <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
