@@ -86,12 +86,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
         )}
 
-        <ServiceContactButtons
-          serviceContext={svc.name_uz}
-          applyLabel={t('applyNow')}
-          askLabel={t('askQuestion')}
-        />
-
         {(scholarships?.length ?? 0) > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedScholarships')}</h2>
@@ -128,7 +122,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
                       <Image src={u.photo_urls[0]} alt={u.name} fill className="object-cover" />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏫</div>
+                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏣</div>
                   )}
                   <div className="p-3">
                     <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{u.name}</p>

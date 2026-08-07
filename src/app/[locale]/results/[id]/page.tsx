@@ -53,34 +53,31 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
         <ActivityTracker entityType="result" entityId={r.id} entityName={r.student_name} />
 
         {/* Student header */}
-        <div className="mt-6 mb-6">
-          {photos.length > 0 && (
-            <div className="relative w-full rounded-2xl overflow-hidden mb-5">
-              <Image src={photos[0]} alt={r.student_name} width={800} height={600} className="w-full h-auto object-contain" />
+        <div className="mt-6 mb-6 flex items-start gap-4">
+          {photos.length > 0 ? (
+            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden flex-shrink-0">
+              <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-4xl flex-shrink-0">
+              {r.student_name[0]}
             </div>
           )}
-          <div className="flex items-center gap-3">
-            {photos.length === 0 && (
-              <div className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl flex-shrink-0">
-                {r.student_name[0]}
-              </div>
-            )}
-            <div>
-              <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-3">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{r.student_name}</h1>
               <FavouriteButton entityType="result" entityId={r.id} />
             </div>
-              <div className="flex flex-wrap gap-2 mt-1.5">
-                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
-                  {degreeLabel[r.degree_level] ?? r.degree_level}
+            <div className="flex flex-wrap gap-2 mt-1.5">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                {degreeLabel[r.degree_level] ?? r.degree_level}
+              </span>
+              {r.category && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  {categoryLabel[r.category] ?? r.category}
                 </span>
-                {r.category && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                    {categoryLabel[r.category] ?? r.category}
-                  </span>
-                )}
-                <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
-              </div>
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
             </div>
           </div>
         </div>
@@ -120,13 +117,15 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
             )}
 
             {photos.length > 1 && (
-              <div className="space-y-4 mt-4 mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('photos')}</h2>
-                {photos.slice(1).map((url, i) => (
-                  <div key={i} className="relative w-full rounded-xl overflow-hidden">
-                    <Image src={url} alt={`${r.student_name} ${i + 2}`} width={800} height={600} className="w-full h-auto object-contain" />
-                  </div>
-                ))}
+              <div className="mt-4 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('photos')}</h2>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {photos.slice(1).map((url, i) => (
+                    <div key={i} className="relative w-full aspect-square rounded-xl overflow-hidden">
+                      <Image src={url} alt={`${r.student_name} ${i + 2}`} fill className="object-cover" />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
