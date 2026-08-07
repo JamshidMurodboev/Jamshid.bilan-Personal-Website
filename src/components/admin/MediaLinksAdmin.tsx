@@ -1,5 +1,7 @@
 'use client'
+import { useState } from 'react'
 import type { MediaLink } from '@/lib/supabase/types'
+import { autoTranslate } from '@/lib/translate'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -14,6 +16,8 @@ interface Props {
 }
 
 export default function MediaLinksAdmin({ links, onChange }: Props) {
+  const [translating, setTranslating] = useState<Set<number>>(new Set())
+
   function add() {
     onChange([...links, { url: '', thumbnail: '', description_uz: '', description_ru: '', description_en: '' }])
   }
@@ -31,6 +35,17 @@ export default function MediaLinksAdmin({ links, onChange }: Props) {
       }
       return updated
     }))
+  }
+
+  async function translateDesc(i: number) {
+    if (!links[i].description_uz?.trim()) return
+    setTranslating(prev => new Set(prev).add(i))
+    try {
+      const result = await autoTranslate(links[i].description_uz!)
+      onChange(links.map((l, j) => j === i ? { ...l, description_ru: result.ru || l.description_ru || '', description_en: result.en || l.description_en || '' } : l))
+    } finally {
+      setTranslating(prev => { const s = new Set(prev); s.delete(i); return s })
+    }
   }
 
   return (
@@ -70,11 +85,17 @@ export default function MediaLinksAdmin({ links, onChange }: Props) {
                     placeholder="https://... (ixtiyoriy)"
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Tavsif (UZ)</label>
-                    <input value={link.description_uz || ''} onChange={e => update(i, 'description_uz', e.target.value)} className={inp} placeholder="..." />
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Tavsif (UZ)</label>
+                    <button type="button" onClick={() => translateDesc(i)} disabled={translating.has(i) || !link.description_uz?.trim()}
+                      className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                      {translating.has(i) ? 'Tarjimon...' : '✦ Tarjima'}
+                    </button>
                   </div>
+                  <input value={link.description_uz || ''} onChange={e => update(i, 'description_uz', e.target.value)} className={inp} placeholder="..." />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Tavsif (RU)</label>
                     <input value={link.description_ru || ''} onChange={e => update(i, 'description_ru', e.target.value)} className={inp} placeholder="..." />
