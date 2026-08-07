@@ -1,7 +1,6 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { StudentResult, Scholarship, University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
@@ -11,6 +10,7 @@ import { translateLanguage } from '@/lib/translateLanguage';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ResultPhotoGallery from '@/components/results/ResultPhotoGallery';
 
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
@@ -46,32 +46,42 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
   const degreeLabel = t.raw('degrees') as Record<string, string>;
   const categoryLabel = t.raw('categories') as Record<string, string>;
 
+  const uniName = (r as any)[`university_name_${locale}`] || r.university_name || '';
+  const major = (r as any)[`major_${locale}`] || r.major || '';
+
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/results`} />
         <ActivityTracker entityType="result" entityId={r.id} entityName={r.student_name} />
 
-        {/* Student header */}
-        <div className="mt-6 mb-6 flex items-start gap-4">
-          {photos.length > 0 ? (
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden flex-shrink-0">
-              <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
-            </div>
-          ) : (
-            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-4xl flex-shrink-0">
-              {r.student_name[0]}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-3">
+        {/* Main: photos left half, info right half */}
+        <div className="mt-6 flex flex-col lg:flex-row gap-6 items-start">
+
+          {/* Left: photos */}
+          <div className="w-full lg:w-1/2 flex-shrink-0">
+            {photos.length > 0 ? (
+              <ResultPhotoGallery photos={photos} name={r.student_name} />
+            ) : (
+              <div className="w-full aspect-[4/3] rounded-2xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-6xl">
+                {r.student_name[0]}
+              </div>
+            )}
+          </div>
+
+          {/* Right: info */}
+          <div className="w-full lg:w-1/2 min-w-0">
+            <div className="flex items-start gap-2 mb-3">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{r.student_name}</h1>
               <FavouriteButton entityType="result" entityId={r.id} />
             </div>
-            <div className="flex flex-wrap gap-2 mt-1.5">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
-                {degreeLabel[r.degree_level] ?? r.degree_level}
-              </span>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {r.degree_level && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                  {degreeLabel[r.degree_level] ?? r.degree_level}
+                </span>
+              )}
               {r.category && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                   {categoryLabel[r.category] ?? r.category}
@@ -79,97 +89,72 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
               )}
               <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
             </div>
-          </div>
-        </div>
 
-        <div className="lg:grid lg:grid-cols-[1fr_220px] lg:gap-8 lg:items-start">
-          {/* Main */}
-          <div>
+            {/* Metadata */}
+            <div className="space-y-2 mb-4">
+              {uniName && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Universitet:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{uniName}</span>
+                </div>
+              )}
+              {major && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Mutaxassislik:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{major}</span>
+                </div>
+              )}
+              {r.language && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Ta&apos;lim tili:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</span>
+                </div>
+              )}
+              {r.university_ranking && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Reyting:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">#{r.university_ranking}</span>
+                </div>
+              )}
+            </div>
+
             {testimonial && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 mb-6">
-                <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">&ldquo;{testimonial}&rdquo;</p>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 mb-4">
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">&ldquo;{testimonial}&rdquo;</p>
               </div>
             )}
 
             {(scholarship || university) && (
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2">
                 {scholarship && (
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                    <div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Grant</div>
-                      <div className="font-medium text-gray-900 dark:text-white">{scholarship.title}</div>
-                      <div className="text-xs text-gray-500">{scholarship.country}</div>
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate">{scholarship.title}</div>
                     </div>
-                    <Link href={`/${locale}/scholarships/${(scholarship as any).slug ?? scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
+                    <Link href={`/${locale}/scholarships/${(scholarship as any).slug ?? scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline flex-shrink-0">→</Link>
                   </div>
                 )}
                 {university && (
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                    <div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Universitet</div>
-                      <div className="font-medium text-gray-900 dark:text-white">{university.name}</div>
-                      <div className="text-xs text-gray-500">{university.country}</div>
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate">{university.name}</div>
                     </div>
-                    <Link href={`/${locale}/universities/${(university as any).slug ?? university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline">Batafsil →</Link>
+                    <Link href={`/${locale}/universities/${(university as any).slug ?? university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline flex-shrink-0">→</Link>
                   </div>
                 )}
               </div>
             )}
+          </div>
+        </div>
 
-            {photos.length > 1 && (
-              <div className="mt-4 mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('photos')}</h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {photos.slice(1).map((url, i) => (
-                    <div key={i} className="relative w-full aspect-square rounded-xl overflow-hidden">
-                      <Image src={url} alt={`${r.student_name} ${i + 2}`} fill className="object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
+        {/* Media links */}
+        {mediaLinks.length > 0 && (
+          <div className="mt-8">
             <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
           </div>
-
-          {/* Sidebar — metadata */}
-          <aside className="lg:sticky lg:top-6 mt-6 lg:mt-0">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 space-y-4">
-              {(r.university_name || r.university_name_ru || r.university_name_en) && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Universitet</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {(r as any)[`university_name_${locale}`] || r.university_name}
-                  </div>
-                </div>
-              )}
-              {(r.major || r.major_ru || r.major_en) && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Mutaxassislik</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {(r as any)[`major_${locale}`] || r.major}
-                  </div>
-                </div>
-              )}
-              {r.language && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Ta&apos;lim tili</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</div>
-                </div>
-              )}
-              {r.university_ranking && (
-                <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Reyting</div>
-                  <div className="text-xl font-extrabold text-gray-900 dark:text-white">#{r.university_ranking}</div>
-                </div>
-              )}
-              <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Yil</div>
-                <div className="text-xl font-extrabold text-teal-700 dark:text-teal-400">{r.year}</div>
-              </div>
-            </div>
-          </aside>
-        </div>
+        )}
       </div>
     </div>
   );
