@@ -99,6 +99,7 @@ export default function ScholarshipsPage() {
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>(DEFAULT_STEPS)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [showDocsPreview, setShowDocsPreview] = useState(false)
+  const [orderPending, setOrderPending] = useState(false)
   const dragIdx = useRef<number | null>(null)
 
   function handleDragStart(index: number) { setDragIndex(index) }
@@ -110,16 +111,17 @@ export default function ScholarshipsPage() {
     newItems.splice(index, 0, moved)
     setItems(newItems)
     setDragIndex(index)
+    setOrderPending(true)
   }
   function handleDrop() {
     setDragIndex(null)
-    saveOrder()
   }
-  async function saveOrder() {
+  async function handleSaveOrder() {
     const sb = createClient()
     for (let i = 0; i < items.length; i++) {
       await sb.from('scholarships').update({ home_order: i + 1 }).eq('id', items[i].id)
     }
+    setOrderPending(false)
   }
 
   async function load() {
@@ -443,6 +445,15 @@ export default function ScholarshipsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {orderPending && (
+        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-700 shadow-xl rounded-2xl px-4 py-3">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tartib o&apos;zgardi</span>
+          <button onClick={handleSaveOrder} className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">
+            Saqlash
+          </button>
         </div>
       )}
 
@@ -824,7 +835,7 @@ export default function ScholarshipsPage() {
 
               {/* Home order */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo'sh = ko'rsatilmaydi)</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo&apos;sh = ko&apos;rsatilmaydi)</label>
                 <input
                   type="number"
                   min="1"
