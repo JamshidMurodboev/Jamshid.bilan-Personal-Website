@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
           getAll() {
             return request.cookies.getAll();
           },
-          setAll(cookiesToSet) {
+          setAll(_cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
             // Read-only in middleware — handled by response below
           },
         },
@@ -45,5 +45,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|_vercel|.*\\..*).*)'],
+  matcher: ['/((?!_next|_vercel|.*\..*).*)'],
 };
