@@ -12,9 +12,29 @@ import { translateLanguage } from '@/lib/translateLanguage';
 import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
-import UniversityApplyCTA from '@/components/universities/UniversityApplyCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
+
+function formatAdmissionDate(value: string, type: string, locale: string): string {
+  if (!value) return '';
+  if (type === 'period') return value;
+  if (type === 'month') {
+    const [year, month] = value.split('-');
+    const monthIdx = parseInt(month, 10) - 1;
+    const names: Record<string, string[]> = {
+      uz: ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
+      ru: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+      en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    };
+    return `${(names[locale] || names.uz)[monthIdx]} ${year}`;
+  }
+  if (type === 'exact') {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    return d.toLocaleDateString(locale === 'ru' ? 'ru-RU' : locale === 'en' ? 'en-US' : 'uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  return value;
+}
 
 const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
@@ -102,7 +122,6 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 {description}
               </div>
             )}
-            <UniversityApplyCTA universityName={u.name} />
 
             {/* Our Results */}
             {linkedResults.length > 0 && (
@@ -226,15 +245,6 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               </div>
             )}
 
-            {/* Media Links */}
-            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
-
-            <ServiceContactButtons
-              serviceContext={u.name}
-              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
-              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
-            />
-
             {(u as any).tuition_estimated && (
               <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
@@ -244,13 +254,16 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               </div>
             )}
 
+            {/* Media Links */}
+            <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+
             {majors.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                   {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : 'Mutaxassisliklar'}
                 </h2>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                  <table className="w-full text-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
+                  <table className="w-full text-sm min-w-[400px]">
                     <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                       <tr>
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
@@ -292,6 +305,12 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 </div>
               </div>
             )}
+
+            <ServiceContactButtons
+              serviceContext={u.name}
+              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
+              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
+            />
           </div>
 
           {/* Sidebar */}
@@ -327,6 +346,29 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                     {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : "Yo'nalishlar"}
                   </div>
                   <div className="text-2xl font-extrabold text-gray-900 dark:text-white">{majors.length}</div>
+                </div>
+              )}
+              {(u as any).admission_start_type && (u as any).admission_start && (
+                <div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                    {locale === 'ru' ? 'Период приёма' : locale === 'en' ? 'Admission Period' : 'Qabul davri'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {formatAdmissionDate((u as any).admission_start, (u as any).admission_start_type, locale)}
+                    {(u as any).admission_end_type && (u as any).admission_end
+                      ? ` — ${formatAdmissionDate((u as any).admission_end, (u as any).admission_end_type, locale)}`
+                      : null}
+                  </div>
+                </div>
+              )}
+              {(u as any).results_date_type && (u as any).results_date && (
+                <div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+                    {locale === 'ru' ? 'Дата результатов' : locale === 'en' ? 'Results Date' : 'Natijalar sanasi'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {formatAdmissionDate((u as any).results_date, (u as any).results_date_type, locale)}
+                  </div>
                 </div>
               )}
             </div>
