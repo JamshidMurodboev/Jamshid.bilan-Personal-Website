@@ -32,8 +32,10 @@ export default function AskQuestionButton({ children, className, scholarshipCont
 
   useEffect(() => {
     if (user) {
-      setName(user.fullName ?? '');
-      setDob(user.dob ?? '');
+      if (user.fullName) setName(user.fullName);
+      if (user.dob) setDob(user.dob);
+      if (user.languageCertificate?.type) setCert(user.languageCertificate.type);
+      if (user.languageCertificate?.score) setScore(user.languageCertificate.score);
     }
   }, [user]);
 
@@ -72,9 +74,9 @@ export default function AskQuestionButton({ children, className, scholarshipCont
     const scoreStr = cert === 'None' || !score.trim() ? '—' : score;
 
     const lines = [
-      'Assalomu Alaykum.',
+      t('greetingLine'),
       '',
-      "Savol bilan murojaat qilyapman.",
+      t('writingAbout'),
       '',
       `Ism: ${name}`,
       `Tug'ilgan sana: ${dob}`,
@@ -135,7 +137,7 @@ export default function AskQuestionButton({ children, className, scholarshipCont
               <div>
                 <label className={labelCls}>{t('cert')} *</label>
                 <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); setErrors(er => ({ ...er, cert: '' })); }} className={inputCls('cert')}>
-                  <option value="">Tanlang...</option>
+                  <option value="">{t('selectPlaceholder')}</option>
                   {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
                 </select>
                 {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}

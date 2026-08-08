@@ -52,9 +52,9 @@ export default function ResultsPage() {
         <PageNav backHref={`/${locale}`} />
         <div className="grid grid-cols-3 gap-4 mb-12">
           {[
-            { label: 'Talaba', value: studentsHelped, suffix: '+' },
-            { label: 'Mamlakat', value: countriesCount, suffix: '+' },
-            { label: 'Yil', value: yearsActive, suffix: '+' },
+            { label: t('stats.student'), value: studentsHelped, suffix: '+' },
+            { label: t('stats.country'), value: countriesCount, suffix: '+' },
+            { label: t('stats.year'), value: yearsActive, suffix: '+' },
           ].map((s) => (
             <div key={s.label} className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
               <div className="text-5xl font-extrabold text-teal-700 dark:text-teal-400 leading-none">{s.value}{s.suffix}</div>
@@ -63,7 +63,7 @@ export default function ResultsPage() {
           ))}
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Muvaffaqiyat Hikoyalari</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('successStories')}</h2>
 
         {/* Category filter */}
         <div className="flex gap-2 mb-6 flex-wrap">

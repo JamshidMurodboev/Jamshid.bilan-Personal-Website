@@ -16,6 +16,7 @@ export default function ProfileContent() {
   const router = useRouter();
   const t = useTranslations('auth');
   const tp = useTranslations('profile');
+  const tc = useTranslations('common');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
@@ -106,8 +107,8 @@ export default function ProfileContent() {
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
     setPwError('');
-    if (newPw.length < 6) { setPwError("Yangi parol kamida 6 ta belgi bo'lishi kerak"); return; }
-    if (newPw !== confirmPw) { setPwError('Parollar mos kelmadi'); return; }
+    if (newPw.length < 6) { setPwError(tp('passwordMinLength')); return; }
+    if (newPw !== confirmPw) { setPwError(tp('passwordMismatch')); return; }
     const err = await changePassword(currentPw, newPw);
     if (err) { setPwError(err); return; }
     setCurrentPw(''); setNewPw(''); setConfirmPw('');
@@ -163,7 +164,7 @@ export default function ProfileContent() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('certLabel')}</label>
             <div className="flex flex-col sm:flex-row gap-2">
               <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
-                <option value="">— Tanlang —</option>
+                <option value="">{tp('selectCert')}</option>
                 {CERT_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               {certType && certType !== 'N/A' && (
@@ -193,7 +194,7 @@ export default function ProfileContent() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">{t('savedItems')}</h2>
           {savedLoading ? (
-            <p className="text-sm text-gray-400 animate-pulse">Yuklanmoqda...</p>
+            <p className="text-sm text-gray-400 animate-pulse">{tc('loading')}</p>
           ) : savedItems.length === 0 ? (
             <p className="text-sm text-gray-400">Saqlangan elementlar yo&apos;q</p>
           ) : (

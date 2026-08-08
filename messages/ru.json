@@ -91,7 +91,26 @@
     "logout": "Выйти",
     "saved": "Сохранено",
     "save": "Сохранить",
-    "savedItems": "Сохранённое"
+    "savedItems": "Сохранённое",
+    "telegramVerify": "Подтвердите через Telegram",
+    "telegramInstructions": "Нажмите кнопку ниже, перейдите в бот и нажмите Start — код будет отправлен автоматически.",
+    "openBot": "Открыть @{botName}",
+    "enterCodeBelow": "Перейдите в бот, нажмите \"Start\", затем введите код ниже:",
+    "linked": "✅ Подключено!",
+    "verifyCode": "Подтвердить код",
+    "confirm": "Подтвердить",
+    "confirmed": "✅ Подтверждено! Установите новый пароль.",
+    "newPasswordPlaceholder": "Новый пароль (мин. 6 символов)",
+    "saving": "Сохранение...",
+    "savePassword": "Сохранить пароль",
+    "resetPassword": "Сброс пароля",
+    "continueBtn": "Продолжить",
+    "passwordMinLength": "Пароль должен содержать не менее 6 символов",
+    "passwordMismatch": "Пароли не совпадают",
+    "checking": "Проверка...",
+    "registerBtn": "Зарегистрироваться",
+    "emailConfirmNeeded": "Email не подтверждён — попробуйте сбросить пароль",
+    "loading": "Загрузка..."
   },
   "common": {
     "loading": "Загрузка...",
@@ -114,7 +133,13 @@
     "confirmSave": "Подтвердить и сохранить",
     "cancel": "Отмена",
     "savedToFavourites": "Сохранено в избранное",
-    "removedFromFavourites": "Удалено из избранного"
+    "removedFromFavourites": "Удалено из избранного",
+    "select": "Выберите...",
+    "free": "Бесплатно",
+    "student": "Студент",
+    "country": "Страна",
+    "year": "Год",
+    "noResults": "Ничего не найдено"
   },
   "languages": {
     "turkish": "Турецкий",
@@ -208,7 +233,24 @@
       "askQuestion": "Задать вопрос",
       "questionLabel": "Ваш вопрос",
       "questionPlaceholder": "Напишите ваш вопрос...",
-      "sendBtn": "Отправить"
+      "sendBtn": "Отправить",
+      "selectPlaceholder": "Выберите...",
+      "servicesGroup": "Услуги",
+      "platformTitle": "Связаться через {platform}",
+      "fillDetails": "Заполните данные ниже — они будут автоматически отправлены в чат {platform}.",
+      "applicationFor": "На какую программу подаёте документы *",
+      "noCert": "У меня нет языкового сертификата",
+      "scoreLabel": "Балл",
+      "sendVia": "Отправить через {platform}",
+      "greetingLine": "Здравствуйте.",
+      "writingAbout": "Пишу по поводу подачи документов.",
+      "dobLabel": "Дата рождения:",
+      "certLabel": "Языковой сертификат:",
+      "scoreShortLabel": "Балл:",
+      "grantPrefix": "Грант:",
+      "universityPrefix": "Университет:",
+      "none": "Нет",
+      "searchCountry": "Поиск..."
     },
     "include1": "Грантовая стратегия",
     "include2": "Проверка CV и мотивационного письма",
@@ -279,7 +321,42 @@
     "pageTitle": "Университеты",
     "pageSubtitle": "Каталог зарубежных университетов на платной основе",
     "applyNow": "Подать документы сейчас",
-    "askQuestion": "Задать вопрос"
+    "askQuestion": "Задать вопрос",
+    "publicType": "Государственный",
+    "privateType": "Частный",
+    "tuitionLabel": "Стоимость обучения:",
+    "detailsBtn": "Подробнее",
+    "officialSite": "Официальный сайт",
+    "latestNews": "Последние новости",
+    "free": "Бесплатно",
+    "degreeMap": {
+      "bachelor": "Бакалавриат",
+      "master_thesis": "Магистратура (с диссертацией)",
+      "master_coursework": "Магистратура (курсовая)",
+      "phd": "Докторантура",
+      "associate": "Ассоциированная степень",
+      "certificate": "Сертификат",
+      "diploma": "Диплом"
+    },
+    "tableHeaders": {
+      "program": "Программа",
+      "language": "Язык",
+      "tuition": "Стоимость/год",
+      "prevTuition": "Прошлогодняя цена",
+      "duration": "Продолжительность",
+      "degree": "Степень",
+      "currency": "Валюта"
+    },
+    "sidebar": {
+      "type": "Тип",
+      "ranking": "Рейтинг",
+      "location": "Расположение",
+      "programs": "Программы",
+      "admissionPeriod": "Период приёма",
+      "resultsDate": "Дата результатов"
+    },
+    "applyLabel": "Подать документы",
+    "askLabel": "Задать вопрос"
   },
   "filters": {
     "title": "Фильтр",
@@ -306,7 +383,10 @@
     "confirmPassword": "Подтвердите новый пароль",
     "savePassword": "Сохранить пароль",
     "passwordSaved": "Пароль сохранён",
-    "scorePlaceholder": "Балл"
+    "scorePlaceholder": "Балл",
+    "selectCert": "— Выберите —",
+    "passwordMinLength": "Новый пароль должен содержать не менее 6 символов",
+    "passwordMismatch": "Пароли не совпадают"
   },
   "results": {
     "degrees": {
@@ -320,7 +400,13 @@
       "all": "Все"
     },
     "mediaLinks": "Медиа",
-    "photos": "Фотографии"
+    "photos": "Фотографии",
+    "successStories": "Истории успеха",
+    "stats": {
+      "student": "Студент",
+      "country": "Страна",
+      "year": "Год"
+    }
   },
   "services": {
     "pageTitle": "Услуги",

@@ -91,7 +91,26 @@
     "logout": "Chiqish",
     "saved": "Saqlandi",
     "save": "Saqlash",
-    "savedItems": "Saqlangan"
+    "savedItems": "Saqlangan",
+    "telegramVerify": "Telegram orqali tasdiqlang",
+    "telegramInstructions": "Quyidagi tugmani bosib botga o'ting va \"Start\" ni bosing — kod avtomatik yuboriladi.",
+    "openBot": "@{botName} ni ochish",
+    "enterCodeBelow": "Botga o'tib \"Start\" ni bosing, keyin kodni quyida kiriting:",
+    "linked": "✅ Ulandi!",
+    "verifyCode": "Kodni tasdiqlash",
+    "confirm": "Tasdiqlash",
+    "confirmed": "✅ Tasdiqlandi! Yangi parol o'rnating.",
+    "newPasswordPlaceholder": "Yangi parol (min. 6 belgi)",
+    "saving": "Saqlanmoqda...",
+    "savePassword": "Parolni saqlash",
+    "resetPassword": "Parolni tiklash",
+    "continueBtn": "Davom etish",
+    "passwordMinLength": "Parol kamida 6 ta belgi bo'lishi kerak",
+    "passwordMismatch": "Parollar mos kelmadi",
+    "checking": "Tekshirilmoqda...",
+    "registerBtn": "Ro'yxatdan o'tish",
+    "emailConfirmNeeded": "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring",
+    "loading": "Yuklanmoqda..."
   },
   "common": {
     "loading": "Yuklanmoqda...",
@@ -114,7 +133,13 @@
     "confirmSave": "Tasdiqlash va saqlash",
     "cancel": "Bekor qilish",
     "savedToFavourites": "Sevimlilaringizga saqlandi",
-    "removedFromFavourites": "Sevimlilardan olib tashlandi"
+    "removedFromFavourites": "Sevimlilardan olib tashlandi",
+    "select": "Tanlang...",
+    "free": "Bepul",
+    "student": "Talaba",
+    "country": "Mamlakat",
+    "year": "Yil",
+    "noResults": "Hech narsa topilmadi"
   },
   "languages": {
     "turkish": "Turk tili",
@@ -208,7 +233,24 @@
       "askQuestion": "Savol berish",
       "questionLabel": "Savolingiz",
       "questionPlaceholder": "Savolingizni yozing...",
-      "sendBtn": "Yuborish"
+      "sendBtn": "Yuborish",
+      "selectPlaceholder": "Tanlang...",
+      "servicesGroup": "Xizmatlar",
+      "platformTitle": "{platform} orqali bog'lanish",
+      "fillDetails": "Quyidagi ma'lumotlarni to'ldiring — ular {platform} chatiga avtomatik yuboriladi.",
+      "applicationFor": "Qaysi dastur uchun ariza *",
+      "noCert": "Til sertifikatim yo'q",
+      "scoreLabel": "Ball",
+      "sendVia": "{platform} orqali yuborish",
+      "greetingLine": "Assalomu Alaykum.",
+      "writingAbout": "Hujjat topshirish bo'yicha yozayapman.",
+      "dobLabel": "Tug'ilgan sana:",
+      "certLabel": "Til sertifikati:",
+      "scoreShortLabel": "Ball:",
+      "grantPrefix": "Grant:",
+      "universityPrefix": "Universitet:",
+      "none": "Yo'q",
+      "searchCountry": "Qidirish..."
     },
     "include1": "Grant strategiyasi",
     "include2": "CV va motivatsion xat ko'rib chiqish",
@@ -279,7 +321,42 @@
     "pageTitle": "Universitetlar",
     "pageSubtitle": "To'lov asosida xorijiy universitetlar katalogi",
     "applyNow": "Hoziroq Hujjat Topshirish",
-    "askQuestion": "Savol berish"
+    "askQuestion": "Savol berish",
+    "publicType": "Davlat",
+    "privateType": "Xususiy",
+    "tuitionLabel": "O'qish narxi:",
+    "detailsBtn": "Batafsil",
+    "officialSite": "Rasmiy sayt",
+    "latestNews": "So'nggi yangiliklar",
+    "free": "Bepul",
+    "degreeMap": {
+      "bachelor": "Bakalavriat",
+      "master_thesis": "Magistratura (dissertatsiya bilan)",
+      "master_coursework": "Magistratura (kurslar asosida)",
+      "phd": "Doktorantura",
+      "associate": "Assotsiatsiya",
+      "certificate": "Sertifikat",
+      "diploma": "Diplom"
+    },
+    "tableHeaders": {
+      "program": "Dastur",
+      "language": "Til",
+      "tuition": "Narxi/yil",
+      "prevTuition": "O'tgan yilgi narx",
+      "duration": "Davomiyligi",
+      "degree": "Daraja",
+      "currency": "Valyuta"
+    },
+    "sidebar": {
+      "type": "Turi",
+      "ranking": "Reyting",
+      "location": "Joylashuv",
+      "programs": "Dasturlar",
+      "admissionPeriod": "Qabul muddati",
+      "resultsDate": "Natijalar sanasi"
+    },
+    "applyLabel": "Ariza topshirish",
+    "askLabel": "Savol berish"
   },
   "filters": {
     "title": "Filtr",
@@ -306,7 +383,10 @@
     "confirmPassword": "Yangi parolni tasdiqlang",
     "savePassword": "Parolni saqlash",
     "passwordSaved": "Parol saqlandi",
-    "scorePlaceholder": "Ball"
+    "scorePlaceholder": "Ball",
+    "selectCert": "— Tanlang —",
+    "passwordMinLength": "Yangi parol kamida 6 ta belgi bo'lishi kerak",
+    "passwordMismatch": "Parollar mos kelmadi"
   },
   "results": {
     "degrees": {
@@ -320,7 +400,13 @@
       "all": "Hammasi"
     },
     "mediaLinks": "Media",
-    "photos": "Rasmlar"
+    "photos": "Rasmlar",
+    "successStories": "Muvaffaqiyat Hikoyalari",
+    "stats": {
+      "student": "Talaba",
+      "country": "Mamlakat",
+      "year": "Yil"
+    }
   },
   "services": {
     "pageTitle": "Xizmatlar",

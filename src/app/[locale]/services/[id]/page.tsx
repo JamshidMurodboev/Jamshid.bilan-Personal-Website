@@ -9,6 +9,7 @@ import ActivityTracker from '@/components/shared/ActivityTracker';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { isUUID } from '@/lib/slugify';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
+import StudentCard from '@/components/results/StudentCard';
 
 function priceDisplay(s: Service, freeLabel: string) {
   if (s.currency === 'FREE') return freeLabel;
@@ -55,7 +56,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
       ? supabase.from('universities').select('id,name,slug,photo_urls,country,city,type').in('id', universityIds)
       : Promise.resolve({ data: [] }),
     resultIds.length > 0
-      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year').in('id', resultIds)
+      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year,degree_level,major,major_uz,major_ru,major_en,language,category,university_name,university_name_uz,university_name_ru,university_name_en').in('id', resultIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -93,16 +94,10 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
               {(scholarships ?? []).map((sch: any) => (
                 <Link key={sch.id} href={`/${locale}/scholarships/${sch.slug ?? sch.id}`}
                   className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
-                  {sch.photo_urls?.[0] ? (
-                    <div className="relative w-full aspect-[4/3]">
-                      <Image src={sch.photo_urls[0]} alt={sch.title} fill className="object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-4xl">🎓</div>
-                  )}
                   <div className="p-3">
                     <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{sch.title}</p>
                     {sch.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sch.country}</p>}
+                    {sch.status && <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">{sch.status}</span>}
                   </div>
                 </Link>
               ))}
@@ -117,13 +112,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
               {(universities ?? []).map((u: any) => (
                 <Link key={u.id} href={`/${locale}/universities/${u.slug ?? u.id}`}
                   className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
-                  {u.photo_urls?.[0] ? (
-                    <div className="relative w-full aspect-[4/3]">
-                      <Image src={u.photo_urls[0]} alt={u.name} fill className="object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏫</div>
-                  )}
                   <div className="p-3">
                     <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{u.name}</p>
                     {u.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{u.country}</p>}
@@ -138,27 +126,9 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedResults')}</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {(results ?? []).map((r: any) => {
-                const photo = r.photo_urls?.[0] || r.photo_url;
-                return (
-                  <Link key={r.id} href={`/${locale}/results/${r.slug ?? r.id}`}
-                    className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
-                    {photo ? (
-                      <div className="relative w-full aspect-[4/3]">
-                        <Image src={photo} alt={r.student_name} fill className="object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
-                        <span className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-xl">{r.student_name[0]}</span>
-                      </div>
-                    )}
-                    <div className="p-3">
-                      <p className="font-semibold text-sm text-gray-900 dark:text-white">{r.student_name}</p>
-                      {r.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.country} · {r.year}</p>}
-                    </div>
-                  </Link>
-                );
-              })}
+              {(results ?? []).map((r: any) => (
+                <StudentCard key={r.id} result={r} locale={locale} hidePhoto={true} />
+              ))}
             </div>
           </div>
         )}

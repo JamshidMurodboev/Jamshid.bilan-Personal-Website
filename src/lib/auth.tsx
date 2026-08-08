@@ -134,48 +134,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string): Promise<string | null> {
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return "Email yoki parol noto'g'ri";
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return error.message.includes('confirmed') ? "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring" : "Email yoki parol noto'g'ri";
+    // Ensure site_users row exists for accounts created outside the new signup flow
+    if (data.user) {
+      const { data: existing } = await supabase.from('site_users').select('id').eq('id', data.user.id).single();
+      if (!existing) {
+        await supabase.from('site_users').insert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: '',
+          created_at: new Date().toISOString(),
+          last_active_at: new Date().toISOString(),
+          login_count: 1,
+          status: 'active',
+        });
+      }
+    }
     return null;
   }
 
   async function signup(data: SignupInput): Promise<string | null> {
-    const supabase = createClient();
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    });
-    if (error) {
-      if (error.message.includes('already registered')) return "Bu email allaqachon ro'yxatdan o'tgan";
-      return 'Xatolik yuz berdi';
-    }
-    const userId = authData.user?.id;
-    if (!userId) return 'Xatolik yuz berdi';
-
     let photoUrl: string | null = null;
     if (data.photoDataUrl) {
       try {
         photoUrl = await compressPhoto(data.photoDataUrl);
-        localStorage.setItem(`auth_photo_${userId}`, photoUrl);
       } catch {
-        try { localStorage.setItem(`auth_photo_${userId}`, data.photoDataUrl); } catch {}
+        photoUrl = data.photoDataUrl;
       }
     }
 
-    // Upsert profile into site_users
-    await supabase.from('site_users').upsert({
-      id: userId,
-      full_name: data.fullName,
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        dob: data.dob,
+        gender: data.gender,
+        phone: data.phone,
+        photoUrl,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) return json.error || 'Xatolik yuz berdi';
+
+    // Cache photo locally for instant display
+    if (photoUrl && json.userId) {
+      try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
+    }
+
+    // Sign in immediately after admin-created account
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email: data.email,
-      phone: data.phone,
-      gender: data.gender,
-      dob: data.dob,
-      photo_url: photoUrl,
-      created_at: new Date().toISOString(),
-      last_active_at: new Date().toISOString(),
-      login_count: 1,
-      status: 'active',
-    }, { onConflict: 'id' });
+      password: data.password,
+    });
+    if (signInError) return `Xatolik: ${signInError.message}`;
 
     return null;
   }

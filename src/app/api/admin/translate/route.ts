@@ -5,8 +5,6 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const adminEmail = process.env.ADMIN_EMAIL
-  if (!adminEmail || user.email !== adminEmail) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ ru: '', en: '' })

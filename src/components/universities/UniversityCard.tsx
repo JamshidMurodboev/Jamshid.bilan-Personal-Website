@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
 import FavouriteButton from '@/components/shared/FavouriteButton';
@@ -8,16 +9,17 @@ const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
   private: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
 };
-const TYPE_LABELS = { public: 'Davlat', private: 'Xususiy' };
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
   closed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
   upcoming: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
 };
-const STATUS_LABELS = { open: 'Ochiq', closed: 'Yopiq', upcoming: 'Tez orada' };
 
 export default function UniversityCard({ university: u, locale = 'uz' }: { university: University; locale?: string }) {
+  const t = useTranslations();
+  const TYPE_LABELS = { public: t('filters.publicType'), private: t('filters.privateType') };
+  const STATUS_LABELS = { open: t('common.open'), closed: t('common.closed'), upcoming: t('common.upcoming') };
   return (
     <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
       <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 right-2" />
@@ -45,7 +47,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
         </div>
         {u.tuition_usd != null && (
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            <span className="font-medium">O'qish narxi:</span> ${u.tuition_usd.toLocaleString()}/yil
+            <span className="font-medium">{t('universities.tuitionLabel')}</span> ${u.tuition_usd.toLocaleString()}/yil
           </div>
         )}
         {u.programs.length > 0 && (
@@ -62,7 +64,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
             href={`/${locale}/universities/${u.slug ?? u.id}`}
             className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
           >
-            Batafsil
+            {t('universities.detailsBtn')}
           </Link>
         )}
         {u.website_url && (
@@ -72,7 +74,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
             rel="noopener noreferrer"
             className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 text-center py-2 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
           >
-            Rasmiy sayt
+            {t('universities.officialSite')}
           </a>
         )}
       </div>

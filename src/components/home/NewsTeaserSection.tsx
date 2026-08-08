@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/format';
 import type { NewsPost } from '@/lib/supabase/types';
 
 export default async function NewsTeaserSection({ locale: localeProp }: { locale?: string }) {
   const locale = localeProp ?? await getLocale();
+  const t = await getTranslations({ locale, namespace: 'homeSections' });
 
   let news: NewsPost[] = [];
   try {
@@ -25,12 +26,12 @@ export default async function NewsTeaserSection({ locale: localeProp }: { locale
     <section className="py-16 px-4 bg-white dark:bg-[#0d1117]">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">So&apos;nggi yangiliklar</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('news.title')}</h2>
           <Link
             href={`/${locale}/news`}
             className="text-sm font-semibold text-teal-700 dark:text-teal-400 hover:underline"
           >
-            Barcha yangiliklar →
+            {t('news.viewAll')} →
           </Link>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
