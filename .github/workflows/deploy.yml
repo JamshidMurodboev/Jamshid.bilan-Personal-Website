@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/intelligent-hawking-i8mi83
+  workflow_dispatch:
 
 jobs:
   deploy:
