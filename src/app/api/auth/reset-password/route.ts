@@ -26,8 +26,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Email mismatch' }, { status: 403 });
   }
 
-  const { data: users } = await supabase.auth.admin.listUsers();
-  const user = users?.users.find(u => u.email === email);
+  const { data: { users }, error: listError } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+  // Also try direct lookup in case listUsers pagination misses them
+  let user = users?.find(u => u.email === email);
+  if (!user) {
+    // Try fetching via site_users to get the auth user id
+    const { data: siteUser } = await supabase.from('site_users').select('id').eq('email', email).single();
+    if (siteUser?.id) {
+      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(siteUser.id);
+      user = authUser ?? undefined;
+    }
+  }
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   const { error } = await supabase.auth.admin.updateUserById(user.id, { password: newPassword });
