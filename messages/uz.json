@@ -110,7 +110,16 @@
     "checking": "Tekshirilmoqda...",
     "registerBtn": "Ro'yxatdan o'tish",
     "emailConfirmNeeded": "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring",
-    "loading": "Yuklanmoqda..."
+    "loading": "Yuklanmoqda...",
+    "telegramSessionError": "Telegram sessiyasi xatosi",
+    "wrongCode": "Noto'g'ri kod",
+    "enterEmail": "Emailingizni kiriting",
+    "enterCode6": "Telegramdan kelgan 6 raqamli kodni kiriting",
+    "fpInstructions": "Emailingizni kiriting. Telegram orqali tasdiqlash kodi yuboriladi.",
+    "otpInstructions": "Telegramdan kelgan 6 raqamli kodni kiriting",
+    "telegramGoBot": "Telegram botimizga o'ting va kod oling",
+    "openTelegramBot": "Telegram botini ochish",
+    "back": "Orqaga"
   },
   "common": {
     "loading": "Yuklanmoqda...",

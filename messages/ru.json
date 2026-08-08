@@ -110,7 +110,16 @@
     "checking": "Проверка...",
     "registerBtn": "Зарегистрироваться",
     "emailConfirmNeeded": "Email не подтверждён — попробуйте сбросить пароль",
-    "loading": "Загрузка..."
+    "loading": "Загрузка...",
+    "telegramSessionError": "Ошибка сессии Telegram",
+    "wrongCode": "Неверный код",
+    "enterEmail": "Введите ваш email",
+    "enterCode6": "Введите 6-значный код из Telegram",
+    "fpInstructions": "Введите ваш email. Код подтверждения будет отправлен через Telegram.",
+    "otpInstructions": "Введите 6-значный код из Telegram",
+    "telegramGoBot": "Перейдите в наш Telegram бот и получите код",
+    "openTelegramBot": "Открыть Telegram бот",
+    "back": "Назад"
   },
   "common": {
     "loading": "Загрузка...",
