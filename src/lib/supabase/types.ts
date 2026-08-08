@@ -64,6 +64,8 @@ export interface Scholarship {
 export interface University {
   id: string
   name: string
+  name_ru?: string
+  name_en?: string
   country: string
   city?: string
   logo_url?: string
@@ -82,6 +84,16 @@ export interface University {
   home_order?: number
   slug?: string
   media_links?: MediaLink[]
+  admission_start_type?: 'exact' | 'month' | 'period'
+  admission_start?: string
+  admission_end_type?: 'exact' | 'month' | 'period'
+  admission_end?: string
+  results_date_type?: 'exact' | 'month' | 'period'
+  results_date?: string
+  tuition_estimated?: boolean
+  tuition_note_uz?: string
+  tuition_note_ru?: string
+  tuition_note_en?: string
   created_at: string
   updated_at: string
 }
@@ -253,6 +265,7 @@ export interface SiteUser {
   gender?: string
   dob?: string
   photo_url?: string
+  telegram_chat_id?: number
   created_at: string
   last_active_at?: string
   login_count: number

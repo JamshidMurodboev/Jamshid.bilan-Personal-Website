@@ -78,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
 
+    // Load initial session
     supabase.auth.getUser().then(async ({ data: { user: sbUser } }) => {
       if (sbUser) {
         const { data: profile } = await supabase
@@ -95,12 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               gender: '',
               phone: '',
             };
+        // Load photo from localStorage
         const photo = localStorage.getItem(`auth_photo_${sbUser.id}`);
         if (photo) authUser.photoDataUrl = photo;
         setUser(authUser);
       }
     });
 
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const { data: profile } = await supabase
@@ -159,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // Upsert profile into site_users
     await supabase.from('site_users').upsert({
       id: userId,
       full_name: data.fullName,
@@ -211,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function changePassword(currentPassword: string, newPassword: string): Promise<string | null> {
     if (!user) return 'Foydalanuvchi topilmadi';
     const supabase = createClient();
+    // Re-authenticate to verify current password
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: currentPassword,

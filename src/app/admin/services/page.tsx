@@ -60,13 +60,16 @@ export default function ServicesAdminPage() {
   const [translatingDesc, setTranslatingDesc] = useState(false)
   const [allScholarships, setAllScholarships] = useState<{id: string; title: string}[]>([])
   const [allUniversities, setAllUniversities] = useState<{id: string; name: string}[]>([])
+  const [allResults, setAllResults] = useState<{id: string; student_name: string; category: string}[]>([])
   const [selectedScholarships, setSelectedScholarships] = useState<string[]>([])
   const [selectedUniversities, setSelectedUniversities] = useState<string[]>([])
+  const [selectedResults, setSelectedResults] = useState<string[]>([])
+  const [orderPending, setOrderPending] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   async function load() {
     setLoading(true)
-    const { data, error } = await createClient().from('services').select('*').order('created_at', { ascending: false })
+    const { data, error } = await createClient().from('services').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
     if (error) setError(error.message)
     else setItems(data ?? [])
     setLoading(false)
@@ -77,6 +80,7 @@ export default function ServicesAdminPage() {
     const sb = createClient()
     sb.from('scholarships').select('id,title').order('title').then(({ data }) => setAllScholarships(data ?? []))
     sb.from('universities').select('id,name').order('name').then(({ data }) => setAllUniversities(data ?? []))
+    sb.from('student_results').select('id,student_name,category').order('student_name').then(({ data }) => setAllResults(data ?? []))
   }, [])
 
   function handleDragStart(index: number) { setDragIndex(index) }
@@ -88,16 +92,17 @@ export default function ServicesAdminPage() {
     newItems.splice(index, 0, moved)
     setItems(newItems)
     setDragIndex(index)
+    setOrderPending(true)
   }
   function handleDrop() {
     setDragIndex(null)
-    saveOrder()
   }
-  async function saveOrder() {
+  async function handleSaveOrder() {
     const sb = createClient()
     for (let i = 0; i < items.length; i++) {
       await sb.from('services').update({ home_order: i + 1 }).eq('id', items[i].id)
     }
+    setOrderPending(false)
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -131,6 +136,7 @@ export default function ServicesAdminPage() {
     setForm(emptyForm)
     setSelectedScholarships([])
     setSelectedUniversities([])
+    setSelectedResults([])
     setError(null)
     setShowModal(true)
   }
@@ -156,12 +162,14 @@ export default function ServicesAdminPage() {
     setShowModal(true)
     // Load existing connections
     const sb = createClient()
-    const [schRes, uniRes] = await Promise.all([
+    const [schRes, uniRes, resRes] = await Promise.all([
       sb.from('service_scholarships').select('scholarship_id').eq('service_id', item.id),
       sb.from('service_universities').select('university_id').eq('service_id', item.id),
+      sb.from('service_results').select('result_id').eq('service_id', item.id),
     ])
     setSelectedScholarships((schRes.data ?? []).map((r: any) => r.scholarship_id))
     setSelectedUniversities((uniRes.data ?? []).map((r: any) => r.university_id))
+    setSelectedResults((resRes.data ?? []).map((r: any) => r.result_id))
   }
 
   async function handleTranslateName() {
@@ -222,11 +230,15 @@ export default function ServicesAdminPage() {
     if (serviceId) {
       await sb.from('service_scholarships').delete().eq('service_id', serviceId)
       await sb.from('service_universities').delete().eq('service_id', serviceId)
+      await sb.from('service_results').delete().eq('service_id', serviceId)
       if (selectedScholarships.length > 0) {
         await sb.from('service_scholarships').insert(selectedScholarships.map(sid => ({ service_id: serviceId, scholarship_id: sid })))
       }
       if (selectedUniversities.length > 0) {
         await sb.from('service_universities').insert(selectedUniversities.map(uid => ({ service_id: serviceId, university_id: uid })))
+      }
+      if (selectedResults.length > 0) {
+        await sb.from('service_results').insert(selectedResults.map(rid => ({ service_id: serviceId, result_id: rid })))
       }
     }
 
@@ -300,6 +312,15 @@ export default function ServicesAdminPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {orderPending && (
+        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-700 shadow-xl rounded-2xl px-4 py-3">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tartib o&apos;zgardi</span>
+          <button onClick={handleSaveOrder} className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">
+            Saqlash
+          </button>
         </div>
       )}
 
@@ -386,6 +407,20 @@ export default function ServicesAdminPage() {
                     </label>
                   ))}
                   {allScholarships.length === 0 && <p className="text-xs text-gray-400">Grant yo&apos;q</p>}
+                </div>
+              </div>
+
+              {/* Results connections */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Bog&apos;liq natijalar</label>
+                <div className="max-h-40 overflow-y-auto space-y-1 border border-gray-200 dark:border-gray-600 rounded-lg p-2">
+                  {allResults.map(r => (
+                    <label key={r.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded">
+                      <input type="checkbox" checked={selectedResults.includes(r.id)} onChange={e => setSelectedResults(prev => e.target.checked ? [...prev, r.id] : prev.filter(id => id !== r.id))} />
+                      <span className="text-sm text-gray-800 dark:text-gray-200">{r.student_name}</span>
+                    </label>
+                  ))}
+                  {allResults.length === 0 && <p className="text-xs text-gray-400">Natija yo&apos;q</p>}
                 </div>
               </div>
 

@@ -357,7 +357,6 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         <button onClick={onClose} className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
           <button onClick={() => setTab('signin')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${tab === 'signin' ? 'bg-white dark:bg-gray-700 text-teal-700 dark:text-teal-400 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>{t('signIn')}</button>
           <button onClick={() => setTab('signup')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${tab === 'signup' ? 'bg-white dark:bg-gray-700 text-teal-700 dark:text-teal-400 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>{t('signUp')}</button>

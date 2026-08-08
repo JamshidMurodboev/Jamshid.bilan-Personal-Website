@@ -31,6 +31,8 @@ const emptyMajor = (): MajorRow => ({ name: '', name_ru: '', name_en: '', degree
 
 type DocRow = RequiredDocument & { mandatory?: boolean }
 
+type DateType = 'exact' | 'month' | 'period' | ''
+
 type FormState = {
   name: string
   country: string
@@ -49,6 +51,12 @@ type FormState = {
   tuition_note_uz: string
   tuition_note_ru: string
   tuition_note_en: string
+  admission_start_type: DateType
+  admission_start: string
+  admission_end_type: DateType
+  admission_end: string
+  results_date_type: DateType
+  results_date: string
 }
 
 const emptyForm: FormState = {
@@ -69,6 +77,12 @@ const emptyForm: FormState = {
   tuition_note_uz: '',
   tuition_note_ru: '',
   tuition_note_en: '',
+  admission_start_type: '',
+  admission_start: '',
+  admission_end_type: '',
+  admission_end: '',
+  results_date_type: '',
+  results_date: '',
 }
 
 const DEGREE_OPTIONS = [
@@ -96,6 +110,7 @@ export default function UniversitiesPage() {
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
   const [showDocsPreview, setShowDocsPreview] = useState(false)
+  const [orderPending, setOrderPending] = useState(false)
 
   function handleDragStart(index: number) { setDragIndex(index) }
   function handleDragOver(e: React.DragEvent, index: number) {
@@ -106,16 +121,17 @@ export default function UniversitiesPage() {
     newItems.splice(index, 0, moved)
     setItems(newItems)
     setDragIndex(index)
+    setOrderPending(true)
   }
   function handleDrop() {
     setDragIndex(null)
-    saveOrder()
   }
-  async function saveOrder() {
+  async function handleSaveOrder() {
     const sb = createClient()
     for (let i = 0; i < items.length; i++) {
       await sb.from('universities').update({ home_order: i + 1 }).eq('id', items[i].id)
     }
+    setOrderPending(false)
   }
 
   async function load() {
@@ -123,6 +139,7 @@ export default function UniversitiesPage() {
     const { data, error } = await createClient()
       .from('universities')
       .select('*')
+      .order('home_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     if (error) setError(error.message)
     else setItems(data ?? [])
@@ -198,6 +215,12 @@ export default function UniversitiesPage() {
       tuition_note_uz: (item as any).tuition_note_uz ?? '',
       tuition_note_ru: (item as any).tuition_note_ru ?? '',
       tuition_note_en: (item as any).tuition_note_en ?? '',
+      admission_start_type: (item as any).admission_start_type ?? '',
+      admission_start: (item as any).admission_start ?? '',
+      admission_end_type: (item as any).admission_end_type ?? '',
+      admission_end: (item as any).admission_end ?? '',
+      results_date_type: (item as any).results_date_type ?? '',
+      results_date: (item as any).results_date ?? '',
     })
     setRequiredDocs((item as any).required_documents ?? [])
     setMediaLinks((item as any).media_links ?? [])
@@ -280,6 +303,12 @@ export default function UniversitiesPage() {
       tuition_note_uz: form.tuition_estimated ? (form.tuition_note_uz || null) : null,
       tuition_note_ru: form.tuition_estimated ? (form.tuition_note_ru || null) : null,
       tuition_note_en: form.tuition_estimated ? (form.tuition_note_en || null) : null,
+      admission_start_type: form.admission_start_type || null,
+      admission_start: form.admission_start || null,
+      admission_end_type: form.admission_end_type || null,
+      admission_end: form.admission_end || null,
+      results_date_type: form.results_date_type || null,
+      results_date: form.results_date || null,
     }
 
     const supabase = createClient()
@@ -431,6 +460,15 @@ export default function UniversitiesPage() {
         </div>
       )}
 
+      {orderPending && (
+        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-700 shadow-xl rounded-2xl px-4 py-3">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tartib o&apos;zgardi</span>
+          <button onClick={handleSaveOrder} className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">
+            Saqlash
+          </button>
+        </div>
+      )}
+
       {showModal && (
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
@@ -492,6 +530,55 @@ export default function UniversitiesPage() {
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Veb-sayt</label>
                   <input type="url" value={form.website_url} onChange={e => setForm({ ...form, website_url: e.target.value })} className={inp} placeholder="https://..." />
+                </div>
+              </div>
+
+              {/* Admission Dates */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Qabul davri va natijalar</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Qabul boshlanishi</label>
+                    <div className="flex gap-2">
+                      <select value={form.admission_start_type} onChange={e => setForm({ ...form, admission_start_type: e.target.value as DateType, admission_start: '' })} className={`${inp} w-36 flex-shrink-0`}>
+                        <option value="">— turi —</option>
+                        <option value="exact">Aniq sana</option>
+                        <option value="month">Oy</option>
+                        <option value="period">Davr (matn)</option>
+                      </select>
+                      {form.admission_start_type === 'exact' && <input type="date" value={form.admission_start} onChange={e => setForm({ ...form, admission_start: e.target.value })} className={inp} />}
+                      {form.admission_start_type === 'month' && <input type="month" value={form.admission_start} onChange={e => setForm({ ...form, admission_start: e.target.value })} className={inp} />}
+                      {form.admission_start_type === 'period' && <input type="text" value={form.admission_start} onChange={e => setForm({ ...form, admission_start: e.target.value })} placeholder="Masalan: Mart - May" className={inp} />}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Qabul tugashi (ixtiyoriy)</label>
+                    <div className="flex gap-2">
+                      <select value={form.admission_end_type} onChange={e => setForm({ ...form, admission_end_type: e.target.value as DateType, admission_end: '' })} className={`${inp} w-36 flex-shrink-0`}>
+                        <option value="">— turi —</option>
+                        <option value="exact">Aniq sana</option>
+                        <option value="month">Oy</option>
+                        <option value="period">Davr (matn)</option>
+                      </select>
+                      {form.admission_end_type === 'exact' && <input type="date" value={form.admission_end} onChange={e => setForm({ ...form, admission_end: e.target.value })} className={inp} />}
+                      {form.admission_end_type === 'month' && <input type="month" value={form.admission_end} onChange={e => setForm({ ...form, admission_end: e.target.value })} className={inp} />}
+                      {form.admission_end_type === 'period' && <input type="text" value={form.admission_end} onChange={e => setForm({ ...form, admission_end: e.target.value })} placeholder="Masalan: Iyun" className={inp} />}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Natijalar sanasi</label>
+                    <div className="flex gap-2">
+                      <select value={form.results_date_type} onChange={e => setForm({ ...form, results_date_type: e.target.value as DateType, results_date: '' })} className={`${inp} w-36 flex-shrink-0`}>
+                        <option value="">— turi —</option>
+                        <option value="exact">Aniq sana</option>
+                        <option value="month">Oy</option>
+                        <option value="period">Davr (matn)</option>
+                      </select>
+                      {form.results_date_type === 'exact' && <input type="date" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />}
+                      {form.results_date_type === 'month' && <input type="month" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />}
+                      {form.results_date_type === 'period' && <input type="text" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} placeholder="Masalan: Avgustda" className={inp} />}
+                    </div>
+                  </div>
                 </div>
               </div>
 

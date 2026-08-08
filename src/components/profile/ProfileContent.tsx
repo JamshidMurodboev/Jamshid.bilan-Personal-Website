@@ -183,7 +183,7 @@ export default function ProfileContent() {
             <button type="submit" className="flex-1 bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition">
               {saved ? `${t('saved')} ✓` : t('save')}
             </button>
-            <button type="button" onClick={() => { logout(); router.push(`/${locale}`); }}
+            <button type="button" onClick={async () => { await logout(); router.push(`/${locale}`); }}
               className="px-5 py-3 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
               {t('logout')}
             </button>

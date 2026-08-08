@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { formatDate } from '@/lib/format';
 import type { Scholarship, University, StudentResult, NewsPost, Service } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
+import { translateLanguage } from '@/lib/translateLanguage';
 
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
@@ -43,14 +44,14 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
   const [scholarshipsRes, universitiesRes, resultsRes, newsRes, servicesRes] = await Promise.allSettled([
     supabase.from('scholarships').select('id,title,country,status,category,close_date,photo_urls,degrees_available,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('universities').select('id,name,country,city,type,status,tuition_usd,photo_urls,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
-    supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial,home_order,slug').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
+    supabase.from('student_results').select('id,student_name,photo_url,photo_urls,degree_level,year,country,testimonial,home_order,slug,university_name,university_name_ru,university_name_en,major,major_ru,major_en,language,category,scholarships(title)').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).limit(3),
     supabase.from('news_posts').select('id,title_uz,title_ru,title_en,body_uz,body_ru,body_en,published_at,cover_url,photo_urls,slug').eq('published', true).order('published_at', { ascending: false }).limit(3),
     supabase.from('services').select('id,name_uz,name_ru,name_en,photo_url,price,currency,currency_custom,slug,home_order').eq('status', 'active').not('home_order', 'is', null).order('home_order', { ascending: true }).limit(4),
   ]);
 
   const scholarships: Scholarship[] = scholarshipsRes.status === 'fulfilled' && scholarshipsRes.value.data?.length ? scholarshipsRes.value.data as Scholarship[] : [];
   const universities: University[] = universitiesRes.status === 'fulfilled' && universitiesRes.value.data?.length ? universitiesRes.value.data as University[] : [];
-  const results: StudentResult[] = resultsRes.status === 'fulfilled' && resultsRes.value.data?.length ? resultsRes.value.data as StudentResult[] : [];
+  const results: StudentResult[] = resultsRes.status === 'fulfilled' && resultsRes.value.data?.length ? resultsRes.value.data as unknown as StudentResult[] : [];
   const news: NewsPost[] = newsRes.status === 'fulfilled' && newsRes.value.data?.length ? newsRes.value.data as NewsPost[] : [];
   const services: Service[] = servicesRes.status === 'fulfilled' && servicesRes.value.data?.length ? servicesRes.value.data as Service[] : [];
 
@@ -158,7 +159,9 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
               {results.map(r => {
                 const photos: string[] = (r as any).photo_urls?.length ? (r as any).photo_urls : r.photo_url ? [r.photo_url] : [];
                 const href = `/${locale}/results/${(r as any).slug ?? r.id}`;
-                const testimonial = (r as any)[`testimonial_${locale}`] || r.testimonial;
+                const uniName = (r as any)[`university_name_${locale}`] || (r as any).university_name || '';
+                const major = (r as any)[`major_${locale}`] || (r as any).major || '';
+                const lang = (r as any).language;
                 return (
                   <Link key={r.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
                     {photos.length > 0 ? (
@@ -170,10 +173,37 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                         <span className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl">{r.student_name[0]}</span>
                       </div>
                     )}
-                    <div className="p-4 flex flex-col gap-1">
-                      <p className="font-semibold text-gray-900 dark:text-white">{r.student_name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{translateCountry(r.country, locale)} · {r.year}</p>
-                      {testimonial && <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mt-1">&ldquo;{testimonial}&rdquo;</p>}
+                    <div className="p-4 flex flex-col gap-1 flex-1">
+                      {(() => {
+                        const scholarshipTitle = (r as any).scholarships?.title || '';
+                        const isScholarship = (r as any).category === 'scholarship_winner';
+                        const degLabel: Record<string, string> = { bachelor: 'Bakalavr', master: 'Magistr', phd: 'PhD' };
+                        return (
+                          <>
+                            <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug">
+                              {isScholarship && scholarshipTitle ? `${r.student_name} — ${scholarshipTitle}` : r.student_name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {uniName && major ? `${uniName} — ${major}` : uniName || major || ''}
+                            </p>
+                            <div className="flex items-center gap-2 mt-auto pt-1 flex-wrap">
+                              <span className="text-xs text-gray-400 dark:text-gray-500">{r.year}</span>
+                              <div className="flex gap-1.5 ml-auto flex-wrap">
+                                {lang && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                                    {translateLanguage(lang, locale)}
+                                  </span>
+                                )}
+                                {r.degree_level && (
+                                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                                    {degLabel[r.degree_level] ?? r.degree_level}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </Link>
                 );
