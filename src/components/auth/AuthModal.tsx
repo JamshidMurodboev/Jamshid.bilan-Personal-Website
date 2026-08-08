@@ -181,8 +181,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       });
       if (err) { setTgError(err); return; }
       setRegistered(true);
-    } catch {
-      setTgError('Xatolik yuz berdi');
+    } catch (e: any) {
+      setTgError(`Xatolik: ${e?.message || e}`);
     } finally {
       setTgLoading(false);
     }

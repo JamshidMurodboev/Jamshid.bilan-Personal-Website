@@ -146,11 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: data.password,
     });
     if (error) {
-      if (error.message.includes('already registered')) return "Bu email allaqachon ro'yxatdan o'tgan";
-      return 'Xatolik yuz berdi';
+      if (error.message.includes('already registered') || error.message.includes('already been registered')) return "Bu email allaqachon ro'yxatdan o'tgan";
+      return `Xatolik: ${error.message}`;
     }
     const userId = authData.user?.id;
-    if (!userId) return 'Xatolik yuz berdi';
+    if (!userId) return "Foydalanuvchi ID topilmadi — emailni tasdiqlash kerak bo'lishi mumkin";
 
     let photoUrl: string | null = null;
     if (data.photoDataUrl) {
