@@ -61,6 +61,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Dark mode init — hardcoded only, never put user input here */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

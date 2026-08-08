@@ -65,7 +65,7 @@ export default function ScrollWidgets() {
       <button
         onClick={scrollToTop}
         aria-label="Scroll to top"
-        className={`fixed right-6 z-40 rounded-full bg-[#1E1E2E] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 w-[34px] h-[34px] md:w-10 md:h-10 ${
+        className={`fixed right-6 z-40 rounded-full bg-[#1E1E2E] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 w-11 h-11 md:w-10 md:h-10 ${
           showCta ? 'bottom-24' : 'bottom-6'
         }`}
       >
