@@ -9,7 +9,7 @@ export default function HeroSection() {
   const [open, setOpen] = useState(false);
 
   const badges = [
-    { emoji: '🏆', text: 'Türkiye Bursları', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
+    { emoji: '🏆', text: 'Türkiye Burslari', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
     { emoji: '🎓', text: '2× Erasmus+', color: 'bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700' },
     { emoji: '✅', text: '100+ Admissions', color: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' },
     { emoji: '🌍', text: '10+ Winners', color: 'bg-sky-50 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700' },
@@ -76,7 +76,7 @@ export default function HeroSection() {
                 <div className="absolute bottom-10 left-4 right-4">
                   <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-xl px-4 py-2.5">
                     <p className="font-bold text-gray-900 dark:text-white text-sm">Jamshid Murodboev</p>
-                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor & Consultant</p>
+                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor &amp; Consultant</p>
                   </div>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default function HeroSection() {
                 <span className="text-xl">🏆</span>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Grant G&apos;olibi</p>
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">Türkiye Bursları</p>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">Türkiye Burslari</p>
                 </div>
               </div>
 

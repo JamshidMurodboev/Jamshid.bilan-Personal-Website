@@ -307,7 +307,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto">
                 <svg className="w-7 h-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Telegram botimizga o'ting va kod oling</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Telegram botimizga o&apos;ting va kod oling</p>
               <a href={fpBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
                 Telegram botini ochish
@@ -338,7 +338,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
           {fpStep === 'newpw' && (
             <form onSubmit={handleFpNewPw} className="space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">✅ Tasdiqlandi! Yangi parol o'rnating.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">✅ Tasdiqlandi! Yangi parol o&apos;rnating.</p>
               <input type="password" required minLength={6} value={fpNewPw} onChange={e => setFpNewPw(e.target.value)} className={inputCls} placeholder="Yangi parol (min. 6 belgi)" />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button type="submit" disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
@@ -435,7 +435,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <div>
               <p className="text-base font-semibold text-gray-800 dark:text-white mb-1">Telegram orqali tasdiqlang</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Quyidagi tugmani bosib botga o'ting va "Start" ni bosing — kod avtomatik yuboriladi.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Quyidagi tugmani bosib botga o&apos;ting va &quot;Start&quot; ni bosing — kod avtomatik yuboriladi.</p>
             </div>
             <a href={tgBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
