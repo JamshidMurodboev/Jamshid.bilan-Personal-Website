@@ -16,7 +16,7 @@ type SignupStep = 'form' | 'telegram' | 'otp';
 
 export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Props) {
   const t = useTranslations('auth');
-  const { login, signup } = useAuth();
+  const auth = useAuth();
   const router = useRouter();
   const locale = useLocale();
   const [tab, setTab] = useState(initialTab);
@@ -100,8 +100,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (!siEmail.trim() || !siPass) { setSiError(t('invalidCredentials')); return; }
-    if (!login) return;
-    login(siEmail, siPass).then(err => {
+    void (auth.login as Function)(siEmail, siPass).then((err: string | null) => {
       if (err) { setSiError(t('invalidCredentials')); return; }
       onClose();
     });
@@ -114,7 +113,6 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setSuError(t('fillAllFields'));
       return;
     }
-    // Init telegram session
     try {
       const res = await fetch('/api/telegram/init', {
         method: 'POST',
@@ -136,7 +134,6 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     setTgLoading(true);
     setTgError('');
     try {
-      // Verify OTP
       const verifyRes = await fetch('/api/telegram/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -145,9 +142,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       const verifyData = await verifyRes.json();
       if (!verifyData.ok) { setTgError(verifyData.error || 'Kod noto\'g\'ri'); setTgLoading(false); return; }
 
-      // Complete signup
-      if (!signup) { setTgError('Signup not available'); setTgLoading(false); return; }
-      const err = await signup({
+      const err = await (auth.signup as Function)({
         email: suEmail,
         password: suPass,
         fullName: suName,
