@@ -134,8 +134,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string): Promise<string | null> {
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return error.message.includes('confirmed') ? "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring" : "Email yoki parol noto'g'ri";
+    // Ensure site_users row exists for accounts created outside the new signup flow
+    if (data.user) {
+      const { data: existing } = await supabase.from('site_users').select('id').eq('id', data.user.id).single();
+      if (!existing) {
+        await supabase.from('site_users').insert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: '',
+          created_at: new Date().toISOString(),
+          last_active_at: new Date().toISOString(),
+          login_count: 1,
+          status: 'active',
+        });
+      }
+    }
     return null;
   }
 
