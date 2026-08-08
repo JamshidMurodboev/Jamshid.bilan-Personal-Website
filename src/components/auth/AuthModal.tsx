@@ -75,8 +75,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setFpLinked(false);
     }
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      if (fpPollRef.current) clearInterval(fpPollRef.current);
+      const p = pollRef.current;
+      const fp = fpPollRef.current;
+      if (p) clearInterval(p);
+      if (fp) clearInterval(fp);
     };
   }, [initialTab, isOpen]);
 

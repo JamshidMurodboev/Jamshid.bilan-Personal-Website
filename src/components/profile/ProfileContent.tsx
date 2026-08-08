@@ -27,14 +27,12 @@ export default function ProfileContent() {
   const [mounted, setMounted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Password change state
   const [currentPw, setCurrentPw] = useState('');
   const [newPw, setNewPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
   const [pwError, setPwError] = useState('');
   const [pwSaved, setPwSaved] = useState(false);
 
-  // Saved items
   type FavItem = { entity_type: string; entity_id: string; label?: string; href?: string };
   const [savedItems, setSavedItems] = useState<FavItem[]>([]);
   const [savedLoading, setSavedLoading] = useState(false);
@@ -55,7 +53,6 @@ export default function ProfileContent() {
         setCertType(user.languageCertificate.type);
         setCertScore(user.languageCertificate.score);
       }
-      // Load saved items
       setSavedLoading(true);
       const sb = createClient();
       sb.from('user_favorites').select('entity_type,entity_id').eq('user_id', user.id).then(async ({ data }) => {
@@ -106,12 +103,12 @@ export default function ProfileContent() {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  function handlePasswordChange(e: React.FormEvent) {
+  async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
     setPwError('');
     if (newPw.length < 6) { setPwError("Yangi parol kamida 6 ta belgi bo'lishi kerak"); return; }
     if (newPw !== confirmPw) { setPwError('Parollar mos kelmadi'); return; }
-    const err = changePassword(currentPw, newPw);
+    const err = await changePassword(currentPw, newPw);
     if (err) { setPwError(err); return; }
     setCurrentPw(''); setNewPw(''); setConfirmPw('');
     setPwSaved(true);
@@ -130,7 +127,6 @@ export default function ProfileContent() {
         <PageNav />
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('profile')}</h1>
 
-        {/* Main profile form */}
         <form onSubmit={save} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5 mb-6">
           <div className="flex justify-center">
             <button type="button" onClick={() => fileRef.current?.click()} className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-dashed border-teal-400 hover:opacity-80 transition">
@@ -163,10 +159,9 @@ export default function ProfileContent() {
             <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} />
           </div>
 
-          {/* Language certificate */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('certLabel')}</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
                 <option value="">— Tanlang —</option>
                 {CERT_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -195,7 +190,6 @@ export default function ProfileContent() {
           </div>
         </form>
 
-        {/* Saved items */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">{t('savedItems')}</h2>
           {savedLoading ? (
@@ -223,7 +217,6 @@ export default function ProfileContent() {
           )}
         </div>
 
-        {/* Password change */}
         <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
           <h2 className="text-base font-semibold text-gray-900 dark:text-white">{tp('changePassword')}</h2>
           <div>
