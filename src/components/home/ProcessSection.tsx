@@ -52,8 +52,6 @@ export default function ProcessSection() {
         desc: (s as any)[`desc_${locale}`] || s.desc_uz || '',
         colorKey: s.color_key || 'teal',
       }))
-    : dbSteps === null
-    ? [] // still loading — show nothing until resolved
     : FALLBACK.map(s => ({
         number: s.number,
         icon: s.icon,
