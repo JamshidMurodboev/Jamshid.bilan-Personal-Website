@@ -64,6 +64,8 @@ export interface Scholarship {
 export interface University {
   id: string
   name: string
+  name_ru?: string
+  name_en?: string
   country: string
   city?: string
   logo_url?: string
@@ -263,6 +265,7 @@ export interface SiteUser {
   gender?: string
   dob?: string
   photo_url?: string
+  telegram_chat_id?: number
   created_at: string
   last_active_at?: string
   login_count: number
