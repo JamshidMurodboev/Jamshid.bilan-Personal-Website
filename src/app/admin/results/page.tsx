@@ -35,11 +35,14 @@ interface FormState {
   testimonial: string
   testimonial_ru: string
   testimonial_en: string
+  // scholarship_winner fields
   scholarship_id: string
   university_name: string
   university_name_ru: string
   university_name_en: string
+  // tuition_based fields
   university_id: string
+  // shared
   major: string
   major_ru: string
   major_en: string
@@ -74,6 +77,7 @@ const emptyForm: FormState = {
   slug: '',
 }
 
+// Inline searchable select component
 interface SearchSelectOption {
   value: string
   label: string
@@ -122,6 +126,7 @@ function SearchSelect({
 
   return (
     <div ref={containerRef} className="relative">
+      {/* Hidden native select for required validation */}
       {required && (
         <select
           required
@@ -256,9 +261,9 @@ export default function ResultsPage() {
     setLoading(true)
     const supabase = createClient()
     const [resultsRes, schRes, uniRes] = await Promise.all([
-      supabase.from('student_results').select('*').order('created_at', { ascending: false }),
+      supabase.from('student_results').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
       supabase.from('scholarships').select('id,title,country').order('title'),
-      supabase.from('universities').select('id,name,country').order('name'),
+      supabase.from('universities').select('id,name,name_ru,name_en,country').order('name'),
     ])
     if (resultsRes.error) setError(resultsRes.error.message)
     else setItems(resultsRes.data ?? [])
@@ -432,7 +437,7 @@ export default function ResultsPage() {
                   onDrop={handleDrop}
                   className={`border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 ${dragIndex === index ? 'opacity-50' : ''}`}
                 >
-                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠇</td>
+                  <td className="px-4 py-3 text-gray-400 cursor-grab select-none">⠿</td>
                   <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
                     {item.student_name}
                   </td>
@@ -508,11 +513,13 @@ export default function ResultsPage() {
                 </div>
               )}
 
+              {/* Slug */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
                 <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="ism-familiya" />
               </div>
 
+              {/* Category */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Kategoriya *
@@ -535,6 +542,7 @@ export default function ResultsPage() {
                 </div>
               </div>
 
+              {/* Student name */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Talaba ismi *
@@ -548,6 +556,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Scholarship winner fields */}
               {form.category === 'scholarship_winner' && (
                 <>
                   <div>
@@ -578,6 +587,7 @@ export default function ResultsPage() {
                 </>
               )}
 
+              {/* Tuition based fields */}
               {form.category === 'tuition_based' && (
                 <>
                   <div>
@@ -589,7 +599,13 @@ export default function ResultsPage() {
                       value={form.university_id}
                       onChange={(v) => {
                         const uni = universities.find(u => u.id === v)
-                        setForm({ ...form, university_id: v, university_name: uni ? uni.name : form.university_name })
+                        setForm({
+                          ...form,
+                          university_id: v,
+                          university_name: uni ? uni.name : form.university_name,
+                          university_name_ru: uni?.name_ru || form.university_name_ru,
+                          university_name_en: uni?.name_en || form.university_name_en,
+                        })
                       }}
                       placeholder="Universitetni tanlang..."
                       required
@@ -611,6 +627,7 @@ export default function ResultsPage() {
                 </>
               )}
 
+              {/* Shared: major */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Mutaxassislik</label>
@@ -625,6 +642,7 @@ export default function ResultsPage() {
                 </div>
               </div>
 
+              {/* Shared: language */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   O&apos;qitish tili
@@ -632,6 +650,7 @@ export default function ResultsPage() {
                 <LanguageSelect value={form.language} onChange={v => setForm({ ...form, language: v })} className={inp} />
               </div>
 
+              {/* Shared: university_ranking */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Universitet reytingi (ixtiyoriy)
@@ -646,6 +665,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Home order */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Bosh sahifa tartibi (1-3)
@@ -661,6 +681,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Degree */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Daraja *
@@ -679,6 +700,7 @@ export default function ResultsPage() {
                 </select>
               </div>
 
+              {/* Year */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Yil *
@@ -694,6 +716,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Country */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Davlat *
@@ -707,6 +730,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Testimonial */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sharh / Fikr (UZ)</label>
@@ -748,6 +772,7 @@ export default function ResultsPage() {
                 />
               </div>
 
+              {/* Photo upload */}
               <div>
                 <ImageUpload
                   bucket="results"

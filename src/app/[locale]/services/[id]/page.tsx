@@ -86,12 +86,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
         )}
 
-        <ServiceContactButtons
-          serviceContext={svc.name_uz}
-          applyLabel={t('applyNow')}
-          askLabel={t('askQuestion')}
-        />
-
         {(scholarships?.length ?? 0) > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedScholarships')}</h2>

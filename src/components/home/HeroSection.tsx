@@ -89,7 +89,7 @@ export default function HeroSection() {
                 <div className="absolute bottom-10 left-4 right-4">
                   <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-xl px-4 py-2.5">
                     <p className="font-bold text-gray-900 dark:text-white text-sm">Jamshid Murodboev</p>
-                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor &amp; Consultant</p>
+                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor & Consultant</p>
                   </div>
                 </div>
               </div>
