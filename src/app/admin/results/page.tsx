@@ -263,7 +263,7 @@ export default function ResultsPage() {
     const [resultsRes, schRes, uniRes] = await Promise.all([
       supabase.from('student_results').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
       supabase.from('scholarships').select('id,title,country').order('title'),
-      supabase.from('universities').select('id,name,country').order('name'),
+      supabase.from('universities').select('id,name,name_ru,name_en,country').order('name'),
     ])
     if (resultsRes.error) setError(resultsRes.error.message)
     else setItems(resultsRes.data ?? [])
@@ -599,7 +599,13 @@ export default function ResultsPage() {
                       value={form.university_id}
                       onChange={(v) => {
                         const uni = universities.find(u => u.id === v)
-                        setForm({ ...form, university_id: v, university_name: uni ? uni.name : form.university_name })
+                        setForm({
+                          ...form,
+                          university_id: v,
+                          university_name: uni ? uni.name : form.university_name,
+                          university_name_ru: uni?.name_ru || form.university_name_ru,
+                          university_name_en: uni?.name_en || form.university_name_en,
+                        })
                       }}
                       placeholder="Universitetni tanlang..."
                       required
