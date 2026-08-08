@@ -1,18 +1,24 @@
-name: Deploy to server
+name: Deploy to Production
 
 on:
   push:
     branches:
       - main
+      - claude/intelligent-hawking-i8mi83
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH and deploy
+      - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: bash /var/www/Jamshid.bilan-Personal-Website/deploy.sh
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /var/www/Jamshid.bilan-Personal-Website
+            git fetch origin
+            git reset --hard origin/${{ github.ref_name }}
+            npm run build
+            pm2 restart jamshidbilan --update-env
