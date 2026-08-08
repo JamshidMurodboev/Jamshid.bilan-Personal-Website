@@ -267,8 +267,8 @@ export default function ResultsPage() {
     ])
     if (resultsRes.error) setError(resultsRes.error.message)
     else setItems(resultsRes.data ?? [])
-    if (!schRes.error) setScholarships((schRes.data ?? []) as Scholarship[])
-    if (!uniRes.error) setUniversities((uniRes.data ?? []) as University[])
+    if (!schRes.error) setScholarships((schRes.data ?? []) as unknown as Scholarship[])
+    if (!uniRes.error) setUniversities((uniRes.data ?? []) as unknown as University[])
     setLoading(false)
   }
 
@@ -603,8 +603,8 @@ export default function ResultsPage() {
                           ...form,
                           university_id: v,
                           university_name: uni ? uni.name : form.university_name,
-                          university_name_ru: uni?.name_ru || form.university_name_ru,
-                          university_name_en: uni?.name_en || form.university_name_en,
+                          university_name_ru: (uni as any)?.name_ru || form.university_name_ru,
+                          university_name_en: (uni as any)?.name_en || form.university_name_en,
                         })
                       }}
                       placeholder="Universitetni tanlang..."
