@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import DateInput from '@/components/shared/DateInput';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/lib/auth';
 
 interface Props {
   children: React.ReactNode;
@@ -10,13 +11,15 @@ interface Props {
   platform?: 'telegram' | 'whatsapp';
   scholarshipContext?: string;
   universityContext?: string;
+  serviceContext?: string;
 }
 
 const TELEGRAM_URL = 'https://t.me/jamshid_bilan';
 const WHATSAPP_NUMBER = '905052250893';
 
-export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext, universityContext }: Props) {
+export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext, universityContext, serviceContext }: Props) {
   const t = useTranslations('contact.form');
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [noCert, setNoCert] = useState(false);
   const context = scholarshipContext ? `${t('grantPrefix')} ${scholarshipContext}` : universityContext ? `${t('universityPrefix')} ${universityContext}` : '';
@@ -24,6 +27,19 @@ export default function TelegramContactButton({ children, className, platform = 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
   const [universities, setUniversities] = useState<{ id: string; name: string; country: string }[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      setForm(f => ({
+        ...f,
+        name: user.fullName || f.name,
+        dob: user.dob || f.dob,
+        certName: user.languageCertificate?.type || f.certName,
+        certScore: user.languageCertificate?.score || f.certScore,
+      }));
+      if (user.languageCertificate?.type === 'N/A') setNoCert(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!open) return;
@@ -153,27 +169,29 @@ export default function TelegramContactButton({ children, className, platform = 
                   {errors.name && <p className={errorClass}>{errors.name}</p>}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('applicationFor')}</label>
-                  <select value={form.applying} onChange={e => set('applying', e.target.value)} className={inputClass}>
-                    <option value="">{t('selectPlaceholder')}</option>
-                    {scholarships.length > 0 && (
-                      <optgroup label="Grantlar">
-                        {scholarships.map(s => (
-                          <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
-                        ))}
-                      </optgroup>
-                    )}
-                    {universities.length > 0 && (
-                      <optgroup label="Universitetlar">
-                        {universities.map(u => (
-                          <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </select>
-                  {errors.applying && <p className={errorClass}>{errors.applying}</p>}
-                </div>
+                {!scholarshipContext && !universityContext && !serviceContext && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('applicationFor')}</label>
+                    <select value={form.applying} onChange={e => set('applying', e.target.value)} className={inputClass}>
+                      <option value="">{t('selectPlaceholder')}</option>
+                      {scholarships.length > 0 && (
+                        <optgroup label="Grantlar">
+                          {scholarships.map(s => (
+                            <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {universities.length > 0 && (
+                        <optgroup label="Universitetlar">
+                          {universities.map(u => (
+                            <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                    {errors.applying && <p className={errorClass}>{errors.applying}</p>}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('dob')} <span className="text-red-500">*</span></label>

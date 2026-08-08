@@ -93,13 +93,16 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   if (!isOpen) return null;
 
-  function handleSignIn(e: React.FormEvent) {
+  async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (!siEmail.trim() || !siPass) { setSiError(t('invalidCredentials')); return; }
-    login(siEmail, siPass).then(err => {
-      if (err) { setSiError(t('invalidCredentials')); return; }
+    try {
+      const err = await login(siEmail, siPass);
+      if (err) { setSiError(err); return; }
       onClose();
-    });
+    } catch {
+      setSiError(t('error'));
+    }
   }
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {

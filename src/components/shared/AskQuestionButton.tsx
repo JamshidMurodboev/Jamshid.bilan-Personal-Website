@@ -32,8 +32,10 @@ export default function AskQuestionButton({ children, className, scholarshipCont
 
   useEffect(() => {
     if (user) {
-      setName(user.fullName ?? '');
-      setDob(user.dob ?? '');
+      if (user.fullName) setName(user.fullName);
+      if (user.dob) setDob(user.dob);
+      if (user.languageCertificate?.type) setCert(user.languageCertificate.type);
+      if (user.languageCertificate?.score) setScore(user.languageCertificate.score);
     }
   }, [user]);
 

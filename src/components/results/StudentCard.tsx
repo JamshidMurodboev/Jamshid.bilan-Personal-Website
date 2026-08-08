@@ -6,7 +6,7 @@ import type { StudentResult } from '@/lib/supabase/types';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { translateLanguage } from '@/lib/translateLanguage';
 
-export default function StudentCard({ result: r, locale }: { result: StudentResult; locale?: string }) {
+export default function StudentCard({ result: r, locale, hidePhoto }: { result: StudentResult; locale?: string; hidePhoto?: boolean }) {
   const t = useTranslations('results');
   const photos: string[] = (r as any).photo_urls?.length
     ? (r as any).photo_urls
@@ -19,7 +19,7 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
       <FavouriteButton entityType="result" entityId={r.id} className="absolute top-2 right-2 z-10" />
 
       {/* Photo */}
-      {photos.length > 0 ? (
+      {!hidePhoto && (photos.length > 0 ? (
         <div className="relative w-full aspect-square flex-shrink-0">
           <Image src={photos[0]} alt={r.student_name} fill className="object-cover object-top" />
         </div>
@@ -29,7 +29,7 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
             {r.student_name[0]}
           </div>
         </div>
-      )}
+      ))}
 
       <div className="p-3 flex flex-col gap-1 flex-1">
         {(() => {
