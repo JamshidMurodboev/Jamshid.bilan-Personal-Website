@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 const SYSTEM_PROMPT = `You are a data extraction assistant for an educational consulting admin panel.
 The admin will paste raw text (in any language — Uzbek, Russian, English, or mixed) about one of these content types:
@@ -59,6 +60,12 @@ news:
 Leave fields as empty string or null if not found in the text. Do not invent facts.`
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!adminEmail || user.email !== adminEmail) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ error: 'No text provided' }, { status: 400 })
 

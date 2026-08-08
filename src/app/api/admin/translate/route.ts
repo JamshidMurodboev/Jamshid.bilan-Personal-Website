@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!adminEmail || user.email !== adminEmail) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ ru: '', en: '' })
 
@@ -36,18 +43,13 @@ STRICT rules — follow exactly:
     if (!res.ok) throw new Error(json.error?.message || 'Groq error')
     let raw = json.choices[0].message.content.trim()
 
-    // Strip markdown fences
     raw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim()
 
-    // Extract the JSON object
     const match = raw.match(/\{[\s\S]*\}/)
     if (!match) throw new Error('No JSON object found in LLM response')
 
     let jsonStr = match[0]
 
-    // Fix literal newlines inside JSON string values (invalid JSON).
-    // Replace unescaped literal newlines that appear INSIDE quoted strings.
-    // Strategy: walk through the string, track if inside a JSON string, escape literal newlines.
     let fixed = ''
     let inString = false
     let escaped = false
