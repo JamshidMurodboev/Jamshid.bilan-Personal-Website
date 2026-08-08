@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   }
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-  const { error } = await supabase.auth.admin.updateUserById(user.id, { password: newPassword });
+  const { error } = await supabase.auth.admin.updateUserById(user.id, { password: newPassword, email_confirm: true });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await supabase.from('telegram_otp_sessions').update({ status: 'used' }).eq('id', sessionId);

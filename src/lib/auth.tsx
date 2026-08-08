@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(email: string, password: string): Promise<string | null> {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return "Email yoki parol noto'g'ri";
+    if (error) return error.message.includes('confirmed') ? "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring" : "Email yoki parol noto'g'ri";
     return null;
   }
 
