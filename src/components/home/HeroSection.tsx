@@ -1,16 +1,15 @@
 'use client';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import Image from 'next/image';
 import ContactModal from '@/components/shared/ContactModal';
 
 export default function HeroSection() {
   const t = useTranslations('hero');
-  const locale = useLocale();
   const [open, setOpen] = useState(false);
 
   const badges = [
-    { emoji: '🏆', text: 'Türkiye Bursları', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
+    { emoji: '🏆', text: 'Türkiye Burslari', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
     { emoji: '🎓', text: '2× Erasmus+', color: 'bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700' },
     { emoji: '✅', text: '100+ Admissions', color: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' },
     { emoji: '🌍', text: '10+ Winners', color: 'bg-sky-50 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700' },
@@ -27,7 +26,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[calc(100vh-4rem)] pb-16">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:min-h-[calc(100vh-4rem)] pb-16">
 
           {/* Left column */}
           <div className="text-center lg:text-left pt-8 lg:pt-0">
@@ -81,7 +80,7 @@ export default function HeroSection() {
           <div className="flex justify-center lg:justify-end relative">
             <div className="relative">
               {/* Main photo container */}
-              <div className="relative w-72 h-[400px] sm:w-80 sm:h-[460px] lg:w-[360px] lg:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/60 border-4 border-white dark:border-gray-800">
+              <div className="relative w-72 h-[360px] sm:w-80 sm:h-[460px] lg:w-[360px] lg:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/60 border-4 border-white dark:border-gray-800">
                 <Image src="/hero.png" alt="Jamshid Murodboev" fill className="object-cover" priority />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
@@ -89,7 +88,7 @@ export default function HeroSection() {
                 <div className="absolute bottom-10 left-4 right-4">
                   <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-xl px-4 py-2.5">
                     <p className="font-bold text-gray-900 dark:text-white text-sm">Jamshid Murodboev</p>
-                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor & Consultant</p>
+                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor &amp; Consultant</p>
                   </div>
                 </div>
               </div>
@@ -98,8 +97,8 @@ export default function HeroSection() {
               <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
                 <span className="text-xl">🏆</span>
                 <div>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Grant G&apos;olibi</p>
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">Türkiye Bursları</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Grant G&apos;olibi</p>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">Türkiye Burslari</p>
                 </div>
               </div>
 
@@ -107,7 +106,7 @@ export default function HeroSection() {
               <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
                 <span className="text-xl">🎓</span>
                 <div>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Mentorship</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Mentorship</p>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">100+ Students</p>
                 </div>
               </div>

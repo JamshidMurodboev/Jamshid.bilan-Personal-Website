@@ -161,7 +161,7 @@ export default function ProfileContent() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('certLabel')}</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
                 <option value="">— Tanlang —</option>
                 {CERT_TYPES.map(c => <option key={c} value={c}>{c}</option>)}

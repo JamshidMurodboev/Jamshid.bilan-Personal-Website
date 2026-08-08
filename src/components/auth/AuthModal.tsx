@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
+import PhoneInput from '@/components/shared/PhoneInput';
 
 interface Props {
   isOpen: boolean;
@@ -74,8 +75,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setFpLinked(false);
     }
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      if (fpPollRef.current) clearInterval(fpPollRef.current);
+      const p = pollRef.current;
+      const fp = fpPollRef.current;
+      if (p) clearInterval(p);
+      if (fp) clearInterval(fp);
     };
   }, [initialTab, isOpen]);
 
@@ -123,7 +126,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ purpose: 'signup', email: suEmail }),
       });
       const data = await res.json();
-      if (!res.ok) { setSuError('Xatolik yuz berdi'); return; }
+      if (!res.ok) { setSuError(data.error ? `Telegram sessiyasi yaratishda xato: ${data.error}` : 'Telegram sessiyasi yaratishda xato'); return; }
       setTgSessionId(data.sessionId);
       setTgBotLink(data.botLink);
       setSignupStep('telegram');
@@ -166,6 +169,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       });
       const data = await res.json();
       if (!res.ok) { setTgError(data.error || "Noto'g'ri kod"); return; }
+
       const err = await signup({
         fullName: suName,
         dob: suDob,
@@ -196,7 +200,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ purpose: 'reset', email: fpEmail }),
       });
       const data = await res.json();
-      if (!res.ok) { setFpError('Xatolik yuz berdi'); return; }
+      if (!res.ok) { setFpError(data.error ? `Telegram sessiyasi yaratishda xato: ${data.error}` : 'Telegram sessiyasi yaratishda xato'); return; }
       setFpSessionId(data.sessionId);
       setFpBotLink(data.botLink);
       setFpStep('telegram');
@@ -280,9 +284,9 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   if (forgotMode) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={e => { if (e.target === e.currentTarget) setForgotMode(false); }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={e => { if (e.target === e.currentTarget) { setForgotMode(false); } }}>
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
-          <button onClick={() => setForgotMode(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <button onClick={() => setForgotMode(false)} className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Parolni tiklash</h2>
@@ -298,31 +302,37 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </form>
           )}
 
-          {(fpStep === 'telegram' || fpStep === 'otp') && (
+          {fpStep === 'telegram' && (
             <div className="space-y-4 text-center">
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto">
                 <svg className="w-7 h-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
               </div>
-              {!fpLinked && (
-                <>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Telegram botimizga o&apos;ting va kod oling</p>
-                  <a href={fpBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
-                    Telegram botini ochish
-                  </a>
-                  <p className="text-xs text-gray-400">⏳ Bot javobi kutilmoqda...</p>
-                </>
-              )}
-              {fpLinked && (
-                <div className="space-y-3 pt-2">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">✅ Ulandi! Kodni kiriting:</p>
-                  <input type="text" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" autoFocus />
-                  {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
-                  <button onClick={handleFpOtpVerify} disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                    {fpLoading ? 'Tekshirilmoqda...' : 'Kodni tasdiqlash'}
-                  </button>
-                </div>
-              )}
+              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Telegram botimizga o&apos;ting va kod oling</p>
+              <a href={fpBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
+                Telegram botini ochish
+              </a>
+              <div className="space-y-3 pt-2 w-full">
+                <p className="text-xs text-gray-400">
+                  {fpLinked ? '✅ Ulandi!' : '⏳ Botga o\'tib "Start" ni bosing, keyin kodni kiriting:'}
+                </p>
+                <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
+                {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
+                <button onClick={handleFpOtpVerify} disabled={fpLoading || fpOtp.length !== 6} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
+                  {fpLoading ? 'Tekshirilmoqda...' : 'Kodni tasdiqlash'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {fpStep === 'otp' && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Telegramdan kelgan 6 raqamli kodni kiriting</p>
+              <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
+              {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
+              <button onClick={handleFpOtpVerify} disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
+                {fpLoading ? 'Tekshirilmoqda...' : 'Tasdiqlash'}
+              </button>
             </div>
           )}
 
@@ -343,8 +353,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y">
+        <button onClick={onClose} className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
@@ -408,7 +418,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('phone')} *</label>
-              <input type="tel" required value={suPhone} onChange={e => setSuPhone(e.target.value)} className={inputCls} />
+              <PhoneInput required onChange={setSuPhone} />
             </div>
             {suError && <p className="text-red-500 text-sm">{suError}</p>}
             <button type="submit" disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
@@ -417,34 +427,41 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
           </form>
         )}
 
-        {tab === 'signup' && (signupStep === 'telegram' || signupStep === 'otp') && (
+        {tab === 'signup' && signupStep === 'telegram' && (
           <div className="space-y-5 text-center">
             <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto">
               <svg className="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
             </div>
-            {!tgLinked ? (
-              <>
-                <div>
-                  <p className="text-base font-semibold text-gray-800 dark:text-white mb-1">Telegram orqali tasdiqlang</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Quyidagi tugmani bosib botga o&apos;ting va &quot;Start&quot; ni bosing — kod avtomatik yuboriladi.</p>
-                </div>
-                <a href={tgBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
-                  @jamshidbilanbot ni ochish
-                </a>
-                <p className="text-xs text-gray-400">⏳ Telegram javobi kutilmoqda...</p>
-              </>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">✅ Ulandi! Kodni kiriting:</p>
-                <input type="text" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" autoFocus />
-                {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
-                <button onClick={handleOtpVerify} disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                  {tgLoading ? 'Tekshirilmoqda...' : "Ro'yxatdan o'tish"}
-                </button>
-              </div>
-            )}
-            <button type="button" onClick={() => { setSignupStep('form'); if (pollRef.current) clearInterval(pollRef.current); }} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline">← Orqaga</button>
+            <div>
+              <p className="text-base font-semibold text-gray-800 dark:text-white mb-1">Telegram orqali tasdiqlang</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Quyidagi tugmani bosib botga o&apos;ting va &quot;Start&quot; ni bosing — kod avtomatik yuboriladi.</p>
+            </div>
+            <a href={tgBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
+              @jamshidbilanbot ni ochish
+            </a>
+            <div className="space-y-3 pt-1 w-full">
+              <p className="text-xs text-gray-400">
+                {tgLinked ? '✅ Ulandi!' : '⏳ Botga o\'tib "Start" ni bosing, keyin kodni quyida kiriting:'}
+              </p>
+              <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
+              {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
+              <button onClick={handleOtpVerify} disabled={tgLoading || tgOtp.length !== 6} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
+                {tgLoading ? 'Tekshirilmoqda...' : "Ro'yxatdan o'tish"}
+              </button>
+            </div>
+            <button type="button" onClick={() => setSignupStep('form')} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline">← Orqaga</button>
+          </div>
+        )}
+
+        {tab === 'signup' && signupStep === 'otp' && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Telegramdan kelgan 6 raqamli kodni kiriting</p>
+            <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" autoFocus />
+            {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
+            <button onClick={handleOtpVerify} disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
+              {tgLoading ? 'Tekshirilmoqda...' : "Ro'yxatdan o'tish"}
+            </button>
           </div>
         )}
       </div>

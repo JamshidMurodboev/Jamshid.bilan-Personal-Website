@@ -122,7 +122,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
                       <Image src={u.photo_urls[0]} alt={u.name} fill className="object-cover" />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏣</div>
+                    <div className="w-full aspect-[4/3] bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-4xl">🏫</div>
                   )}
                   <div className="p-3">
                     <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{u.name}</p>

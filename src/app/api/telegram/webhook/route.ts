@@ -13,7 +13,7 @@ async function sendMessage(chatId: number, text: string) {
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
+    body: JSON.stringify({ chat_id: chatId, text }),
   });
 }
 
@@ -23,8 +23,10 @@ function generateOTP() {
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-telegram-bot-api-secret-token');
-  if (WEBHOOK_SECRET && secret !== WEBHOOK_SECRET) {
-    return NextResponse.json({ ok: false }, { status: 403 });
+  if (WEBHOOK_SECRET) {
+    if (secret !== WEBHOOK_SECRET) return NextResponse.json({ ok: false }, { status: 403 });
+  } else {
+    console.warn('[telegram/webhook] TELEGRAM_WEBHOOK_SECRET is not set — set it to secure the webhook');
   }
 
   const body = await req.json();
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
     const purposeText = session.purpose === 'reset' ? 'parolni tiklash' : "ro'yxatdan o'tish";
     await sendMessage(
       chatId,
-      `🔐 *Jamshid.bilan* — ${purposeText} kodi:\n\n*${otp}*\n\nKodni saytga kiriting. Muddat: 10 daqiqa.`
+      `🔐 Jamshid.bilan - ${purposeText} kodi:\n\n*${otp}*\n\nKodni saytga kiriting. Muddat: 10 daqiqa.`
     );
 
     return NextResponse.json({ ok: true });

@@ -262,8 +262,8 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                   {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : 'Mutaxassisliklar'}
                 </h2>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                  <table className="w-full text-sm">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
+                  <table className="w-full text-sm min-w-[400px]">
                     <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                       <tr>
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">

@@ -39,6 +39,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+async function compressPhoto(dataUrl: string, maxDim = 300): Promise<string> {
+  return new Promise(resolve => {
+    const img = document.createElement('img');
+    img.onload = () => {
+      const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function rowToAuthUser(row: Record<string, unknown>, id: string, email: string): AuthUser {
   return {
     id,
@@ -136,9 +152,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userId = authData.user?.id;
     if (!userId) return 'Xatolik yuz berdi';
 
-    // Store photo separately
+    let photoUrl: string | null = null;
     if (data.photoDataUrl) {
-      try { localStorage.setItem(`auth_photo_${userId}`, data.photoDataUrl); } catch {}
+      try {
+        photoUrl = await compressPhoto(data.photoDataUrl);
+        localStorage.setItem(`auth_photo_${userId}`, photoUrl);
+      } catch {
+        try { localStorage.setItem(`auth_photo_${userId}`, data.photoDataUrl); } catch {}
+      }
     }
 
     // Upsert profile into site_users
@@ -149,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       phone: data.phone,
       gender: data.gender,
       dob: data.dob,
+      photo_url: photoUrl,
       created_at: new Date().toISOString(),
       last_active_at: new Date().toISOString(),
       login_count: 1,

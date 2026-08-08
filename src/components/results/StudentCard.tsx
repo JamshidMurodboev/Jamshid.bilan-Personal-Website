@@ -20,18 +20,18 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
 
       {/* Photo */}
       {photos.length > 0 ? (
-        <div className="relative w-full aspect-[4/3] flex-shrink-0">
-          <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
+        <div className="relative w-full aspect-square flex-shrink-0">
+          <Image src={photos[0]} alt={r.student_name} fill className="object-cover object-top" />
         </div>
       ) : (
-        <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-full aspect-square bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center flex-shrink-0">
           <div className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-2xl">
             {r.student_name[0]}
           </div>
         </div>
       )}
 
-      <div className="p-4 flex flex-col gap-1 flex-1">
+      <div className="p-3 flex flex-col gap-1 flex-1">
         {(() => {
           const scholarshipTitle = (r as any).scholarships?.title || '';
           const isScholarship = (r as any).category === 'scholarship_winner';

@@ -271,7 +271,7 @@ function HeaderInner() {
             {user ? <AvatarMenu /> : (
               <button
                 onClick={() => setAuthModal({ open: true, tab: 'signin' })}
-                className="text-sm font-medium text-teal-700 dark:text-teal-400 px-2 py-1.5"
+                className="text-sm font-medium text-teal-700 dark:text-teal-400 px-3 py-2.5 min-h-[44px] flex items-center"
               >{tAuth('signIn')}</button>
             )}
             <button

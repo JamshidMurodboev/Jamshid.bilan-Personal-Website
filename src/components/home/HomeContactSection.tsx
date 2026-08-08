@@ -61,7 +61,7 @@ export default function HomeContactSection() {
           </div>
 
           {/* Right — form */}
-          <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-3xl p-8">
+          <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-3xl p-4 sm:p-8">
             <ContactForm />
           </div>
         </div>
