@@ -40,12 +40,7 @@ const TYPE_COLORS = {
   public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
   private: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
 };
-const DEGREE_LABELS: Record<string, string> = {
-  bachelor: 'Bakalavriat',
-  master_thesis: 'Magistratura (dissertatsiya bilan)',
-  master_no_thesis: 'Magistratura (dissertatsiyasiz)',
-  phd: 'PhD / Doktorantura',
-};
+// DEGREE_LABELS replaced with t('universities.degreeMap.*') below
 
 export default async function UniversityDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
@@ -70,6 +65,16 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
     getTranslations({ locale, namespace: 'universities' }),
     supabase.from('service_universities').select('service_id').eq('university_id', u.id),
   ]);
+  const DEGREE_LABELS: Record<string, string> = {
+    bachelor: t('degreeMap.bachelor'),
+    master_thesis: t('degreeMap.master_thesis'),
+    master_coursework: t('degreeMap.master_coursework'),
+    master_no_thesis: t('degreeMap.master_thesis'),
+    phd: t('degreeMap.phd'),
+    associate: t('degreeMap.associate'),
+    certificate: t('degreeMap.certificate'),
+    diploma: t('degreeMap.diploma'),
+  };
   const serviceIds = (serviceLinks ?? []).map((r: { service_id: string }) => r.service_id);
   const { data: linkedServices } = serviceIds.length > 0
     ? await supabase.from('services').select('id,name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url,price,currency,currency_custom,slug').in('id', serviceIds).eq('status', 'active')
@@ -85,8 +90,8 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   const mediaLinks = u.media_links ?? [];
 
   const TYPE_LABELS = {
-    public: locale === 'ru' ? 'Государственный' : locale === 'en' ? 'Public' : 'Davlat',
-    private: locale === 'ru' ? 'Частный' : locale === 'en' ? 'Private' : 'Xususiy',
+    public: t('publicType'),
+    private: t('privateType'),
   };
 
   return (
@@ -189,7 +194,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {linkedNews.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  {locale === 'ru' ? 'Последние новости' : locale === 'en' ? 'Latest News' : "So'nggi yangiliklar"}
+                  {t('latestNews')}
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {linkedNews.map(post => {
@@ -224,7 +229,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                   {(linkedServices ?? []).map((svc: any) => {
                     const svcName = svc[`name_${locale}`] || svc.name_uz;
                     const svcDesc = svc[`description_${locale}`] || svc.description_uz || '';
-                    const svcPrice = svc.currency === 'FREE' ? 'Bepul' : svc.price ? `${svc.price.toLocaleString()} ${svc.currency === 'OTHER' ? svc.currency_custom : svc.currency}` : '';
+                    const svcPrice = svc.currency === 'FREE' ? t('free') : svc.price ? `${svc.price.toLocaleString()} ${svc.currency === 'OTHER' ? svc.currency_custom : svc.currency}` : '';
                     return (
                       <Link key={svc.id} href={`/${locale}/services/${svc.slug ?? svc.id}`}
                         className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500 transition shadow-sm group">
@@ -260,23 +265,23 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             {majors.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : 'Mutaxassisliklar'}
+                  {t('tableHeaders.program')}
                 </h2>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
                   <table className="w-full text-sm min-w-[400px]">
                     <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                       <tr>
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
-                          {locale === 'ru' ? 'Специальность' : locale === 'en' ? 'Program' : 'Mutaxassislik'}
+                          {t('tableHeaders.program')}
                         </th>
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
-                          {locale === 'ru' ? 'Степень' : locale === 'en' ? 'Degree' : 'Daraja'}
+                          {t('tableHeaders.degree')}
                         </th>
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
-                          {locale === 'ru' ? 'Язык' : locale === 'en' ? 'Language' : 'Til'}
+                          {t('tableHeaders.language')}
                         </th>
                         <th className="text-right px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
-                          {locale === 'ru' ? 'Стоимость' : locale === 'en' ? 'Tuition' : 'Narx'}
+                          {t('tableHeaders.tuition')}
                         </th>
                       </tr>
                     </thead>
@@ -293,7 +298,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                               <div>{m.tuition ? `${m.tuition.toLocaleString()} ${m.currency}` : '—'}</div>
                               {(m as any).tuition_estimated && (
                                 <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
-                                  {locale === 'ru' ? 'Прошлогодняя цена' : locale === 'en' ? "Previous year's fee" : "O'tgan yilgi narx"}
+                                  {t('tableHeaders.prevTuition')}
                                 </div>
                               )}
                             </div>
@@ -308,8 +313,8 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
 
             <ServiceContactButtons
               serviceContext={u.name}
-              applyLabel={locale === 'ru' ? 'Подать документы' : locale === 'en' ? 'Apply Now' : 'Hoziroq hujjat topshirish'}
-              askLabel={locale === 'ru' ? 'Задать вопрос' : locale === 'en' ? 'Ask a Question' : 'Savol berish'}
+              applyLabel={t('applyLabel')}
+              askLabel={t('askLabel')}
             />
           </div>
 
@@ -318,7 +323,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 space-y-4">
               <div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                  {locale === 'ru' ? 'Тип' : locale === 'en' ? 'Type' : 'Turi'}
+                  {t('sidebar.type')}
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>
                   {TYPE_LABELS[u.type]}
@@ -327,7 +332,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               {u.ranking && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                    {locale === 'ru' ? 'Мировой рейтинг' : locale === 'en' ? 'World Ranking' : 'Dunyo reytingi'}
+                    {t('sidebar.ranking')}
                   </div>
                   <div className="text-2xl font-extrabold text-gray-900 dark:text-white">#{u.ranking}</div>
                 </div>
@@ -335,7 +340,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               {u.city && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                    {locale === 'ru' ? 'Местоположение' : locale === 'en' ? 'Location' : 'Joylashuv'}
+                    {t('sidebar.location')}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">{u.city}, {translateCountry(u.country, locale)}</div>
                 </div>
@@ -343,7 +348,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               {majors.length > 0 && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                    {locale === 'ru' ? 'Специальности' : locale === 'en' ? 'Programs' : "Yo'nalishlar"}
+                    {t('sidebar.programs')}
                   </div>
                   <div className="text-2xl font-extrabold text-gray-900 dark:text-white">{majors.length}</div>
                 </div>
@@ -351,7 +356,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               {(u as any).admission_start_type && (u as any).admission_start && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                    {locale === 'ru' ? 'Период приёма' : locale === 'en' ? 'Admission Period' : 'Qabul davri'}
+                    {t('sidebar.admissionPeriod')}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {formatAdmissionDate((u as any).admission_start, (u as any).admission_start_type, locale)}
@@ -364,7 +369,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               {(u as any).results_date_type && (u as any).results_date && (
                 <div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                    {locale === 'ru' ? 'Дата результатов' : locale === 'en' ? 'Results Date' : 'Natijalar sanasi'}
+                    {t('sidebar.resultsDate')}
                   </div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {formatAdmissionDate((u as any).results_date, (u as any).results_date_type, locale)}

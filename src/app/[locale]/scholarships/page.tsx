@@ -10,6 +10,7 @@ import type { Scholarship } from '@/lib/supabase/types';
 export default function ScholarshipsPage() {
   const locale = useLocale();
   const t = useTranslations('scholarships');
+  const tc = useTranslations('common');
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [status, setStatus] = useState('');
@@ -55,9 +56,9 @@ export default function ScholarshipsPage() {
           </aside>
           <div className="flex-1">
             {loading ? (
-              <div className="text-teal-700 dark:text-teal-400 animate-pulse">Yuklanmoqda...</div>
+              <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
             ) : filtered.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">Hech narsa topilmadi.</p>
+              <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
             ) : (
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}

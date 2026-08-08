@@ -72,9 +72,9 @@ export default function AskQuestionButton({ children, className, scholarshipCont
     const scoreStr = cert === 'None' || !score.trim() ? '—' : score;
 
     const lines = [
-      'Assalomu Alaykum.',
+      t('greetingLine'),
       '',
-      "Savol bilan murojaat qilyapman.",
+      t('writingAbout'),
       '',
       `Ism: ${name}`,
       `Tug'ilgan sana: ${dob}`,
@@ -135,7 +135,7 @@ export default function AskQuestionButton({ children, className, scholarshipCont
               <div>
                 <label className={labelCls}>{t('cert')} *</label>
                 <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); setErrors(er => ({ ...er, cert: '' })); }} className={inputCls('cert')}>
-                  <option value="">Tanlang...</option>
+                  <option value="">{t('selectPlaceholder')}</option>
                   {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
                 </select>
                 {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}

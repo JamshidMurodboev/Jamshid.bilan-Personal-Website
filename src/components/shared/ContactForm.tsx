@@ -94,7 +94,7 @@ export default function ContactForm() {
       <div>
         <label className={labelCls}>{t('cert')} *</label>
         <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); }} className={inputCls('cert')}>
-          <option value="">Tanlang...</option>
+          <option value="">{t('selectPlaceholder')}</option>
           {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
         </select>
         {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}
@@ -109,7 +109,7 @@ export default function ContactForm() {
       <div>
         <label className={labelCls}>{t('grantOrUniversity')} *</label>
         <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
-          <option value="">Tanlang...</option>
+          <option value="">{t('selectPlaceholder')}</option>
           <option value="all">Barchasi</option>
           {scholarships.length > 0 && (
             <optgroup label={t('grantGroup')}>
@@ -126,7 +126,7 @@ export default function ContactForm() {
             </optgroup>
           )}
           {services.length > 0 && (
-            <optgroup label="Xizmatlar">
+            <optgroup label={t('servicesGroup')}>
               {services.map(s => {
                 const svcName = (s as any)[`name_${locale}`] || s.name_uz;
                 return (

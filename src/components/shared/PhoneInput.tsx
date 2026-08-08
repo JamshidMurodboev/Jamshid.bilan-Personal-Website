@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Country {
   code: string;
@@ -127,6 +128,7 @@ interface Props {
 }
 
 export default function PhoneInput({ onChange, className, required }: Props) {
+  const t = useTranslations('common');
   const [country, setCountry] = useState<Country>(COUNTRIES[0]);
   const [local, setLocal] = useState('');
   const [open, setOpen] = useState(false);
@@ -188,7 +190,7 @@ export default function PhoneInput({ onChange, className, required }: Props) {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Qidirish..."
+                placeholder={t('search')}
                 className="w-full px-2.5 py-1.5 text-sm bg-gray-50 dark:bg-gray-700 rounded-lg outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400"
               />
             </div>

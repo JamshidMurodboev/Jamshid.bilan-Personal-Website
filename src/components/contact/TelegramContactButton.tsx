@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import DateInput from '@/components/shared/DateInput';
 import { createClient } from '@/lib/supabase/client';
 
@@ -15,9 +16,10 @@ const TELEGRAM_URL = 'https://t.me/jamshid_bilan';
 const WHATSAPP_NUMBER = '905052250893';
 
 export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext, universityContext }: Props) {
+  const t = useTranslations('contact.form');
   const [open, setOpen] = useState(false);
   const [noCert, setNoCert] = useState(false);
-  const context = scholarshipContext ? `Grant: ${scholarshipContext}` : universityContext ? `Universitet: ${universityContext}` : '';
+  const context = scholarshipContext ? `${t('grantPrefix')} ${scholarshipContext}` : universityContext ? `${t('universityPrefix')} ${universityContext}` : '';
   const [form, setForm] = useState({ name: '', applying: context, dob: '', certName: '', certScore: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
@@ -55,7 +57,7 @@ export default function TelegramContactButton({ children, className, platform = 
   function handleClose() {
     setOpen(false);
     setNoCert(false);
-    const ctx = scholarshipContext ? `Grant: ${scholarshipContext}` : universityContext ? `Universitet: ${universityContext}` : '';
+    const ctx = scholarshipContext ? `${t('grantPrefix')} ${scholarshipContext}` : universityContext ? `${t('universityPrefix')} ${universityContext}` : '';
     setForm({ name: '', applying: ctx, dob: '', certName: '', certScore: '' });
     setErrors({});
   }
@@ -64,19 +66,19 @@ export default function TelegramContactButton({ children, className, platform = 
     e.preventDefault();
     if (!validate()) return;
 
-    const certInfo = noCert ? "Yo'q" : `${form.certName} — ${form.certScore}`;
+    const certInfo = noCert ? t('none') : `${form.certName} — ${form.certScore}`;
     const [year, month, day] = form.dob.split('-');
     const formattedDob = `${day}.${month}.${year}`;
 
     const message = [
-      "Assalomu Alaykum.",
+      t('greetingLine'),
       '',
-      "Hujjat topshirish bo'yicha yozayapman.",
+      t('writingAbout'),
       '',
       `Ism: ${form.name}`,
-      `Ariza: ${form.applying}`,
-      `Tug'ilgan sana: ${formattedDob}`,
-      `Til sertifikati: ${certInfo}`,
+      `${t('applicationFor')}: ${form.applying}`,
+      `${t('dobLabel')} ${formattedDob}`,
+      `${t('certLabel')} ${certInfo}`,
     ].join('\n');
 
     if (platform === 'whatsapp') {
@@ -94,7 +96,7 @@ export default function TelegramContactButton({ children, className, platform = 
         status: 'new',
         locale: 'uz',
         dob: form.dob,
-        language_certificate: noCert ? "Yo'q" : `${form.certName} — ${form.certScore}`,
+        language_certificate: noCert ? t('none') : `${form.certName} — ${form.certScore}`,
         grant_interest: form.applying,
         created_at: new Date().toISOString(),
       });
@@ -105,7 +107,7 @@ export default function TelegramContactButton({ children, className, platform = 
 
   const isWhatsApp = platform === 'whatsapp';
   const platformColor = isWhatsApp ? 'bg-[#25d366] hover:bg-[#20b956]' : 'bg-[#0088cc] hover:bg-[#0077b5]';
-  const platformTitle = isWhatsApp ? "WhatsApp orqali bog'lanish" : "Telegram orqali bog'lanish";
+  const platformTitle = t('platformTitle').replace('{platform}', isWhatsApp ? 'WhatsApp' : 'Telegram');
   const platformIcon = isWhatsApp ? (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   ) : (
@@ -118,8 +120,8 @@ export default function TelegramContactButton({ children, className, platform = 
   return (
     <>
       <button type="button" onClick={() => {
-        if (scholarshipContext) setForm(f => ({ ...f, applying: `Grant: ${scholarshipContext}` }));
-      else if (universityContext) setForm(f => ({ ...f, applying: `Universitet: ${universityContext}` }));
+        if (scholarshipContext) setForm(f => ({ ...f, applying: `${t('grantPrefix')} ${scholarshipContext}` }));
+      else if (universityContext) setForm(f => ({ ...f, applying: `${t('universityPrefix')} ${universityContext}` }));
         setOpen(true);
       }} className={className}>
         {children}
@@ -142,19 +144,19 @@ export default function TelegramContactButton({ children, className, platform = 
 
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Quyidagi ma&apos;lumotlarni to&apos;ldiring — ular {isWhatsApp ? 'WhatsApp' : 'Telegram'} chatiga avtomatik yuboriladi.
+                  {t('fillDetails').replace('{platform}', isWhatsApp ? 'WhatsApp' : 'Telegram')}
                 </p>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To&apos;liq ism <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('name')} <span className="text-red-500">*</span></label>
                   <input value={form.name} onChange={e => set('name', e.target.value)} className={inputClass} placeholder="Ism va familiyangiz" />
                   {errors.name && <p className={errorClass}>{errors.name}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Qaysi dastur uchun ariza <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('applicationFor')}</label>
                   <select value={form.applying} onChange={e => set('applying', e.target.value)} className={inputClass}>
-                    <option value="">Tanlang...</option>
+                    <option value="">{t('selectPlaceholder')}</option>
                     {scholarships.length > 0 && (
                       <optgroup label="Grantlar">
                         {scholarships.map(s => (
@@ -174,16 +176,16 @@ export default function TelegramContactButton({ children, className, platform = 
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tug&apos;ilgan sana <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('dob')} <span className="text-red-500">*</span></label>
                   <DateInput value={form.dob} onChange={v => set('dob', v)} max={new Date().toISOString().split('T')[0]} className={inputClass} />
                   {errors.dob && <p className={errorClass}>{errors.dob}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Til sertifikati <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('cert')} <span className="text-red-500">*</span></label>
                   <label className="flex items-center gap-2 mb-3 cursor-pointer select-none">
                     <input type="checkbox" checked={noCert} onChange={e => { setNoCert(e.target.checked); if (e.target.checked) setErrors(err => ({ ...err, certName: '', certScore: '' })); }} className="w-4 h-4 rounded accent-teal-600" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Til sertifikatim yo&apos;q</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('noCert')}</span>
                   </label>
                   {!noCert && (
                     <div className="flex gap-3">
@@ -201,7 +203,7 @@ export default function TelegramContactButton({ children, className, platform = 
 
                 <button type="submit" className={`w-full ${platformColor} text-white py-3 rounded-xl font-semibold transition shadow flex items-center justify-center gap-2`}>
                   {platformIcon}
-                  {isWhatsApp ? 'WhatsApp orqali yuborish' : 'Telegram orqali yuborish'}
+                  {t('sendVia').replace('{platform}', isWhatsApp ? 'WhatsApp' : 'Telegram')}
                 </button>
               </form>
           </div>

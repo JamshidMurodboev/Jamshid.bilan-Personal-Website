@@ -20,6 +20,7 @@ export default function ServicesPage() {
   const locale = useLocale();
   const t = useTranslations('services');
   const tAuth = useTranslations('auth');
+  const tc = useTranslations('common');
   const { user } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +56,9 @@ export default function ServicesPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         {loading ? (
-          <div className="text-teal-700 dark:text-teal-400 animate-pulse">Yuklanmoqda...</div>
+          <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
         ) : services.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">Hech narsa topilmadi.</p>
+          <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {services.map(s => {

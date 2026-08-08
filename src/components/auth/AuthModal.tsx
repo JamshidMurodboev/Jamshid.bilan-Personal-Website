@@ -234,7 +234,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   async function handleFpNewPw(e: React.FormEvent) {
     e.preventDefault();
-    if (fpNewPw.length < 6) { setFpError("Parol kamida 6 ta belgi bo'lishi kerak"); return; }
+    if (fpNewPw.length < 6) { setFpError(t('passwordMinLength')); return; }
     setFpLoading(true);
     setFpError('');
     try {
@@ -268,10 +268,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            {locale === 'ru' ? 'Вы успешно зарегистрировались!' : locale === 'en' ? 'You have been registered!' : "Siz muvaffaqiyatli ro'yxatdan o'tdingiz!"}
+            {t('saved')} ✓
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {locale === 'ru' ? 'Переходим на главную страницу...' : locale === 'en' ? 'Taking you to the home page...' : "Bosh sahifaga o'tmoqdamiz..."}
+            {t('loading')}
           </p>
           <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1 overflow-hidden">
             <div className="bg-teal-600 h-1 rounded-full" style={{ width: '100%', transformOrigin: 'left', animation: 'shrink 2.5s linear forwards' }} />
@@ -289,7 +289,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
           <button onClick={() => setForgotMode(false)} className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Parolni tiklash</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">{t('resetPassword')}</h2>
 
           {fpStep === 'email' && (
             <form onSubmit={handleFpEmail} className="space-y-4">
@@ -297,7 +297,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               <input type="email" required value={fpEmail} onChange={e => setFpEmail(e.target.value)} className={inputCls} placeholder="email@example.com" />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button type="submit" disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                {fpLoading ? 'Yuklanmoqda...' : 'Davom etish'}
+                {fpLoading ? t('loading') : t('continueBtn')}
               </button>
             </form>
           )}
@@ -314,12 +314,12 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               </a>
               <div className="space-y-3 pt-2 w-full">
                 <p className="text-xs text-gray-400">
-                  {fpLinked ? '✅ Ulandi!' : '⏳ Botga o\'tib "Start" ni bosing, keyin kodni kiriting:'}
+                  {fpLinked ? t('linked') : t('enterCodeBelow')}
                 </p>
                 <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
                 {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
                 <button onClick={handleFpOtpVerify} disabled={fpLoading || fpOtp.length !== 6} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                  {fpLoading ? 'Tekshirilmoqda...' : 'Kodni tasdiqlash'}
+                  {fpLoading ? t('checking') : t('verifyCode')}
                 </button>
               </div>
             </div>
@@ -331,18 +331,18 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button onClick={handleFpOtpVerify} disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                {fpLoading ? 'Tekshirilmoqda...' : 'Tasdiqlash'}
+                {fpLoading ? t('checking') : t('confirm')}
               </button>
             </div>
           )}
 
           {fpStep === 'newpw' && (
             <form onSubmit={handleFpNewPw} className="space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">✅ Tasdiqlandi! Yangi parol o&apos;rnating.</p>
-              <input type="password" required minLength={6} value={fpNewPw} onChange={e => setFpNewPw(e.target.value)} className={inputCls} placeholder="Yangi parol (min. 6 belgi)" />
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">{t('confirmed')}</p>
+              <input type="password" required minLength={6} value={fpNewPw} onChange={e => setFpNewPw(e.target.value)} className={inputCls} placeholder={t('newPasswordPlaceholder')} />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button type="submit" disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                {fpLoading ? 'Saqlanmoqda...' : 'Parolni saqlash'}
+                {fpLoading ? t('saving') : t('savePassword')}
               </button>
             </form>
           )}
@@ -422,7 +422,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             {suError && <p className="text-red-500 text-sm">{suError}</p>}
             <button type="submit" disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-              {tgLoading ? 'Yuklanmoqda...' : t('signUpBtn')}
+              {tgLoading ? t('loading') : t('signUpBtn')}
             </button>
           </form>
         )}
@@ -433,8 +433,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               <svg className="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
             </div>
             <div>
-              <p className="text-base font-semibold text-gray-800 dark:text-white mb-1">Telegram orqali tasdiqlang</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Quyidagi tugmani bosib botga o&apos;ting va &quot;Start&quot; ni bosing — kod avtomatik yuboriladi.</p>
+              <p className="text-base font-semibold text-gray-800 dark:text-white mb-1">{t('telegramVerify')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('telegramInstructions')}</p>
             </div>
             <a href={tgBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
@@ -442,12 +442,12 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </a>
             <div className="space-y-3 pt-1 w-full">
               <p className="text-xs text-gray-400">
-                {tgLinked ? '✅ Ulandi!' : '⏳ Botga o\'tib "Start" ni bosing, keyin kodni quyida kiriting:'}
+                {tgLinked ? t('linked') : t('enterCodeBelow')}
               </p>
               <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
               {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
               <button onClick={handleOtpVerify} disabled={tgLoading || tgOtp.length !== 6} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-                {tgLoading ? 'Tekshirilmoqda...' : "Ro'yxatdan o'tish"}
+                {tgLoading ? t('checking') : t('registerBtn')}
               </button>
             </div>
             <button type="button" onClick={() => setSignupStep('form')} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline">← Orqaga</button>
@@ -460,7 +460,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" autoFocus />
             {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
             <button onClick={handleOtpVerify} disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
-              {tgLoading ? 'Tekshirilmoqda...' : "Ro'yxatdan o'tish"}
+              {tgLoading ? t('checking') : t('registerBtn')}
             </button>
           </div>
         )}

@@ -1,13 +1,13 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { StudentResult } from '@/lib/supabase/types';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { translateLanguage } from '@/lib/translateLanguage';
 
-const DEGREE_LABELS: Record<string, string> = { bachelor: 'Bakalavr', master: 'Magistr', phd: 'PhD' };
-
 export default function StudentCard({ result: r, locale }: { result: StudentResult; locale?: string }) {
+  const t = useTranslations('results');
   const photos: string[] = (r as any).photo_urls?.length
     ? (r as any).photo_urls
     : r.photo_url ? [r.photo_url] : [];
@@ -54,7 +54,7 @@ export default function StudentCard({ result: r, locale }: { result: StudentResu
                   )}
                   {r.degree_level && (
                     <span className="text-xs text-gray-400 dark:text-gray-500">
-                      {DEGREE_LABELS[r.degree_level] ?? r.degree_level}
+                      {(['bachelor','master','phd'].includes(r.degree_level) ? t(`degrees.${r.degree_level}`) : null) ?? r.degree_level}
                     </span>
                   )}
                 </div>

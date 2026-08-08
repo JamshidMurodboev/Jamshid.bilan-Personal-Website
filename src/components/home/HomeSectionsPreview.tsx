@@ -35,10 +35,12 @@ function SectionHeader({ title, href, label }: { title: string; href: string; la
 
 export default async function HomeSectionsPreview({ locale }: { locale: string }) {
   const supabase = createClient();
-  const [t, tS, tC] = await Promise.all([
+  const [t, tS, tC, tF, tR] = await Promise.all([
     getTranslations({ locale, namespace: 'homeSections' }),
     getTranslations({ locale, namespace: 'scholarships' }),
     getTranslations({ locale, namespace: 'common' }),
+    getTranslations({ locale, namespace: 'filters' }),
+    getTranslations({ locale, namespace: 'results' }),
   ]);
 
   const [scholarshipsRes, universitiesRes, resultsRes, newsRes, servicesRes] = await Promise.allSettled([
@@ -56,7 +58,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
   const services: Service[] = servicesRes.status === 'fulfilled' && servicesRes.value.data?.length ? servicesRes.value.data as Service[] : [];
 
   const statusLabel = (s: string) => ({ open: tC('open'), closed: tC('closed'), upcoming: tC('upcoming') })[s as 'open' | 'closed' | 'upcoming'] ?? s;
-  const uniTypeLabel = (type: string) => ({ public: 'Davlat', private: 'Xususiy' })[type] ?? type;
+  const uniTypeLabel = (type: string) => ({ public: tF('publicType'), private: tF('privateType') })[type as 'public' | 'private'] ?? type;
 
   return (
     <div className="bg-white dark:bg-[#0d1117]">
@@ -177,7 +179,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                       {(() => {
                         const scholarshipTitle = (r as any).scholarships?.title || '';
                         const isScholarship = (r as any).category === 'scholarship_winner';
-                        const degLabel: Record<string, string> = { bachelor: 'Bakalavr', master: 'Magistr', phd: 'PhD' };
+                        const degLabel: Record<string, string> = { bachelor: tR('degrees.bachelor'), master: tR('degrees.master'), phd: tR('degrees.phd') };
                         return (
                           <>
                             <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug">
@@ -256,7 +258,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                 const svcName = (svc as any)[`name_${locale}`] || svc.name_uz;
                 const href = `/${locale}/services/${svc.slug ?? svc.id}`;
                 let priceLabel = '';
-                if (svc.currency === 'FREE') priceLabel = locale === 'ru' ? 'Бесплатно' : locale === 'en' ? 'Free' : 'Bepul';
+                if (svc.currency === 'FREE') priceLabel = tC('free');
                 else if (svc.price) {
                   const cur = svc.currency === 'OTHER' ? (svc.currency_custom || '') : (svc.currency || '');
                   priceLabel = `${svc.price.toLocaleString()} ${cur}`;

@@ -91,7 +91,26 @@
     "logout": "Log out",
     "saved": "Saved",
     "save": "Save",
-    "savedItems": "Saved"
+    "savedItems": "Saved",
+    "telegramVerify": "Verify via Telegram",
+    "telegramInstructions": "Press the button below, go to the bot and press Start — the code will be sent automatically.",
+    "openBot": "Open @{botName}",
+    "enterCodeBelow": "Go to the bot, press \"Start\", then enter the code below:",
+    "linked": "✅ Linked!",
+    "verifyCode": "Verify code",
+    "confirm": "Confirm",
+    "confirmed": "✅ Confirmed! Set a new password.",
+    "newPasswordPlaceholder": "New password (min. 6 characters)",
+    "saving": "Saving...",
+    "savePassword": "Save password",
+    "resetPassword": "Reset password",
+    "continueBtn": "Continue",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "checking": "Checking...",
+    "registerBtn": "Create account",
+    "emailConfirmNeeded": "Email not confirmed — try resetting your password",
+    "loading": "Loading..."
   },
   "common": {
     "loading": "Loading...",
@@ -114,7 +133,13 @@
     "confirmSave": "Confirm & save",
     "cancel": "Cancel",
     "savedToFavourites": "Saved to your favourites",
-    "removedFromFavourites": "Removed from favourites"
+    "removedFromFavourites": "Removed from favourites",
+    "select": "Select...",
+    "free": "Free",
+    "student": "Student",
+    "country": "Country",
+    "year": "Year",
+    "noResults": "Nothing found"
   },
   "languages": {
     "turkish": "Turkish",
@@ -208,7 +233,24 @@
       "askQuestion": "Ask a question",
       "questionLabel": "Your question",
       "questionPlaceholder": "Write your question...",
-      "sendBtn": "Send"
+      "sendBtn": "Send",
+      "selectPlaceholder": "Select...",
+      "servicesGroup": "Services",
+      "platformTitle": "Contact via {platform}",
+      "fillDetails": "Fill in the details below — they will be sent automatically to {platform} chat.",
+      "applicationFor": "Which program are you applying for *",
+      "noCert": "I don't have a language certificate",
+      "scoreLabel": "Score",
+      "sendVia": "Send via {platform}",
+      "greetingLine": "Hello.",
+      "writingAbout": "I am writing about the application.",
+      "dobLabel": "Date of birth:",
+      "certLabel": "Language certificate:",
+      "scoreShortLabel": "Score:",
+      "grantPrefix": "Grant:",
+      "universityPrefix": "University:",
+      "none": "None",
+      "searchCountry": "Search..."
     },
     "include1": "Scholarship strategy",
     "include2": "CV & motivation letter review",
@@ -279,7 +321,42 @@
     "pageTitle": "Universities",
     "pageSubtitle": "Catalog of international universities on tuition basis",
     "applyNow": "Apply Now",
-    "askQuestion": "Ask a question"
+    "askQuestion": "Ask a question",
+    "publicType": "Public",
+    "privateType": "Private",
+    "tuitionLabel": "Tuition:",
+    "detailsBtn": "Details",
+    "officialSite": "Official site",
+    "latestNews": "Latest News",
+    "free": "Free",
+    "degreeMap": {
+      "bachelor": "Bachelor's",
+      "master_thesis": "Master's (with thesis)",
+      "master_coursework": "Master's (coursework)",
+      "phd": "PhD",
+      "associate": "Associate's",
+      "certificate": "Certificate",
+      "diploma": "Diploma"
+    },
+    "tableHeaders": {
+      "program": "Program",
+      "language": "Language",
+      "tuition": "Tuition/year",
+      "prevTuition": "Previous year's fee",
+      "duration": "Duration",
+      "degree": "Degree",
+      "currency": "Currency"
+    },
+    "sidebar": {
+      "type": "Type",
+      "ranking": "Ranking",
+      "location": "Location",
+      "programs": "Programs",
+      "admissionPeriod": "Admission Period",
+      "resultsDate": "Results Date"
+    },
+    "applyLabel": "Apply",
+    "askLabel": "Ask a question"
   },
   "filters": {
     "title": "Filter",
@@ -306,7 +383,10 @@
     "confirmPassword": "Confirm new password",
     "savePassword": "Save password",
     "passwordSaved": "Password saved",
-    "scorePlaceholder": "Score"
+    "scorePlaceholder": "Score",
+    "selectCert": "— Select —",
+    "passwordMinLength": "New password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match"
   },
   "results": {
     "degrees": {
@@ -320,7 +400,13 @@
       "all": "All"
     },
     "mediaLinks": "Media",
-    "photos": "Photos"
+    "photos": "Photos",
+    "successStories": "Success Stories",
+    "stats": {
+      "student": "Student",
+      "country": "Country",
+      "year": "Year"
+    }
   },
   "services": {
     "pageTitle": "Services",

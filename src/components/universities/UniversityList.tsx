@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import UniversityCard from '@/components/universities/UniversityCard';
 import UniversityFilters from '@/components/universities/UniversityFilters';
 import type { University } from '@/lib/supabase/types';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function UniversityList({ universities, locale }: Props) {
+  const t = useTranslations('common');
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [type, setType] = useState('');
@@ -43,7 +45,7 @@ export default function UniversityList({ universities, locale }: Props) {
       </aside>
       <div className="flex-1">
         {filtered.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 py-12 text-center">Hech narsa topilmadi</p>
+          <p className="text-gray-500 dark:text-gray-400 py-12 text-center">{t('noResults')}</p>
         ) : (
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map(u => <UniversityCard key={u.id} university={u} locale={locale} />)}
