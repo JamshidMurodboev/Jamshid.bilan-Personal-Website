@@ -27,5 +27,7 @@ export async function POST(req: NextRequest) {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
   });
 
+  response.cookies.set('admin_logged_in', '', { maxAge: 0, path: '/' });
+
   return response;
 }

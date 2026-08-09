@@ -36,5 +36,13 @@ export async function POST(req: NextRequest) {
     response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
   });
 
+  // Simple session cookie checked by /api/admin/session
+  response.cookies.set('admin_logged_in', data.user?.email ?? '1', {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  });
+
   return response;
 }
