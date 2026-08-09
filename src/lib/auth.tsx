@@ -169,9 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     const json = await res.json();
     if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
-    // Server already authenticated and set the auth cookies on this response.
-    // Set React state directly from the returned profile — no Supabase SDK calls here,
-    // since those can make a network round-trip and hang.
+    // Store session in browser client so getSession() works on refresh
+    if (json.accessToken && json.refreshToken) {
+      const supabase = createClient();
+      await supabase.auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken });
+    }
     const authUser = serverUserToAuthUser(json.user);
     if (authUser.photoDataUrl) {
       try { localStorage.setItem(`auth_photo_${authUser.id}`, authUser.photoDataUrl); } catch {}

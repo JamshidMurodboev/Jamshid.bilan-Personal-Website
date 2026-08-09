@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
 
   const response = NextResponse.json({
     success: true,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
     user: {
       id: data.user.id,
       email: data.user.email,
