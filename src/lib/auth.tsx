@@ -230,22 +230,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function updateProfile(data: Partial<Omit<AuthUser, 'id' | 'email'>>): Promise<void> {
     if (!user) return;
-    const supabase = createClient();
 
-    const updates: Record<string, unknown> = {};
-    if (data.fullName !== undefined) updates.full_name = data.fullName;
-    if (data.dob !== undefined) updates.dob = data.dob;
-    if (data.gender !== undefined) updates.gender = data.gender;
-    if (data.phone !== undefined) updates.phone = data.phone;
-    if (data.languageCertificate !== undefined) {
-      updates.language_certificate = data.languageCertificate
-        ? `${data.languageCertificate.type}:${data.languageCertificate.score}`
-        : null;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await supabase.from('site_users').update(updates).eq('id', user.id);
-    }
+    // Use server-side admin API to bypass RLS on site_users
+    await fetch('/api/auth/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        fullName: data.fullName,
+        dob: data.dob,
+        gender: data.gender,
+        phone: data.phone,
+        languageCertificate: data.languageCertificate,
+      }),
+    });
 
     const updated = { ...user, ...data };
     if (data.photoDataUrl !== undefined) {
