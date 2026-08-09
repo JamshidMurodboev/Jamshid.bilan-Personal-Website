@@ -132,27 +132,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(phone: string, password: string): Promise<string | null> {
+    // Use server-side login to avoid client-side signInWithPassword hang/failure
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password }),
+    });
+    const json = await res.json();
+    if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
+
     const supabase = createClient();
-    // Build synthetic email from phone digits only
-    const syntheticEmail = phone.replace(/\D/g, '') + '@jamshid.bilan';
-    const { data, error } = await supabase.auth.signInWithPassword({ email: syntheticEmail, password });
-    if (error) return "Telefon raqam yoki parol noto'g'ri";
-    // Ensure site_users row exists for accounts created outside the new signup flow
-    if (data.user) {
-      const { data: existing } = await supabase.from('site_users').select('id').eq('id', data.user.id).single();
-      if (!existing) {
-        await supabase.from('site_users').insert({
-          id: data.user.id,
-          email: syntheticEmail,
-          phone: phone,
-          full_name: '',
-          created_at: new Date().toISOString(),
-          last_active_at: new Date().toISOString(),
-          login_count: 1,
-          status: 'active',
-        });
-      }
-    }
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: json.access_token,
+      refresh_token: json.refresh_token,
+    });
+    if (sessionError) return sessionError.message;
     return null;
   }
 
@@ -194,14 +188,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Sign in immediately after admin-created account using synthetic email
-    const syntheticEmail = data.phone.replace(/\D/g, '') + '@jamshid.bilan';
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: syntheticEmail,
-      password: data.password,
-    });
-    if (signInError) return `Xatolik: ${signInError.message}`;
+    // Server already signed in and returned tokens — just set the session on client
+    if (json.tokens) {
+      const supabase = createClient();
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: json.tokens.access_token,
+        refresh_token: json.tokens.refresh_token,
+      });
+      if (sessionError) return `Xatolik: ${sessionError.message}`;
+    }
 
     return null;
   }

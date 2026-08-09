@@ -46,5 +46,25 @@ export async function POST(req: NextRequest) {
     status: 'active',
   }, { onConflict: 'id' });
 
-  return NextResponse.json({ success: true, userId });
+  // Sign in server-side and return tokens so client can call setSession()
+  // This avoids any client-side signInWithPassword hang/failure issues
+  const tokenRes = await fetch(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      },
+      body: JSON.stringify({ email, password }),
+    }
+  );
+  const tokenData = await tokenRes.json();
+  const tokens = tokenRes.ok ? {
+    access_token: tokenData.access_token,
+    refresh_token: tokenData.refresh_token,
+    expires_at: tokenData.expires_at,
+  } : null;
+
+  return NextResponse.json({ success: true, userId, tokens });
 }
