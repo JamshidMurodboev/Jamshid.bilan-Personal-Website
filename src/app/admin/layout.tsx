@@ -119,6 +119,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setLoading(false)
       return
     }
+    // If already authenticated, skip re-checking on every navigation
+    if (userEmail) {
+      setLoading(false)
+      return
+    }
     fetch('/api/admin/session')
       .then(res => res.json())
       .then(data => {
