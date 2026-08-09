@@ -5,7 +5,6 @@ import '../globals.css'
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -116,20 +115,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session && pathname !== '/admin/login') {
-        router.replace('/admin/login')
-      } else {
-        setUserEmail(data.session?.user?.email ?? null)
-        setLoading(false)
-      }
-    })
+    if (pathname === '/admin/login') {
+      setLoading(false)
+      return
+    }
+    // If already authenticated, skip re-checking on every navigation
+    if (userEmail) {
+      setLoading(false)
+      return
+    }
+    fetch('/api/admin/session')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.authenticated) {
+          router.replace('/admin/login')
+        } else {
+          setUserEmail(data.email ?? null)
+          setLoading(false)
+        }
+      })
+      .catch(() => router.replace('/admin/login'))
   }, [pathname, router])
 
   async function handleSignOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+    await fetch('/api/admin/logout', { method: 'POST' })
     router.push('/admin/login')
   }
 

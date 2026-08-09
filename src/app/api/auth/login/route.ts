@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   const { phone, password } = await req.json();
@@ -8,31 +15,57 @@ export async function POST(req: NextRequest) {
 
   const email = phone.replace(/\D/g, '') + '@jamshid.bilan';
 
-  const tokenRes = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+  const cookiesToApply: { name: string; value: string; options?: object }[] = [];
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: object }[]) {
+          cookiesToApply.push(...cookiesToSet);
+        },
       },
-      body: JSON.stringify({ email, password }),
     }
   );
 
-  const tokenData = await tokenRes.json();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (!tokenRes.ok) {
+  if (error || !data.session || !data.user) {
     return NextResponse.json(
       { error: "Telefon raqam yoki parol noto'g'ri" },
       { status: 401 }
     );
   }
 
-  return NextResponse.json({
-    access_token: tokenData.access_token,
-    refresh_token: tokenData.refresh_token,
-    expires_at: tokenData.expires_at,
-    user: tokenData.user,
+  const { data: profile } = await supabaseAdmin
+    .from('site_users')
+    .select('*')
+    .eq('id', data.user.id)
+    .single();
+
+  const response = NextResponse.json({
+    success: true,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      fullName: profile?.full_name || '',
+      dob: profile?.dob || '',
+      gender: profile?.gender || '',
+      phone: profile?.phone || '',
+      photoUrl: profile?.photo_url || null,
+      languageCertificate: profile?.language_certificate || null,
+    },
   });
+
+  cookiesToApply.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+  });
+
+  return response;
 }

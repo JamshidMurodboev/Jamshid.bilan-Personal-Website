@@ -104,7 +104,6 @@ export default function UniversitiesPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [majors, setMajors] = useState<MajorRow[]>([emptyMajor()])
   const [saving, setSaving] = useState(false)
-  const [translating, setTranslating] = useState(false)
   const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
   const [activeTab, setActiveTab] = useState<LangTab>('uz')
   const [translateProgress, setTranslateProgress] = useState('')
@@ -235,23 +234,32 @@ export default function UniversitiesPage() {
     loadStudentResults(item.id)
   }
 
-  async function handleTranslate() {
-    if (!form.description_uz.trim()) return
-    setTranslating(true)
-    try {
-      const result = await autoTranslate(form.description_uz)
-      setForm(f => ({ ...f, description_ru: result.ru || f.description_ru, description_en: result.en || f.description_en }))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslating(false)
-    }
-  }
-
+  // "Translate all" — translates every free-text UZ field: description, tuition
+  // note, every required document, and every major's name + tuition note.
   async function handleTranslateAll() {
     const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
       { uz: form.description_uz, setRu: v => setForm(f => ({ ...f, description_ru: v })), setEn: v => setForm(f => ({ ...f, description_en: v })) },
+      { uz: form.tuition_note_uz, setRu: v => setForm(f => ({ ...f, tuition_note_ru: v })), setEn: v => setForm(f => ({ ...f, tuition_note_en: v })) },
     ]
+    requiredDocs.forEach((doc, idx) => {
+      fields.push({
+        uz: doc.uz,
+        setRu: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, ru: v } : r)),
+        setEn: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, en: v } : r)),
+      })
+    })
+    majors.forEach((m, idx) => {
+      fields.push({
+        uz: m.name,
+        setRu: v => updateMajor(idx, { name_ru: v }),
+        setEn: v => updateMajor(idx, { name_en: v }),
+      })
+      fields.push({
+        uz: m.tuition_note_uz,
+        setRu: v => updateMajor(idx, { tuition_note_ru: v }),
+        setEn: v => updateMajor(idx, { tuition_note_en: v }),
+      })
+    })
     const active = fields.filter(f => f.uz.trim())
     if (active.length === 0) return
     setTranslatingSections(s => ({ ...s, translateAll: true }))
@@ -268,20 +276,6 @@ export default function UniversitiesPage() {
     } finally {
       setTranslatingSections(s => ({ ...s, translateAll: false }))
       setTranslateProgress('')
-    }
-  }
-
-  async function handleTranslateDoc(i: number) {
-    const doc = requiredDocs[i]
-    if (!doc.uz.trim()) return
-    setTranslatingSections(s => ({ ...s, [`doc_${i}`]: true }))
-    try {
-      const result = await autoTranslate(doc.uz)
-      setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
     }
   }
 
@@ -530,12 +524,7 @@ export default function UniversitiesPage() {
               {/* Translatable per-tab */}
               {activeTab === 'uz' && (
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                    <button type="button" onClick={handleTranslate} disabled={translating || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
-                      {translating ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
-                    </button>
-                  </div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (UZ)</label>
                   <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
                 </div>
               )}
@@ -656,25 +645,7 @@ export default function UniversitiesPage() {
                 {form.tuition_estimated && (
                   <div className="mt-3 space-y-2">
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Izoh (UZ)</label>
-                        <button
-                          type="button"
-                          disabled={!!translatingSections['tuition_note'] || !form.tuition_note_uz.trim()}
-                          onClick={async () => {
-                            setTranslatingSections(s => ({ ...s, tuition_note: true }))
-                            try {
-                              const result = await autoTranslate(form.tuition_note_uz)
-                              setForm(f => ({ ...f, tuition_note_ru: result.ru || f.tuition_note_ru, tuition_note_en: result.en || f.tuition_note_en }))
-                            } catch (e: unknown) {
-                              setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-                            } finally { setTranslatingSections(s => ({ ...s, tuition_note: false })) }
-                          }}
-                          className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40"
-                        >
-                          {translatingSections['tuition_note'] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                        </button>
-                      </div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Izoh (UZ)</label>
                       <input value={form.tuition_note_uz} onChange={e => setForm({ ...form, tuition_note_uz: e.target.value })} className={inp} placeholder="Masalan: Narx oldingi yil asosida" />
                     </div>
                     <div>
@@ -722,14 +693,6 @@ export default function UniversitiesPage() {
                           <div className="flex items-center gap-2">
                             <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i-1], a[i]] = [a[i], a[i-1]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
                             <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i], a[i+1]] = [a[i+1], a[i]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
-                            <button
-                              type="button"
-                              disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}
-                              onClick={() => handleTranslateDoc(i)}
-                              className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
-                            >
-                              {translatingSections[`doc_${i}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                            </button>
                             <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
                           </div>
                         </div>
@@ -776,28 +739,7 @@ export default function UniversitiesPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="sm:col-span-2">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Yo'nalish nomi *</label>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!m.name) return
-                                setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: true }))
-                                try {
-                                  const result = await autoTranslate(m.name)
-                                  updateMajor(i, { name_ru: result.ru, name_en: result.en })
-                                } catch (e: unknown) {
-                                  setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-                                } finally {
-                                  setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: false }))
-                                }
-                              }}
-                              disabled={!!translatingSections[`major_${i}`] || !m.name.trim()}
-                              className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50 whitespace-nowrap"
-                            >
-                              {translatingSections[`major_${i}`] ? '...' : 'RU/EN tarjima'}
-                            </button>
-                          </div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Yo'nalish nomi *</label>
                           <input
                             value={m.name}
                             onChange={e => setMajorField(i, 'name', e.target.value)}
@@ -867,28 +809,7 @@ export default function UniversitiesPage() {
                           </label>
                           {m.tuition_estimated && (
                             <div className="space-y-1.5 mt-1.5">
-                              <div className="flex items-center justify-between">
-                                <label className="text-xs text-gray-500 dark:text-gray-400">Izoh (UZ)</label>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    if (!m.tuition_note_uz.trim()) return
-                                    setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: true }))
-                                    try {
-                                      const result = await autoTranslate(m.tuition_note_uz)
-                                      updateMajor(i, { tuition_note_ru: result.ru, tuition_note_en: result.en })
-                                    } catch (e: unknown) {
-                                      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-                                    } finally {
-                                      setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: false }))
-                                    }
-                                  }}
-                                  disabled={!!translatingSections[`major_note_${i}`] || !m.tuition_note_uz.trim()}
-                                  className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50"
-                                >
-                                  {translatingSections[`major_note_${i}`] ? '...' : 'RU/EN tarjima'}
-                                </button>
-                              </div>
+                              <label className="block text-xs text-gray-500 dark:text-gray-400">Izoh (UZ)</label>
                               <input value={m.tuition_note_uz} onChange={e => updateMajor(i, { tuition_note_uz: e.target.value })} placeholder="Taxminiy narx izohi (UZ)" className={inp} />
                               <input value={m.tuition_note_ru} onChange={e => updateMajor(i, { tuition_note_ru: e.target.value })} placeholder="Примерная стоимость (RU)" className={inp} />
                               <input value={m.tuition_note_en} onChange={e => updateMajor(i, { tuition_note_en: e.target.value })} placeholder="Estimated tuition note (EN)" className={inp} />

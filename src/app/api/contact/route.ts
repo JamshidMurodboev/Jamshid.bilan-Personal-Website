@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const schema = z.object({
-  full_name: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  subject: z.enum(['scholarship', 'university', 'general']),
-  message: z.string().min(10),
+  name: z.string().min(1),
+  dob: z.string().optional(),
+  certificate: z.string().optional(),
+  score: z.string().optional(),
+  target: z.string().min(1),
   locale: z.string().optional(),
 });
 
@@ -16,18 +21,21 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = schema.parse(body);
 
-    const supabase = await createClient();
-    await supabase.from('inquiries').insert({
-      name: data.full_name,
-      phone: data.phone || '',
-      email: data.email,
-      message: data.message,
+    const { error } = await supabaseAdmin.from('inquiries').insert({
+      name: data.name,
+      phone: '',
       source: 'contact_form',
       status: 'new',
       locale: data.locale || 'uz',
-      grant_interest: data.subject,
+      dob: data.dob || null,
+      language_certificate: data.certificate || null,
+      grant_interest: data.target,
       created_at: new Date().toISOString(),
     });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -76,6 +76,19 @@ export default function ContactForm() {
 
   function open(url: string) {
     if (!validate()) return;
+    const targetStr = target === 'other' ? other : target === 'all' ? 'Barchasi' : target;
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        dob,
+        certificate: cert === 'None' ? null : cert,
+        score: cert === 'None' ? null : score,
+        target: targetStr,
+        locale,
+      }),
+    }).catch(() => {});
     window.open(`${url}${buildMessage(name, dob, cert, score, target, other, t('certNone'))}`, '_blank');
   }
 
