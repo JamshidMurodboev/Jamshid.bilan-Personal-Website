@@ -132,7 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(phone: string, password: string): Promise<string | null> {
-    // Use server-side login to avoid client-side signInWithPassword hang/failure
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -140,13 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     const json = await res.json();
     if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
-
+    // Auth cookies set by server response; getSession() reads them and triggers onAuthStateChange
     const supabase = createClient();
-    const { error: sessionError } = await supabase.auth.setSession({
-      access_token: json.access_token,
-      refresh_token: json.refresh_token,
-    });
-    if (sessionError) return sessionError.message;
+    await supabase.auth.getSession();
     return null;
   }
 
@@ -160,27 +155,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const signupAbort = new AbortController();
-    const signupTimeout = setTimeout(() => signupAbort.abort(), 15000);
-    let res: Response;
-    try {
-      res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: data.phone,
-          password: data.password,
-          fullName: data.fullName,
-          dob: data.dob,
-          gender: data.gender,
-          photoUrl,
-        }),
-        signal: signupAbort.signal,
-      });
-    } finally {
-      clearTimeout(signupTimeout);
-    }
-    const json = await res!.json();
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: data.phone,
+        password: data.password,
+        fullName: data.fullName,
+        dob: data.dob,
+        gender: data.gender,
+        photoUrl,
+      }),
+    });
+    const json = await res.json();
     if (!res.ok) return json.error || 'Xatolik yuz berdi';
 
     // Cache photo locally for instant display
@@ -188,15 +175,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Server already signed in and returned tokens — just set the session on client
-    if (json.tokens) {
-      const supabase = createClient();
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: json.tokens.access_token,
-        refresh_token: json.tokens.refresh_token,
-      });
-      if (sessionError) return `Xatolik: ${sessionError.message}`;
-    }
+    // Auth cookies set by server response; getSession() reads them and triggers onAuthStateChange
+    const supabase = createClient();
+    await supabase.auth.getSession();
 
     return null;
   }

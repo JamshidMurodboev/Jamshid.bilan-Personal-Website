@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
@@ -12,11 +13,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Build synthetic email from phone digits only (e.g. +998-91-234-56-78 → 998912345678@jamshid.bilan)
   const email = phone.replace(/\D/g, '') + '@jamshid.bilan';
 
-  // Create user via admin API — bypasses email confirmation requirement
-  const { data, error } = await supabase.auth.admin.createUser({
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -32,7 +31,7 @@ export async function POST(req: NextRequest) {
   const userId = data.user?.id;
   if (!userId) return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
 
-  await supabase.from('site_users').upsert({
+  await supabaseAdmin.from('site_users').upsert({
     id: userId,
     full_name: fullName,
     email,
@@ -46,25 +45,27 @@ export async function POST(req: NextRequest) {
     status: 'active',
   }, { onConflict: 'id' });
 
-  // Sign in server-side and return tokens so client can call setSession()
-  // This avoids any client-side signInWithPassword hang/failure issues
-  const tokenRes = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+  // Sign in server-side and set auth cookies on the response
+  const response = NextResponse.json({ success: true, userId });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
       },
-      body: JSON.stringify({ email, password }),
     }
   );
-  const tokenData = await tokenRes.json();
-  const tokens = tokenRes.ok ? {
-    access_token: tokenData.access_token,
-    refresh_token: tokenData.refresh_token,
-    expires_at: tokenData.expires_at,
-  } : null;
 
-  return NextResponse.json({ success: true, userId, tokens });
+  await supabase.auth.signInWithPassword({ email, password });
+
+  return response;
 }

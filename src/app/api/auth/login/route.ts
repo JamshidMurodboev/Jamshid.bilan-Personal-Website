@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
 export async function POST(req: NextRequest) {
   const { phone, password } = await req.json();
@@ -8,31 +9,33 @@ export async function POST(req: NextRequest) {
 
   const email = phone.replace(/\D/g, '') + '@jamshid.bilan';
 
-  const tokenRes = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+  const response = NextResponse.json({ success: true });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
       },
-      body: JSON.stringify({ email, password }),
     }
   );
 
-  const tokenData = await tokenRes.json();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (!tokenRes.ok) {
+  if (error || !data.session) {
     return NextResponse.json(
       { error: "Telefon raqam yoki parol noto'g'ri" },
       { status: 401 }
     );
   }
 
-  return NextResponse.json({
-    access_token: tokenData.access_token,
-    refresh_token: tokenData.refresh_token,
-    expires_at: tokenData.expires_at,
-    user: tokenData.user,
-  });
+  return response;
 }
