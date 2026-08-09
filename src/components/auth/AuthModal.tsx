@@ -129,13 +129,13 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ purpose: 'signup', email: suEmail }),
       });
       const data = await res.json();
-      if (!res.ok) { setSuError(data.error ? `Telegram sessiyasi yaratishda xato: ${data.error}` : 'Telegram sessiyasi yaratishda xato'); return; }
+      if (!res.ok) { setSuError(data.error ? `${t('telegramSessionError')}: ${data.error}` : t('telegramSessionError')); return; }
       setTgSessionId(data.sessionId);
       setTgBotLink(data.botLink);
       setSignupStep('telegram');
       startPolling(data.sessionId, 'signup');
     } catch {
-      setSuError('Xatolik yuz berdi');
+      setSuError(t('error'));
     } finally {
       setTgLoading(false);
     }
@@ -161,7 +161,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   }
 
   async function handleOtpVerify() {
-    if (tgOtp.length !== 6) { setTgError("6 raqamli kodni kiriting"); return; }
+    if (tgOtp.length !== 6) { setTgError(t("enterCode6")); return; }
     setTgLoading(true);
     setTgError('');
     try {
@@ -171,7 +171,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ sessionId: tgSessionId, otp: tgOtp }),
       });
       const data = await res.json();
-      if (!res.ok) { setTgError(data.error || "Noto'g'ri kod"); return; }
+      if (!res.ok) { setTgError(data.error || t('wrongCode')); return; }
 
       const err = await signup({
         fullName: suName,
@@ -193,7 +193,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   async function handleFpEmail(e: React.FormEvent) {
     e.preventDefault();
-    if (!fpEmail.trim()) { setFpError('Email kiriting'); return; }
+    if (!fpEmail.trim()) { setFpError(t('enterEmail')); return; }
     setFpLoading(true);
     setFpError('');
     try {
@@ -203,20 +203,20 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ purpose: 'reset', email: fpEmail }),
       });
       const data = await res.json();
-      if (!res.ok) { setFpError(data.error ? `Telegram sessiyasi yaratishda xato: ${data.error}` : 'Telegram sessiyasi yaratishda xato'); return; }
+      if (!res.ok) { setFpError(data.error ? `${t('telegramSessionError')}: ${data.error}` : t('telegramSessionError')); return; }
       setFpSessionId(data.sessionId);
       setFpBotLink(data.botLink);
       setFpStep('telegram');
       startPolling(data.sessionId, 'reset');
     } catch {
-      setFpError('Xatolik yuz berdi');
+      setFpError(t('error'));
     } finally {
       setFpLoading(false);
     }
   }
 
   async function handleFpOtpVerify() {
-    if (fpOtp.length !== 6) { setFpError("6 raqamli kodni kiriting"); return; }
+    if (fpOtp.length !== 6) { setFpError(t("enterCode6")); return; }
     setFpLoading(true);
     setFpError('');
     try {
@@ -226,10 +226,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ sessionId: fpSessionId, otp: fpOtp }),
       });
       const data = await res.json();
-      if (!res.ok) { setFpError(data.error || "Noto'g'ri kod"); return; }
+      if (!res.ok) { setFpError(data.error || t('wrongCode')); return; }
       setFpStep('newpw');
     } catch {
-      setFpError('Xatolik yuz berdi');
+      setFpError(t('error'));
     } finally {
       setFpLoading(false);
     }
@@ -247,12 +247,12 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         body: JSON.stringify({ email: fpEmail, sessionId: fpSessionId, newPassword: fpNewPw }),
       });
       const data = await res.json();
-      if (!res.ok) { setFpError(data.error || 'Xatolik yuz berdi'); return; }
+      if (!res.ok) { setFpError(data.error || t('error')); return; }
       setForgotMode(false);
       setSiEmail(fpEmail);
       setTab('signin');
     } catch {
-      setFpError('Xatolik yuz berdi');
+      setFpError(t('error'));
     } finally {
       setFpLoading(false);
     }
@@ -296,7 +296,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
           {fpStep === 'email' && (
             <form onSubmit={handleFpEmail} className="space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Emailingizni kiriting. Telegram orqali tasdiqlash kodi yuboriladi.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('fpInstructions')}</p>
               <input type="email" required value={fpEmail} onChange={e => setFpEmail(e.target.value)} className={inputCls} placeholder="email@example.com" />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button type="submit" disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
@@ -310,10 +310,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto">
                 <svg className="w-7 h-7 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Telegram botimizga o&apos;ting va kod oling</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{t('telegramGoBot')}</p>
               <a href={fpBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
-                Telegram botini ochish
+                {t('openTelegramBot')}
               </a>
               <div className="space-y-3 pt-2 w-full">
                 <p className="text-xs text-gray-400">
@@ -330,7 +330,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
           {fpStep === 'otp' && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Telegramdan kelgan 6 raqamli kodni kiriting</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">{t('otpInstructions')}</p>
               <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={fpOtp} onChange={e => setFpOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button onClick={handleFpOtpVerify} disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
@@ -453,13 +453,13 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
                 {tgLoading ? t('checking') : t('registerBtn')}
               </button>
             </div>
-            <button type="button" onClick={() => setSignupStep('form')} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline">← Orqaga</button>
+            <button type="button" onClick={() => setSignupStep('form')} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline">← {t('back')}</button>
           </div>
         )}
 
         {tab === 'signup' && signupStep === 'otp' && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Telegramdan kelgan 6 raqamli kodni kiriting</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">{t('otpInstructions')}</p>
             <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={tgOtp} onChange={e => setTgOtp(e.target.value.replace(/\D/g, ''))} className={`${inputCls} text-center text-2xl tracking-widest font-bold`} placeholder="000000" autoFocus />
             {tgError && <p className="text-red-500 text-sm">{tgError}</p>}
             <button onClick={handleOtpVerify} disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">

@@ -110,7 +110,16 @@
     "checking": "Checking...",
     "registerBtn": "Create account",
     "emailConfirmNeeded": "Email not confirmed — try resetting your password",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "telegramSessionError": "Telegram session error",
+    "wrongCode": "Wrong code",
+    "enterEmail": "Enter your email",
+    "enterCode6": "Enter the 6-digit code from Telegram",
+    "fpInstructions": "Enter your email. A verification code will be sent via Telegram.",
+    "otpInstructions": "Enter the 6-digit code from Telegram",
+    "telegramGoBot": "Go to our Telegram bot and get a code",
+    "openTelegramBot": "Open Telegram bot",
+    "back": "Back"
   },
   "common": {
     "loading": "Loading...",
