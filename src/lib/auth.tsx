@@ -71,6 +71,35 @@ function rowToAuthUser(row: Record<string, unknown>, id: string, email: string):
   };
 }
 
+interface ServerAuthUser {
+  id: string;
+  email: string;
+  fullName: string;
+  dob: string;
+  gender: string;
+  phone: string;
+  photoUrl: string | null;
+  languageCertificate: string | null;
+}
+
+function serverUserToAuthUser(su: ServerAuthUser): AuthUser {
+  return {
+    id: su.id,
+    email: su.email,
+    fullName: su.fullName,
+    dob: su.dob,
+    gender: su.gender,
+    phone: su.phone,
+    photoDataUrl: su.photoUrl || undefined,
+    languageCertificate: su.languageCertificate
+      ? (() => {
+          const parts = su.languageCertificate!.split(':');
+          return { type: parts[0] || '', score: parts[1] || '' };
+        })()
+      : undefined,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
@@ -139,9 +168,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     const json = await res.json();
     if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
-    // Auth cookies set by server response; getSession() reads them and triggers onAuthStateChange
-    const supabase = createClient();
-    await supabase.auth.getSession();
+    // Server already authenticated and set the auth cookies on this response.
+    // Set React state directly from the returned profile — no Supabase SDK calls here,
+    // since those can make a network round-trip and hang.
+    const authUser = serverUserToAuthUser(json.user);
+    if (authUser.photoDataUrl) {
+      try { localStorage.setItem(`auth_photo_${authUser.id}`, authUser.photoDataUrl); } catch {}
+    }
+    setUser(authUser);
     return null;
   }
 
@@ -175,9 +209,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Auth cookies set by server response; getSession() reads them and triggers onAuthStateChange
-    const supabase = createClient();
-    await supabase.auth.getSession();
+    // Server already authenticated and set the auth cookies on this response.
+    // Set React state directly from the returned profile — no Supabase SDK calls here.
+    if (json.user) {
+      setUser(serverUserToAuthUser(json.user));
+    }
 
     return null;
   }

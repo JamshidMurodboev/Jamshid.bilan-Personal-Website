@@ -17,38 +17,11 @@ export default function FaqAdminPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [translatingQuestion, setTranslatingQuestion] = useState(false)
-  const [translatingAnswer, setTranslatingAnswer] = useState(false)
   const [activeTab, setActiveTab] = useState<LangTab>('uz')
   const [translatingAll, setTranslatingAll] = useState(false)
   const [translateAllProgress, setTranslateAllProgress] = useState('')
 
-  async function handleTranslateQuestion() {
-    if (!form.question_uz.trim()) return
-    setTranslatingQuestion(true)
-    try {
-      const result = await autoTranslate(form.question_uz)
-      setForm(f => ({ ...f, question_ru: result.ru || f.question_ru, question_en: result.en || f.question_en }))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingQuestion(false)
-    }
-  }
-
-  async function handleTranslateAnswer() {
-    if (!form.answer_uz.trim()) return
-    setTranslatingAnswer(true)
-    try {
-      const result = await autoTranslate(form.answer_uz)
-      setForm(f => ({ ...f, answer_ru: result.ru || f.answer_ru, answer_en: result.en || f.answer_en }))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingAnswer(false)
-    }
-  }
-
+  // "Translate all" — translates question and answer.
   async function handleTranslateAll() {
     const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
       { uz: form.question_uz, setRu: v => setForm(f => ({ ...f, question_ru: v })), setEn: v => setForm(f => ({ ...f, question_en: v })) },
@@ -179,17 +152,11 @@ export default function FaqAdminPage() {
               {activeTab === 'uz' && (
                 <div className="space-y-3">
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Savol (UZ) *</label>
-                      <button type="button" onClick={handleTranslateQuestion} disabled={translatingQuestion || !form.question_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingQuestion ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
-                    </div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (UZ) *</label>
                     <input required value={form.question_uz} onChange={e => setForm({...form, question_uz: e.target.value})} className={inp} />
                   </div>
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Javob (UZ) *</label>
-                      <button type="button" onClick={handleTranslateAnswer} disabled={translatingAnswer || !form.answer_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingAnswer ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
-                    </div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (UZ) *</label>
                     <textarea required rows={3} value={form.answer_uz} onChange={e => setForm({...form, answer_uz: e.target.value})} className={inp} />
                   </div>
                 </div>

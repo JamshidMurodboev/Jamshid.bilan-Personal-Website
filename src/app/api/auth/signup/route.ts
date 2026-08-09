@@ -45,8 +45,7 @@ export async function POST(req: NextRequest) {
     status: 'active',
   }, { onConflict: 'id' });
 
-  // Sign in server-side and set auth cookies on the response
-  const response = NextResponse.json({ success: true, userId });
+  const cookiesToApply: { name: string; value: string; options?: object }[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,15 +56,32 @@ export async function POST(req: NextRequest) {
           return req.cookies.getAll();
         },
         setAll(cookiesToSet: { name: string; value: string; options?: object }[]) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
-          });
+          cookiesToApply.push(...cookiesToSet);
         },
       },
     }
   );
 
   await supabase.auth.signInWithPassword({ email, password });
+
+  const response = NextResponse.json({
+    success: true,
+    userId,
+    user: {
+      id: userId,
+      email,
+      fullName,
+      dob: dob || '',
+      gender: gender || '',
+      phone,
+      photoUrl: photoUrl || null,
+      languageCertificate: null,
+    },
+  });
+
+  cookiesToApply.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+  });
 
   return response;
 }

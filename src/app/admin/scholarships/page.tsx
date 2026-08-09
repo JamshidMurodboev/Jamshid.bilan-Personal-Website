@@ -254,22 +254,40 @@ export default function ScholarshipsPage() {
     loadStudentResults(item.id)
   }
 
-  // "Translate all" for current active tab fields
+  // "Translate all" — translates every free-text UZ field on the form, including
+  // nested process steps (label + description) and required documents.
   async function handleTranslateAll() {
-    const fields: Array<{ field: keyof FormState; uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
       {
-        field: 'description_uz',
         uz: form.description_uz,
         setRu: v => setForm(f => ({ ...f, description_ru: v })),
         setEn: v => setForm(f => ({ ...f, description_en: v })),
       },
       {
-        field: 'coverage',
         uz: form.coverage,
         setRu: v => setForm(f => ({ ...f, coverage_ru: v })),
         setEn: v => setForm(f => ({ ...f, coverage_en: v })),
       },
     ]
+    processSteps.forEach((step, idx) => {
+      fields.push({
+        uz: step.label_uz,
+        setRu: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: v } : p)),
+        setEn: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: v } : p)),
+      })
+      fields.push({
+        uz: step.description_uz,
+        setRu: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: v } : p)),
+        setEn: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_en: v } : p)),
+      })
+    })
+    requiredDocs.forEach((doc, idx) => {
+      fields.push({
+        uz: doc.uz,
+        setRu: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, ru: v } : r)),
+        setEn: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, en: v } : r)),
+      })
+    })
     const active = fields.filter(f => f.uz.trim())
     if (active.length === 0) return
     setTranslatingSections(s => ({ ...s, translateAll: true }))
@@ -286,74 +304,6 @@ export default function ScholarshipsPage() {
     } finally {
       setTranslatingSections(s => ({ ...s, translateAll: false }))
       setTranslateProgress('')
-    }
-  }
-
-  async function handleTranslateCoverage() {
-    if (!form.coverage.trim()) return
-    setTranslatingSections(s => ({ ...s, coverage: true }))
-    try {
-      const result = await autoTranslate(form.coverage)
-      setForm(f => ({ ...f, coverage_ru: result.ru || f.coverage_ru, coverage_en: result.en || f.coverage_en }))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, coverage: false }))
-    }
-  }
-
-  async function handleTranslate() {
-    if (!form.description_uz.trim()) return
-    setTranslatingSections(s => ({ ...s, description: true }))
-    try {
-      const result = await autoTranslate(form.description_uz)
-      setForm(f => ({ ...f, description_ru: result.ru || f.description_ru, description_en: result.en || f.description_en }))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, description: false }))
-    }
-  }
-
-  async function handleTranslateDoc(i: number) {
-    const doc = requiredDocs[i]
-    if (!doc.uz.trim()) return
-    setTranslatingSections(s => ({ ...s, [`doc_${i}`]: true }))
-    try {
-      const result = await autoTranslate(doc.uz)
-      setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
-    }
-  }
-
-  async function handleTranslateStep(i: number) {
-    const step = processSteps[i]
-    if (!step.description_uz.trim()) return
-    setTranslatingSections(s => ({ ...s, [`step_${i}`]: true }))
-    try {
-      const result = await autoTranslate(step.description_uz)
-      setProcessSteps(ps => ps.map((p, j) => j === i ? { ...p, description_ru: result.ru || p.description_ru, description_en: result.en || p.description_en } : p))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, [`step_${i}`]: false }))
-    }
-  }
-
-  async function handleTranslateStepLabel(i: number) {
-    const step = processSteps[i]
-    if (!step.label_uz.trim()) return
-    setTranslatingSections(s => ({ ...s, [`stepLabel_${i}`]: true }))
-    try {
-      const result = await autoTranslate(step.label_uz)
-      setProcessSteps(ps => ps.map((p, j) => j === i ? { ...p, label_ru: result.ru || p.label_ru, label_en: result.en || p.label_en } : p))
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, [`stepLabel_${i}`]: false }))
     }
   }
 
@@ -562,21 +512,11 @@ export default function ScholarshipsPage() {
               {activeTab === 'uz' && (
                 <div className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                      <button type="button" onClick={handleTranslate} disabled={!!translatingSections['description'] || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
-                        {translatingSections['description'] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                      </button>
-                    </div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (UZ)</label>
                     <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
                   </div>
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Qamrov (vergul bilan) (UZ)</label>
-                      <button type="button" onClick={handleTranslateCoverage} disabled={!!translatingSections['coverage'] || !form.coverage.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
-                        {translatingSections['coverage'] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                      </button>
-                    </div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (vergul bilan) (UZ)</label>
                     <input value={form.coverage} onChange={e => setForm({ ...form, coverage: e.target.value })} placeholder="Turar joy, Ovqat, Stipendiya" className={inp} />
                   </div>
                 </div>
@@ -705,14 +645,6 @@ export default function ScholarshipsPage() {
                                   placeholder="Bosqich nomi (UZ)..."
                                   className="flex-1 text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
                                 />
-                                <button
-                                  type="button"
-                                  disabled={!step.label_uz.trim() || !!translatingSections[`stepLabel_${idx}`]}
-                                  onClick={() => handleTranslateStepLabel(idx)}
-                                  className="text-xs text-teal-600 hover:underline disabled:opacity-40 whitespace-nowrap"
-                                >
-                                  {translatingSections[`stepLabel_${idx}`] ? '...' : 'RU/EN'}
-                                </button>
                               </div>
                               <input value={step.label_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: e.target.value } : p))} placeholder="Nomi (RU)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
                               <input value={step.label_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: e.target.value } : p))} placeholder="Name (EN)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
@@ -721,14 +653,6 @@ export default function ScholarshipsPage() {
                             <div className="space-y-1">
                               <div className="flex items-center gap-1">
                                 <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex-1">{step.label_uz || step.label}</span>
-                                <button
-                                  type="button"
-                                  disabled={!(step.label_uz || step.label).trim() || !!translatingSections[`stepLabel_${idx}`]}
-                                  onClick={() => handleTranslateStepLabel(idx)}
-                                  className="text-xs text-teal-600 hover:underline disabled:opacity-40 whitespace-nowrap"
-                                >
-                                  {translatingSections[`stepLabel_${idx}`] ? '...' : 'RU/EN'}
-                                </button>
                               </div>
                               <input value={step.label_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: e.target.value } : p))} placeholder="Nomi (RU)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
                               <input value={step.label_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: e.target.value } : p))} placeholder="Name (EN)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
@@ -761,17 +685,7 @@ export default function ScholarshipsPage() {
                       </div>
                       {/* Descriptions */}
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-500 dark:text-gray-400">Tavsif (UZ)</label>
-                          <button
-                            type="button"
-                            disabled={!step.description_uz.trim() || !!translatingSections[`step_${idx}`]}
-                            onClick={() => handleTranslateStep(idx)}
-                            className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
-                          >
-                            {translatingSections[`step_${idx}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                          </button>
-                        </div>
+                        <label className="block text-xs text-gray-500 dark:text-gray-400">Tavsif (UZ)</label>
                         <input value={step.description_uz} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_uz: e.target.value } : p))} className={inp} placeholder="Bu bosqich haqida qo'shimcha ma'lumot..." />
                         <input value={step.description_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: e.target.value } : p))} className={inp} placeholder="Описание (RU)" />
                         <input value={step.description_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_en: e.target.value } : p))} className={inp} placeholder="Description (EN)" />
@@ -804,9 +718,6 @@ export default function ScholarshipsPage() {
                           <div className="flex items-center gap-2">
                             <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => swapArr(d, i, i - 1))} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
                             <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => swapArr(d, i, i + 1))} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
-                            <button type="button" disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]} onClick={() => handleTranslateDoc(i)} className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40">
-                              {translatingSections[`doc_${i}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
-                            </button>
                             <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
                           </div>
                         </div>
