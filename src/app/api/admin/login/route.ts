@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
   // Simple session cookie checked by /api/admin/session
   response.cookies.set('admin_logged_in', data.user?.email ?? '1', {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7 days
