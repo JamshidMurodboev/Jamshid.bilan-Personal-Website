@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';

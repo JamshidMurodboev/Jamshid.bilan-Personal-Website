@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createServerClient } from '@supabase/ssr';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,28 +44,26 @@ export async function POST(req: NextRequest) {
     status: 'active',
   }, { onConflict: 'id' });
 
-  const cookiesToApply: { name: string; value: string; options?: object }[] = [];
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  // Sign in immediately to get tokens for the client
+  const tokenRes = await fetch(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
     {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options?: object }[]) {
-          cookiesToApply.push(...cookiesToSet);
-        },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       },
+      body: JSON.stringify({ email, password }),
     }
   );
 
-  await supabase.auth.signInWithPassword({ email, password });
+  const tokenData = tokenRes.ok ? await tokenRes.json() : null;
 
-  const response = NextResponse.json({
+  return NextResponse.json({
     success: true,
     userId,
+    accessToken: tokenData?.access_token || null,
+    refreshToken: tokenData?.refresh_token || null,
     user: {
       id: userId,
       email,
@@ -78,10 +75,4 @@ export async function POST(req: NextRequest) {
       languageCertificate: null,
     },
   });
-
-  cookiesToApply.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
-  });
-
-  return response;
 }

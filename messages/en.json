@@ -121,7 +121,8 @@
     "otpInstructions": "Enter the 6-digit code from Telegram",
     "telegramGoBot": "Go to our Telegram bot and get a code",
     "openTelegramBot": "Open Telegram bot",
-    "back": "Back"
+    "back": "Back",
+    "signedInToast": "Successfully signed in!"
   },
   "common": {
     "loading": "Loading...",
