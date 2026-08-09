@@ -106,8 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
 
-    // Load initial session
-    supabase.auth.getUser().then(async ({ data: { user: sbUser } }) => {
+    // Load initial session from local storage/cookies (no network call)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const sbUser = session?.user;
       if (sbUser) {
         const { data: profile } = await supabase
           .from('site_users')
