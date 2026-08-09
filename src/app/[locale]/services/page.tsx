@@ -24,14 +24,25 @@ export default function ServicesPage() {
   const { user } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    createClient().from('services').select('*').eq('status', 'active').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
-      .then(({ data }) => { if (data) setServices(data as Service[]); setLoading(false); });
+    Promise.resolve(
+      createClient().from('services').select('*').eq('status', 'active').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
+    )
+      .then(({ data, error }) => {
+        if (!error && data) setServices(data as Service[]);
+        else setFetchError(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setFetchError(true);
+        setLoading(false);
+      });
   }, [mounted]);
 
   if (!mounted) return null;
@@ -57,6 +68,8 @@ export default function ServicesPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         {loading ? (
           <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
+        ) : fetchError ? (
+          <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
         ) : services.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
         ) : (

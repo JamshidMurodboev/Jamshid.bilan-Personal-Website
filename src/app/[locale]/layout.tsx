@@ -7,6 +7,8 @@ import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ScrollWidgets from '@/components/layout/ScrollWidgets';
+import Toast from '@/components/shared/Toast';
+import PageViewTracker from '@/components/shared/PageViewTracker';
 import { AuthProvider } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
@@ -85,8 +87,10 @@ export default async function LocaleLayout({
             <main>{children}</main>
             <Footer />
             <ScrollWidgets />
+            <Toast />
           </AuthProvider>
         </NextIntlClientProvider>
+        <PageViewTracker />
         <Analytics />
       </body>
     </html>

@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
 import PhoneInput from '@/components/shared/PhoneInput';
+import { showToast } from '@/components/shared/Toast';
 
 interface Props {
   isOpen: boolean;
@@ -107,6 +108,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     try {
       const err = await login(siPhone, siPass);
       if (err) { setSiError(err); return; }
+      showToast(t('signedInToast'));
       onClose();
     } catch {
       setSiError(t('error'));

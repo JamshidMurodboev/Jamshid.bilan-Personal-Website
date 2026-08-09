@@ -121,7 +121,8 @@
     "otpInstructions": "Telegramdan kelgan 6 raqamli kodni kiriting",
     "telegramGoBot": "Telegram botimizga o'ting va kod oling",
     "openTelegramBot": "Telegram botini ochish",
-    "back": "Orqaga"
+    "back": "Orqaga",
+    "signedInToast": "Muvaffaqiyatli tizimga kirdingiz!"
   },
   "common": {
     "loading": "Yuklanmoqda...",

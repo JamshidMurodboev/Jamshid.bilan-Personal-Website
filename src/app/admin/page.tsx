@@ -41,6 +41,17 @@ interface PieData {
   value: number
 }
 
+interface TopPage {
+  page_path: string
+  count: number
+}
+
+interface AnalyticsData {
+  totalPageViews: number
+  uniqueVisitors: number
+  topPages: TopPage[]
+}
+
 const MONTH_LABELS = [
   'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn',
   'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek',
@@ -112,6 +123,11 @@ export default function AdminDashboard() {
   const [barData, setBarData] = useState<{ name: string; count: number }[]>([])
   const [pieData, setPieData] = useState<PieData[]>([])
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([])
+  const [analytics, setAnalytics] = useState<AnalyticsData>({
+    totalPageViews: 0,
+    uniqueVisitors: 0,
+    topPages: [],
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -206,7 +222,22 @@ export default function AdminDashboard() {
       setLoading(false)
     }
 
+    async function fetchAnalytics() {
+      try {
+        const res = await fetch('/api/admin/analytics')
+        const data = await res.json()
+        setAnalytics({
+          totalPageViews: data.totalPageViews ?? 0,
+          uniqueVisitors: data.uniqueVisitors ?? 0,
+          topPages: data.topPages ?? [],
+        })
+      } catch {
+        // ignore analytics fetch failures — never break the dashboard
+      }
+    }
+
     fetchAll()
+    fetchAnalytics()
   }, [])
 
   if (loading) {
@@ -281,6 +312,27 @@ export default function AdminDashboard() {
           icon={
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          }
+        />
+        <StatCard
+          label="Sahifa ko'rishlar"
+          value={analytics.totalPageViews}
+          gradient="bg-gradient-to-br from-cyan-500 to-cyan-700"
+          icon={
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          }
+        />
+        <StatCard
+          label="Noyob tashrif buyuruvchilar"
+          value={analytics.uniqueVisitors}
+          gradient="bg-gradient-to-br from-pink-500 to-pink-700"
+          icon={
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           }
         />
@@ -455,6 +507,50 @@ export default function AdminDashboard() {
                 </li>
               ))}
             </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Top pages */}
+      <div className="grid grid-cols-1 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
+          <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-4">
+            Eng ko&apos;p ko&apos;rilgan sahifalar
+          </h2>
+          {analytics.topPages.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-gray-400 dark:text-gray-500 text-sm">
+              Ma&apos;lumot yo&apos;q
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={analytics.topPages} layout="vertical" margin={{ left: 24 }}>
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="page_path"
+                  tick={{ fontSize: 12, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={160}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#f9fafb',
+                    fontSize: 12,
+                  }}
+                />
+                <Bar dataKey="count" name="Ko'rishlar" radius={[0, 6, 6, 0]} fill="#0d9488" />
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </div>
       </div>

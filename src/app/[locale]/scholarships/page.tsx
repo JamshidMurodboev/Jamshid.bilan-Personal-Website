@@ -17,12 +17,21 @@ export default function ScholarshipsPage() {
   const [category, setCategory] = useState('');
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
-    createClient().from('scholarships').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }).then(({ data, error }) => {
-      if (!error && data) setScholarships(data as Scholarship[]);
-      setLoading(false);
-    });
+    Promise.resolve(
+      createClient().from('scholarships').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
+    )
+      .then(({ data, error }) => {
+        if (!error && data) setScholarships(data as Scholarship[]);
+        else setFetchError(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setFetchError(true);
+        setLoading(false);
+      });
   }, []);
 
   const countries = useMemo(() =>
@@ -57,6 +66,8 @@ export default function ScholarshipsPage() {
           <div className="flex-1">
             {loading ? (
               <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
+            ) : fetchError ? (
+              <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
             ) : filtered.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
             ) : (
