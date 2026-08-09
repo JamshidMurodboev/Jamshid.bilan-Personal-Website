@@ -28,6 +28,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   const [siPhoneValid, setSiPhoneValid] = useState(false);
   const [siPass, setSiPass] = useState('');
   const [siError, setSiError] = useState('');
+  const [siLoading, setSiLoading] = useState(false);
 
   // Sign-up state
   const [suName, setSuName] = useState('');
@@ -101,12 +102,16 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (!siPhoneValid || !siPass) { setSiError(t('invalidCredentials')); return; }
+    setSiLoading(true);
+    setSiError('');
     try {
       const err = await login(siPhone, siPass);
       if (err) { setSiError(err); return; }
       onClose();
     } catch {
       setSiError(t('error'));
+    } finally {
+      setSiLoading(false);
     }
   }
 
@@ -396,7 +401,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <button type="button" onClick={() => setForgotMode(true)} className="text-xs text-teal-600 dark:text-teal-400 hover:underline">{t('forgotPassword')}</button>
             {siError && <p className="text-red-500 text-sm">{siError}</p>}
-            <button type="submit" className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition">{t('signInBtn')}</button>
+            <button type="submit" disabled={siLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">{siLoading ? t('loading') : t('signInBtn')}</button>
           </form>
         )}
 
