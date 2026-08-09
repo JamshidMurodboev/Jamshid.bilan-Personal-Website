@@ -10,6 +10,7 @@ import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -198,6 +199,9 @@ export default function ResultsPage() {
   const [translatingTestimonial, setTranslatingTestimonial] = useState(false)
   const [translatingUniName, setTranslatingUniName] = useState(false)
   const [translatingMajor, setTranslatingMajor] = useState(false)
+  const [activeTab, setActiveTab] = useState<LangTab>('uz')
+  const [translateAllProgress, setTranslateAllProgress] = useState('')
+  const [translatingAll, setTranslatingAll] = useState(false)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [orderPending, setOrderPending] = useState(false)
 
@@ -229,6 +233,8 @@ export default function ResultsPage() {
     try {
       const result = await autoTranslate(form.university_name)
       setForm(f => ({ ...f, university_name_ru: result.ru || f.university_name_ru, university_name_en: result.en || f.university_name_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally { setTranslatingUniName(false) }
   }
 
@@ -238,6 +244,8 @@ export default function ResultsPage() {
     try {
       const result = await autoTranslate(form.major)
       setForm(f => ({ ...f, major_ru: result.ru || f.major_ru, major_en: result.en || f.major_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally { setTranslatingMajor(false) }
   }
 
@@ -247,8 +255,35 @@ export default function ResultsPage() {
     try {
       const result = await autoTranslate(form.testimonial)
       setForm(f => ({ ...f, testimonial_ru: result.ru || f.testimonial_ru, testimonial_en: result.en || f.testimonial_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingTestimonial(false)
+    }
+  }
+
+  async function handleTranslateAll() {
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      { uz: form.testimonial, setRu: v => setForm(f => ({ ...f, testimonial_ru: v })), setEn: v => setForm(f => ({ ...f, testimonial_en: v })) },
+      { uz: form.major, setRu: v => setForm(f => ({ ...f, major_ru: v })), setEn: v => setForm(f => ({ ...f, major_en: v })) },
+      { uz: form.university_name, setRu: v => setForm(f => ({ ...f, university_name_ru: v })), setEn: v => setForm(f => ({ ...f, university_name_en: v })) },
+    ]
+    const active = fields.filter(f => f.uz.trim())
+    if (active.length === 0) return
+    setTranslatingAll(true)
+    setTranslateAllProgress(`0/${active.length}`)
+    try {
+      for (let i = 0; i < active.length; i++) {
+        setTranslateAllProgress(`${i + 1}/${active.length}`)
+        const result = await autoTranslate(active[i].uz)
+        active[i].setRu(result.ru)
+        active[i].setEn(result.en)
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingAll(false)
+      setTranslateAllProgress('')
     }
   }
 
@@ -274,6 +309,7 @@ export default function ResultsPage() {
     setForm(emptyForm)
     setMediaLinks([])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -304,6 +340,7 @@ export default function ResultsPage() {
     })
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -505,6 +542,41 @@ export default function ResultsPage() {
               {error && (
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
                   {error}
+                </div>
+              )}
+
+              <LanguageTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onTranslateAll={handleTranslateAll}
+                translating={translatingAll}
+                translateProgress={translateAllProgress}
+              />
+
+              {/* Translatable per-tab */}
+              {activeTab === 'uz' && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sharh / Fikr (UZ)</label>
+                      <button type="button" onClick={handleTranslateTestimonial} disabled={translatingTestimonial || !form.testimonial.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                        {translatingTestimonial ? 'Tarjimon...' : 'RU/EN tarjima'}
+                      </button>
+                    </div>
+                    <textarea rows={3} value={form.testimonial} onChange={e => setForm({ ...form, testimonial: e.target.value })} className={inp} placeholder="Talabaning sharhi (o'zbekcha)..." />
+                  </div>
+                </div>
+              )}
+              {activeTab === 'ru' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (RU)</label>
+                  <textarea rows={3} value={form.testimonial_ru} onChange={e => setForm({ ...form, testimonial_ru: e.target.value })} className={inp} placeholder="Отзыв студента (русский)..." />
+                </div>
+              )}
+              {activeTab === 'en' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (EN)</label>
+                  <textarea rows={3} value={form.testimonial_en} onChange={e => setForm({ ...form, testimonial_en: e.target.value })} className={inp} placeholder="Student testimonial (English)..." />
                 </div>
               )}
 
@@ -713,46 +785,6 @@ export default function ResultsPage() {
                 />
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sharh / Fikr (UZ)</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslateTestimonial}
-                    disabled={translatingTestimonial || !form.testimonial.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translatingTestimonial ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
-                  </button>
-                </div>
-                <textarea
-                  rows={3}
-                  value={form.testimonial}
-                  onChange={(e) => setForm({ ...form, testimonial: e.target.value })}
-                  className={inp}
-                  placeholder="Talabaning sharhi (o'zbekcha)..."
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (RU)</label>
-                <textarea
-                  rows={2}
-                  value={form.testimonial_ru}
-                  onChange={(e) => setForm({ ...form, testimonial_ru: e.target.value })}
-                  className={inp}
-                  placeholder="Отзыв студента (русский)..."
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (EN)</label>
-                <textarea
-                  rows={2}
-                  value={form.testimonial_en}
-                  onChange={(e) => setForm({ ...form, testimonial_en: e.target.value })}
-                  className={inp}
-                  placeholder="Student testimonial (English)..."
-                />
-              </div>
 
               <div>
                 <ImageUpload

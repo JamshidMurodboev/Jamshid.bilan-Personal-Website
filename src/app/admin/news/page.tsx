@@ -6,6 +6,7 @@ import type { NewsPost } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
 
@@ -37,6 +38,9 @@ export default function NewsPage() {
   const [saving, setSaving] = useState(false)
   const [translatingTitle, setTranslatingTitle] = useState(false)
   const [translatingBody, setTranslatingBody] = useState(false)
+  const [activeTab, setActiveTab] = useState<LangTab>('uz')
+  const [translatingAll, setTranslatingAll] = useState(false)
+  const [translateAllProgress, setTranslateAllProgress] = useState('')
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [scholarships, setScholarships] = useState<any[]>([])
   const [universities, setUniversities] = useState<any[]>([])
@@ -64,6 +68,7 @@ export default function NewsPage() {
     setForm(emptyForm)
     setMediaLinks([])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -86,6 +91,7 @@ export default function NewsPage() {
     })
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -94,11 +100,9 @@ export default function NewsPage() {
     setTranslatingTitle(true)
     try {
       const result = await autoTranslate(form.title_uz)
-      setForm(f => ({
-        ...f,
-        title_ru: f.title_ru || result.ru,
-        title_en: f.title_en || result.en,
-      }))
+      setForm(f => ({ ...f, title_ru: f.title_ru || result.ru, title_en: f.title_en || result.en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingTitle(false)
     }
@@ -109,13 +113,35 @@ export default function NewsPage() {
     setTranslatingBody(true)
     try {
       const result = await autoTranslate(form.body_uz)
-      setForm(f => ({
-        ...f,
-        body_ru: f.body_ru || result.ru,
-        body_en: f.body_en || result.en,
-      }))
+      setForm(f => ({ ...f, body_ru: f.body_ru || result.ru, body_en: f.body_en || result.en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingBody(false)
+    }
+  }
+
+  async function handleTranslateAll() {
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      { uz: form.title_uz, setRu: v => setForm(f => ({ ...f, title_ru: v })), setEn: v => setForm(f => ({ ...f, title_en: v })) },
+      { uz: form.body_uz, setRu: v => setForm(f => ({ ...f, body_ru: v })), setEn: v => setForm(f => ({ ...f, body_en: v })) },
+    ]
+    const active = fields.filter(f => f.uz.trim())
+    if (active.length === 0) return
+    setTranslatingAll(true)
+    setTranslateAllProgress(`0/${active.length}`)
+    try {
+      for (let i = 0; i < active.length; i++) {
+        setTranslateAllProgress(`${i + 1}/${active.length}`)
+        const result = await autoTranslate(active[i].uz)
+        active[i].setRu(result.ru)
+        active[i].setEn(result.en)
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingAll(false)
+      setTranslateAllProgress('')
     }
   }
 
@@ -258,92 +284,63 @@ export default function NewsPage() {
                 </div>
               )}
 
+              <LanguageTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onTranslateAll={handleTranslateAll}
+                translating={translatingAll}
+                translateProgress={translateAllProgress}
+              />
+
+              {activeTab === 'uz' && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Sarlavha (UZ) *</label>
+                      <button type="button" onClick={handleTranslateTitle} disabled={translatingTitle || !form.title_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingTitle ? 'Tarjimon...' : 'Avtotarjima'}</button>
+                    </div>
+                    <input required value={form.title_uz} onChange={e => setForm({ ...form, title_uz: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Matn (UZ) *</label>
+                      <button type="button" onClick={handleTranslateBody} disabled={translatingBody || !form.body_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingBody ? 'Tarjimon...' : 'Avtotarjima'}</button>
+                    </div>
+                    <textarea required rows={5} value={form.body_uz} onChange={e => setForm({ ...form, body_uz: e.target.value })} className={inp} />
+                  </div>
+                </div>
+              )}
+              {activeTab === 'ru' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (RU)</label>
+                    <input value={form.title_ru} onChange={e => setForm({ ...form, title_ru: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (RU)</label>
+                    <textarea rows={5} value={form.body_ru} onChange={e => setForm({ ...form, body_ru: e.target.value })} className={inp} />
+                  </div>
+                </div>
+              )}
+              {activeTab === 'en' && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (EN)</label>
+                    <input value={form.title_en} onChange={e => setForm({ ...form, title_en: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (EN)</label>
+                    <textarea rows={5} value={form.body_en} onChange={e => setForm({ ...form, body_en: e.target.value })} className={inp} />
+                  </div>
+                </div>
+              )}
+
               {/* Slug */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
                 <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="yangilik-sarlavhasi" />
               </div>
 
-              {/* Title UZ with autoTranslate */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Sarlavha (UZ) *</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslateTitle}
-                    disabled={translatingTitle || !form.title_uz.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translatingTitle ? 'Tarjimon...' : 'Avtotarjima'}
-                  </button>
-                </div>
-                <input
-                  required
-                  value={form.title_uz}
-                  onChange={e => setForm({ ...form, title_uz: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (RU)</label>
-                <input
-                  value={form.title_ru}
-                  onChange={e => setForm({ ...form, title_ru: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (EN)</label>
-                <input
-                  value={form.title_en}
-                  onChange={e => setForm({ ...form, title_en: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              {/* Body UZ with autoTranslate */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Matn (UZ) *</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslateBody}
-                    disabled={translatingBody || !form.body_uz.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translatingBody ? 'Tarjimon...' : 'Avtotarjima'}
-                  </button>
-                </div>
-                <textarea
-                  required
-                  rows={5}
-                  value={form.body_uz}
-                  onChange={e => setForm({ ...form, body_uz: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (RU)</label>
-                <textarea
-                  rows={4}
-                  value={form.body_ru}
-                  onChange={e => setForm({ ...form, body_ru: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (EN)</label>
-                <textarea
-                  rows={4}
-                  value={form.body_en}
-                  onChange={e => setForm({ ...form, body_en: e.target.value })}
-                  className={inp}
-                />
-              </div>
 
               {/* Photo URLs via ImageUpload */}
               <div>

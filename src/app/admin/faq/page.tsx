@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Faq } from '@/lib/supabase/types'
 import { autoTranslate } from '@/lib/translate'
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 
 const emptyForm = { question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' }
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
@@ -18,6 +19,9 @@ export default function FaqAdminPage() {
   const [saving, setSaving] = useState(false)
   const [translatingQuestion, setTranslatingQuestion] = useState(false)
   const [translatingAnswer, setTranslatingAnswer] = useState(false)
+  const [activeTab, setActiveTab] = useState<LangTab>('uz')
+  const [translatingAll, setTranslatingAll] = useState(false)
+  const [translateAllProgress, setTranslateAllProgress] = useState('')
 
   async function handleTranslateQuestion() {
     if (!form.question_uz.trim()) return
@@ -25,6 +29,8 @@ export default function FaqAdminPage() {
     try {
       const result = await autoTranslate(form.question_uz)
       setForm(f => ({ ...f, question_ru: result.ru || f.question_ru, question_en: result.en || f.question_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingQuestion(false)
     }
@@ -36,8 +42,34 @@ export default function FaqAdminPage() {
     try {
       const result = await autoTranslate(form.answer_uz)
       setForm(f => ({ ...f, answer_ru: result.ru || f.answer_ru, answer_en: result.en || f.answer_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingAnswer(false)
+    }
+  }
+
+  async function handleTranslateAll() {
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      { uz: form.question_uz, setRu: v => setForm(f => ({ ...f, question_ru: v })), setEn: v => setForm(f => ({ ...f, question_en: v })) },
+      { uz: form.answer_uz, setRu: v => setForm(f => ({ ...f, answer_ru: v })), setEn: v => setForm(f => ({ ...f, answer_en: v })) },
+    ]
+    const active = fields.filter(f => f.uz.trim())
+    if (active.length === 0) return
+    setTranslatingAll(true)
+    setTranslateAllProgress(`0/${active.length}`)
+    try {
+      for (let i = 0; i < active.length; i++) {
+        setTranslateAllProgress(`${i + 1}/${active.length}`)
+        const result = await autoTranslate(active[i].uz)
+        active[i].setRu(result.ru)
+        active[i].setEn(result.en)
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingAll(false)
+      setTranslateAllProgress('')
     }
   }
 
@@ -50,14 +82,14 @@ export default function FaqAdminPage() {
 
   useEffect(() => { load() }, [])
 
-  function openCreate() { setEditId(null); setForm(emptyForm); setError(null); setShowModal(true) }
+  function openCreate() { setEditId(null); setForm(emptyForm); setError(null); setActiveTab('uz'); setShowModal(true) }
   function openEdit(item: Faq) {
     setEditId(item.id)
     setForm({
       question_uz: item.question_uz, question_ru: item.question_ru ?? '', question_en: item.question_en ?? '',
       answer_uz: item.answer_uz, answer_ru: item.answer_ru ?? '', answer_en: item.answer_en ?? '',
     })
-    setError(null); setShowModal(true)
+    setError(null); setActiveTab('uz'); setShowModal(true)
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -141,24 +173,39 @@ export default function FaqAdminPage() {
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-3">
               {error && <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Savol (UZ) *</label>
-                  <button type="button" onClick={handleTranslateQuestion} disabled={translatingQuestion || !form.question_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">{translatingQuestion ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+
+              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} onTranslateAll={handleTranslateAll} translating={translatingAll} translateProgress={translateAllProgress} />
+
+              {activeTab === 'uz' && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Savol (UZ) *</label>
+                      <button type="button" onClick={handleTranslateQuestion} disabled={translatingQuestion || !form.question_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingQuestion ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+                    </div>
+                    <input required value={form.question_uz} onChange={e => setForm({...form, question_uz: e.target.value})} className={inp} />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Javob (UZ) *</label>
+                      <button type="button" onClick={handleTranslateAnswer} disabled={translatingAnswer || !form.answer_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">{translatingAnswer ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+                    </div>
+                    <textarea required rows={3} value={form.answer_uz} onChange={e => setForm({...form, answer_uz: e.target.value})} className={inp} />
+                  </div>
                 </div>
-                <input required value={form.question_uz} onChange={e => setForm({...form, question_uz: e.target.value})} className={inp} />
-              </div>
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (RU)</label><input value={form.question_ru} onChange={e => setForm({...form, question_ru: e.target.value})} className={inp} /></div>
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (EN)</label><input value={form.question_en} onChange={e => setForm({...form, question_en: e.target.value})} className={inp} /></div>
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Javob (UZ) *</label>
-                  <button type="button" onClick={handleTranslateAnswer} disabled={translatingAnswer || !form.answer_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">{translatingAnswer ? 'Tarjimon...' : 'RU/EN tarjima'}</button>
+              )}
+              {activeTab === 'ru' && (
+                <div className="space-y-3">
+                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (RU)</label><input value={form.question_ru} onChange={e => setForm({...form, question_ru: e.target.value})} className={inp} /></div>
+                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (RU)</label><textarea rows={3} value={form.answer_ru} onChange={e => setForm({...form, answer_ru: e.target.value})} className={inp} /></div>
                 </div>
-                <textarea required rows={3} value={form.answer_uz} onChange={e => setForm({...form, answer_uz: e.target.value})} className={inp} />
-              </div>
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (RU)</label><textarea rows={2} value={form.answer_ru} onChange={e => setForm({...form, answer_ru: e.target.value})} className={inp} /></div>
-              <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (EN)</label><textarea rows={2} value={form.answer_en} onChange={e => setForm({...form, answer_en: e.target.value})} className={inp} /></div>
+              )}
+              {activeTab === 'en' && (
+                <div className="space-y-3">
+                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Savol (EN)</label><input value={form.question_en} onChange={e => setForm({...form, question_en: e.target.value})} className={inp} /></div>
+                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Javob (EN)</label><textarea rows={3} value={form.answer_en} onChange={e => setForm({...form, answer_en: e.target.value})} className={inp} /></div>
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={saving} className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg disabled:opacity-60">{saving ? 'Saqlanmoqda...' : 'Saqlash'}</button>
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Bekor</button>
