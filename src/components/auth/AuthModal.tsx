@@ -23,16 +23,19 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   const [tab, setTab] = useState(initialTab);
   const [registered, setRegistered] = useState(false);
 
-  const [siEmail, setSiEmail] = useState('');
+  // Sign-in state
+  const [siPhone, setSiPhone] = useState('');
+  const [siPhoneValid, setSiPhoneValid] = useState(false);
   const [siPass, setSiPass] = useState('');
   const [siError, setSiError] = useState('');
 
+  // Sign-up state
   const [suName, setSuName] = useState('');
   const [suDob, setSuDob] = useState('');
   const [suGender, setSuGender] = useState('');
-  const [suEmail, setSuEmail] = useState('');
   const [suPass, setSuPass] = useState('');
   const [suPhone, setSuPhone] = useState('');
+  const [suPhoneValid, setSuPhoneValid] = useState(false);
   const [suPhoto, setSuPhoto] = useState('');
   const [suError, setSuError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -46,9 +49,11 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   const [tgLinked, setTgLinked] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Forgot password state
   const [forgotMode, setForgotMode] = useState(false);
-  const [fpEmail, setFpEmail] = useState('');
-  const [fpStep, setFpStep] = useState<'email' | 'telegram' | 'otp' | 'newpw'>('email');
+  const [fpPhone, setFpPhone] = useState('');
+  const [fpPhoneValid, setFpPhoneValid] = useState(false);
+  const [fpStep, setFpStep] = useState<'phone' | 'telegram' | 'otp' | 'newpw'>('phone');
   const [fpSessionId, setFpSessionId] = useState('');
   const [fpBotLink, setFpBotLink] = useState('');
   const [fpOtp, setFpOtp] = useState('');
@@ -69,7 +74,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       setTgError('');
       setTgLinked(false);
       setForgotMode(false);
-      setFpStep('email');
+      setFpStep('phone');
       setFpOtp('');
       setFpError('');
       setFpLinked(false);
@@ -95,9 +100,9 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
-    if (!siEmail.trim() || !siPass) { setSiError(t('invalidCredentials')); return; }
+    if (!siPhoneValid || !siPass) { setSiError(t('invalidCredentials')); return; }
     try {
-      const err = await login(siEmail, siPass);
+      const err = await login(siPhone, siPass);
       if (err) { setSiError(err); return; }
       onClose();
     } catch {
@@ -118,7 +123,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     if (!suName.trim()) { setSuError(t('nameRequired')); return; }
     if (!suDob) { setSuError(t('dobRequired')); return; }
     if (!suGender) { setSuError(t('genderRequired')); return; }
-    if (!suPhone.trim()) { setSuError(t('phoneRequired')); return; }
+    if (!suPhoneValid) { setSuError(t('phoneInvalid')); return; }
     if (suPass.length < 6) { setSuError(t('error')); return; }
     setSuError('');
     setTgLoading(true);
@@ -126,7 +131,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       const res = await fetch('/api/telegram/init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ purpose: 'signup', email: suEmail }),
+        body: JSON.stringify({ purpose: 'signup', phone: suPhone }),
       });
       const data = await res.json();
       if (!res.ok) { setSuError(data.error ? `${t('telegramSessionError')}: ${data.error}` : t('telegramSessionError')); return; }
@@ -161,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   }
 
   async function handleOtpVerify() {
-    if (tgOtp.length !== 6) { setTgError(t("enterCode6")); return; }
+    if (tgOtp.length !== 6) { setTgError(t('enterCode6')); return; }
     setTgLoading(true);
     setTgError('');
     try {
@@ -177,30 +182,30 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         fullName: suName,
         dob: suDob,
         gender: suGender,
-        email: suEmail,
         password: suPass,
         phone: suPhone,
         photoDataUrl: suPhoto || undefined,
       });
       if (err) { setTgError(err); return; }
       setRegistered(true);
-    } catch (e: any) {
-      setTgError(`Xatolik: ${e?.message || e}`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setTgError(`Xatolik: ${msg}`);
     } finally {
       setTgLoading(false);
     }
   }
 
-  async function handleFpEmail(e: React.FormEvent) {
+  async function handleFpPhone(e: React.FormEvent) {
     e.preventDefault();
-    if (!fpEmail.trim()) { setFpError(t('enterEmail')); return; }
+    if (!fpPhoneValid) { setFpError(t('phoneInvalid')); return; }
     setFpLoading(true);
     setFpError('');
     try {
       const res = await fetch('/api/telegram/init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ purpose: 'reset', email: fpEmail }),
+        body: JSON.stringify({ purpose: 'reset', phone: fpPhone }),
       });
       const data = await res.json();
       if (!res.ok) { setFpError(data.error ? `${t('telegramSessionError')}: ${data.error}` : t('telegramSessionError')); return; }
@@ -216,7 +221,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
   }
 
   async function handleFpOtpVerify() {
-    if (fpOtp.length !== 6) { setFpError(t("enterCode6")); return; }
+    if (fpOtp.length !== 6) { setFpError(t('enterCode6')); return; }
     setFpLoading(true);
     setFpError('');
     try {
@@ -244,12 +249,11 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: fpEmail, sessionId: fpSessionId, newPassword: fpNewPw }),
+        body: JSON.stringify({ phone: fpPhone, sessionId: fpSessionId, newPassword: fpNewPw }),
       });
       const data = await res.json();
       if (!res.ok) { setFpError(data.error || t('error')); return; }
       setForgotMode(false);
-      setSiEmail(fpEmail);
       setTab('signin');
     } catch {
       setFpError(t('error'));
@@ -294,10 +298,12 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
           </button>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">{t('resetPassword')}</h2>
 
-          {fpStep === 'email' && (
-            <form onSubmit={handleFpEmail} className="space-y-4">
+          {fpStep === 'phone' && (
+            <form onSubmit={handleFpPhone} className="space-y-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('fpInstructions')}</p>
-              <input type="email" required value={fpEmail} onChange={e => setFpEmail(e.target.value)} className={inputCls} placeholder="email@example.com" />
+              <PhoneInput
+                onChange={(val, valid) => { setFpPhone(val); setFpPhoneValid(valid); }}
+              />
               {fpError && <p className="text-red-500 text-sm">{fpError}</p>}
               <button type="submit" disabled={fpLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
                 {fpLoading ? t('loading') : t('continueBtn')}
@@ -368,8 +374,11 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         {tab === 'signin' && (
           <form onSubmit={handleSignIn} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('email')}</label>
-              <input type="email" required value={siEmail} onChange={e => setSiEmail(e.target.value)} className={siError ? errInputCls : inputCls} />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('phone')}</label>
+              <PhoneInput
+                onChange={(val, valid) => { setSiPhone(val); setSiPhoneValid(valid); }}
+                className={siError ? 'border-red-400' : ''}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('password')}</label>
@@ -412,16 +421,12 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('email')} *</label>
-              <input type="email" required value={suEmail} onChange={e => setSuEmail(e.target.value)} className={inputCls} />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('password')} *</label>
               <input type="password" required minLength={6} value={suPass} onChange={e => setSuPass(e.target.value)} className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('phone')} *</label>
-              <PhoneInput required onChange={setSuPhone} />
+              <PhoneInput required onChange={(val, valid) => { setSuPhone(val); setSuPhoneValid(valid); }} />
             </div>
             {suError && <p className="text-red-500 text-sm">{suError}</p>}
             <button type="submit" disabled={tgLoading} className="w-full bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition disabled:opacity-60">
@@ -441,7 +446,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <a href={tgBotLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.41l-2.948-.924c-.64-.203-.652-.64.136-.948l11.52-4.44c.534-.194 1.001.13.766.15z"/></svg>
-              @jamshidbilanbot ni ochish
+              {t('openTelegramBot')}
             </a>
             <div className="space-y-3 pt-1 w-full">
               <p className="text-xs text-gray-400">

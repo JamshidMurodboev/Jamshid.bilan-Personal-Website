@@ -31,8 +31,10 @@ export async function POST(req: NextRequest) {
 
   await supabase.from('telegram_otp_sessions').update({ status: 'verified' }).eq('id', sessionId);
 
+  // NOTE: phone is stored in data.email column (telegram_otp_sessions has no phone column yet)
   if (data.purpose === 'reset' && data.email && data.chat_id) {
-    await supabase.from('site_users').update({ telegram_chat_id: data.chat_id }).eq('email', data.email);
+    // data.email contains the phone value for reset sessions
+    await supabase.from('site_users').update({ telegram_chat_id: data.chat_id }).eq('phone', data.email);
   }
 
   return NextResponse.json({ success: true, chatId: data.chat_id });
