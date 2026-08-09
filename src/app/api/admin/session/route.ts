@@ -19,11 +19,11 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
 
   const response = NextResponse.json({
-    authenticated: !!user,
-    email: user?.email ?? null,
+    authenticated: !!session,
+    email: session?.user?.email ?? null,
   });
 
   cookiesToApply.forEach(({ name, value, options }) => {
