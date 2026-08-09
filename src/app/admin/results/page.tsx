@@ -736,6 +736,7 @@ export default function ResultsPage() {
                   onChange={(urls) => setForm({ ...form, photo_urls: urls })}
                   multiple
                   label="Rasmlar"
+                  aspectRatio={1}
                 />
               </div>
 
