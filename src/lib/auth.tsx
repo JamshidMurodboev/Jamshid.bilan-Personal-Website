@@ -169,10 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     const json = await res.json();
     if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
-    // Store session in browser client so getSession() works on refresh
+    // Store session in localStorage without awaiting — avoids blocking on onAuthStateChange
     if (json.accessToken && json.refreshToken) {
-      const supabase = createClient();
-      await supabase.auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken });
+      createClient().auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken }).catch(() => {});
     }
     const authUser = serverUserToAuthUser(json.user);
     if (authUser.photoDataUrl) {
@@ -212,10 +211,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Store session so getSession() works on refresh
+    // Store session in localStorage without awaiting — avoids blocking on onAuthStateChange
     if (json.accessToken && json.refreshToken) {
-      const supabase = createClient();
-      await supabase.auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken });
+      createClient().auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken }).catch(() => {});
     }
     if (json.user) {
       setUser(serverUserToAuthUser(json.user));
