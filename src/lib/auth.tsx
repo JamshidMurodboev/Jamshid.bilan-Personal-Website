@@ -12,8 +12,8 @@ export interface AuthUser {
   fullName: string;
   dob: string;
   gender: string;
-  phone: string;
-  email: string;
+  phone: string;   // user-visible identifier (formatted phone)
+  email: string;   // synthetic email stored in Supabase auth (e.g. 998912345678@jamshid.bilan)
   photoDataUrl?: string;
   languageCertificate?: LanguageCertificate;
 }
@@ -22,7 +22,6 @@ export interface SignupInput {
   fullName: string;
   dob: string;
   gender: string;
-  email: string;
   password: string;
   phone: string;
   photoDataUrl?: string;
@@ -30,7 +29,7 @@ export interface SignupInput {
 
 interface AuthContextType {
   user: AuthUser | null;
-  login: (email: string, password: string) => Promise<string | null>;
+  login: (phone: string, password: string) => Promise<string | null>;
   signup: (data: SignupInput) => Promise<string | null>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<Omit<AuthUser, 'id' | 'email'>>) => Promise<void>;
@@ -132,17 +131,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function login(email: string, password: string): Promise<string | null> {
+  async function login(phone: string, password: string): Promise<string | null> {
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return error.message.includes('confirmed') ? "Email tasdiqlanmagan — parolni tiklashni urinib ko'ring" : "Email yoki parol noto'g'ri";
+    // Build synthetic email from phone digits only
+    const syntheticEmail = phone.replace(/\D/g, '') + '@jamshid.bilan';
+    const { data, error } = await supabase.auth.signInWithPassword({ email: syntheticEmail, password });
+    if (error) return "Telefon raqam yoki parol noto'g'ri";
     // Ensure site_users row exists for accounts created outside the new signup flow
     if (data.user) {
       const { data: existing } = await supabase.from('site_users').select('id').eq('id', data.user.id).single();
       if (!existing) {
         await supabase.from('site_users').insert({
           id: data.user.id,
-          email: data.user.email,
+          email: syntheticEmail,
+          phone: phone,
           full_name: '',
           created_at: new Date().toISOString(),
           last_active_at: new Date().toISOString(),
@@ -168,12 +170,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: data.email,
+        phone: data.phone,
         password: data.password,
         fullName: data.fullName,
         dob: data.dob,
         gender: data.gender,
-        phone: data.phone,
         photoUrl,
       }),
     });
@@ -185,10 +186,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Sign in immediately after admin-created account
+    // Sign in immediately after admin-created account using synthetic email
+    const syntheticEmail = data.phone.replace(/\D/g, '') + '@jamshid.bilan';
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: data.email,
+      email: syntheticEmail,
       password: data.password,
     });
     if (signInError) return `Xatolik: ${signInError.message}`;
@@ -231,7 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function changePassword(currentPassword: string, newPassword: string): Promise<string | null> {
     if (!user) return 'Foydalanuvchi topilmadi';
     const supabase = createClient();
-    // Re-authenticate to verify current password
+    // Re-authenticate using the synthetic email already stored in user.email
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: currentPassword,
