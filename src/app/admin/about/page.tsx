@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { uploadFiles } from '@/lib/upload';
+import { autoTranslate } from '@/lib/translate';
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs';
 
 interface AboutContent {
   id?: string;
@@ -27,6 +29,9 @@ export default function AdminAboutPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [activeTab, setActiveTab] = useState<LangTab>('uz');
+  const [translatingAll, setTranslatingAll] = useState(false);
+  const [translateAllProgress, setTranslateAllProgress] = useState('');
 
   useEffect(() => {
     const supabase = createClient();
@@ -45,6 +50,30 @@ export default function AdminAboutPage() {
       }
     });
   }, []);
+
+  async function handleTranslateAll() {
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      { uz: form.body_uz, setRu: (v: string) => setForm((f: AboutContent) => ({ ...f, body_ru: v })), setEn: (v: string) => setForm((f: AboutContent) => ({ ...f, body_en: v })) },
+      { uz: form.credentials_uz, setRu: (v: string) => setForm((f: AboutContent) => ({ ...f, credentials_ru: v })), setEn: (v: string) => setForm((f: AboutContent) => ({ ...f, credentials_en: v })) },
+    ];
+    const active = fields.filter(f => f.uz.trim());
+    if (active.length === 0) return;
+    setTranslatingAll(true);
+    setTranslateAllProgress(`0/${active.length}`);
+    try {
+      for (let i = 0; i < active.length; i++) {
+        setTranslateAllProgress(`${i + 1}/${active.length}`);
+        const result = await autoTranslate(active[i].uz);
+        active[i].setRu(result.ru);
+        active[i].setEn(result.en);
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi');
+    } finally {
+      setTranslatingAll(false);
+      setTranslateAllProgress('');
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -122,20 +151,26 @@ export default function AdminAboutPage() {
         </div>
 
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Matn (body)</p>
-          <div className="space-y-3">
-            {field('O\'zbek', 'body_uz', 4)}
-            {field('Русский', 'body_ru', 4)}
-            {field('English', 'body_en', 4)}
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Yutuqlar (har biri yangi qatordan)</p>
-          <div className="space-y-3">
-            {field("O'zbek", 'credentials_uz', 3)}
-            {field('Русский', 'credentials_ru', 3)}
-            {field('English', 'credentials_en', 3)}
+          <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} onTranslateAll={handleTranslateAll} translating={translatingAll} translateProgress={translateAllProgress} />
+          <div className="space-y-4 mt-2">
+            {activeTab === 'uz' && (
+              <>
+                {field("Matn (UZ)", 'body_uz', 4)}
+                {field("Yutuqlar (UZ, har biri yangi qatordan)", 'credentials_uz', 3)}
+              </>
+            )}
+            {activeTab === 'ru' && (
+              <>
+                {field("Matn (RU)", 'body_ru', 4)}
+                {field("Достижения (RU)", 'credentials_ru', 3)}
+              </>
+            )}
+            {activeTab === 'en' && (
+              <>
+                {field("Body (EN)", 'body_en', 4)}
+                {field("Credentials (EN)", 'credentials_en', 3)}
+              </>
+            )}
           </div>
         </div>
 

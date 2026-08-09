@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Scholarship, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
@@ -9,6 +9,7 @@ import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -47,7 +48,6 @@ const emptyForm = {
   results_date_type: 'exact' as ResultsDateType,
   results_date: '',
   photo_urls: [] as string[],
-  // new process period fields
   application_period_type: 'exact' as ResultsDateType,
   application_period: '',
   interview_exam_period_type: 'exact' as ResultsDateType,
@@ -64,12 +64,25 @@ type FormState = typeof emptyForm
 type DocRow = { uz: string; ru: string; en: string; mandatory?: boolean }
 const emptyDoc = (): DocRow => ({ uz: '', ru: '', en: '', mandatory: true })
 
-// Scholarship process step
-type ProcessStep = { key: string; label: string; type: ResultsDateType; value: string; description_uz: string; description_ru: string; description_en: string; custom?: boolean }
+// Scholarship process step — with multilingual labels
+type ProcessStep = {
+  key: string
+  label: string       // legacy display / backward compat
+  label_uz: string    // new
+  label_ru: string    // new
+  label_en: string    // new
+  type: ResultsDateType
+  value: string
+  description_uz: string
+  description_ru: string
+  description_en: string
+  custom?: boolean
+}
+
 const DEFAULT_STEPS: ProcessStep[] = [
-  { key: 'admission', label: "Qabul muddati / Ariza davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
-  { key: 'interview_exam', label: "Suhbat / Imtihon davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
-  { key: 'results', label: "Natijalar davri", type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'admission', label: "Qabul muddati / Ariza davri", label_uz: "Qabul muddati / Ariza davri", label_ru: '', label_en: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'interview_exam', label: "Suhbat / Imtihon davri", label_uz: "Suhbat / Imtihon davri", label_ru: '', label_en: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
+  { key: 'results', label: "Natijalar davri", label_uz: "Natijalar davri", label_ru: '', label_en: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '' },
 ]
 
 function StatusBadge({ status }: { status: Scholarship['status'] }) {
@@ -82,6 +95,12 @@ function StatusBadge({ status }: { status: Scholarship['status'] }) {
   return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cfg[status]}`}>{lbl[status]}</span>
 }
 
+function swapArr<T>(arr: T[], i: number, j: number): T[] {
+  const next = [...arr]
+  ;[next[i], next[j]] = [next[j], next[i]]
+  return next
+}
+
 export default function ScholarshipsPage() {
   const [items, setItems] = useState<Scholarship[]>([])
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -91,16 +110,15 @@ export default function ScholarshipsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [translating, setTranslating] = useState(false)
   const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
+  const [translateProgress, setTranslateProgress] = useState('')
+  const [activeTab, setActiveTab] = useState<LangTab>('uz')
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>(DEFAULT_STEPS)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
-  const [showDocsPreview, setShowDocsPreview] = useState(false)
   const [orderPending, setOrderPending] = useState(false)
-  const dragIdx = useRef<number | null>(null)
 
   function handleDragStart(index: number) { setDragIndex(index) }
   function handleDragOver(e: React.DragEvent, index: number) {
@@ -157,6 +175,7 @@ export default function ScholarshipsPage() {
     setProcessSteps(DEFAULT_STEPS.map(s => ({ ...s })))
     setMediaLinks([])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -192,7 +211,6 @@ export default function ScholarshipsPage() {
     })
     setRequiredDocs((item as any).required_documents ?? [])
     setMediaLinks((item as any).media_links ?? [])
-    // Load process steps — merge legacy admission+application into one
     const sp: any[] = (item as any).scholarship_process ?? []
     if (sp.length > 0) {
       const hasAdmission = sp.some(s => s.key === 'admission')
@@ -212,13 +230,16 @@ export default function ScholarshipsPage() {
         normalized = [merged, ...sp.filter(s => s.key !== 'admission' && s.key !== 'application')]
       }
       setProcessSteps(normalized.map(s => ({
-        key: s.key, label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.label || s.key,
+        key: s.key,
+        label: DEFAULT_STEPS.find(d => d.key === s.key)?.label || s.label || s.key,
+        label_uz: s.label_uz || s.label || DEFAULT_STEPS.find(d => d.key === s.key)?.label_uz || '',
+        label_ru: s.label_ru || '',
+        label_en: s.label_en || '',
         type: s.type || 'period', value: s.value || '',
         description_uz: s.description_uz || '', description_ru: s.description_ru || '', description_en: s.description_en || '',
         custom: !DEFAULT_STEPS.some(d => d.key === s.key),
       })))
     } else {
-      // migrate from old flat fields
       const admissionValue = [item.open_date, item.close_date].filter(Boolean).join(' – ')
         || (item as any).application_period || ''
       setProcessSteps([
@@ -228,22 +249,43 @@ export default function ScholarshipsPage() {
       ])
     }
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
     loadStudentResults(item.id)
   }
 
-  async function handleTranslate() {
-    if (!form.description_uz.trim()) return
-    setTranslating(true)
+  // "Translate all" for current active tab fields
+  async function handleTranslateAll() {
+    const fields: Array<{ field: keyof FormState; uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      {
+        field: 'description_uz',
+        uz: form.description_uz,
+        setRu: v => setForm(f => ({ ...f, description_ru: v })),
+        setEn: v => setForm(f => ({ ...f, description_en: v })),
+      },
+      {
+        field: 'coverage',
+        uz: form.coverage,
+        setRu: v => setForm(f => ({ ...f, coverage_ru: v })),
+        setEn: v => setForm(f => ({ ...f, coverage_en: v })),
+      },
+    ]
+    const active = fields.filter(f => f.uz.trim())
+    if (active.length === 0) return
+    setTranslatingSections(s => ({ ...s, translateAll: true }))
+    setTranslateProgress(`0/${active.length}`)
     try {
-      const result = await autoTranslate(form.description_uz)
-      setForm(f => ({
-        ...f,
-        description_ru: result.ru || f.description_ru,
-        description_en: result.en || f.description_en,
-      }))
+      for (let i = 0; i < active.length; i++) {
+        setTranslateProgress(`${i + 1}/${active.length}`)
+        const result = await autoTranslate(active[i].uz)
+        active[i].setRu(result.ru)
+        active[i].setEn(result.en)
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
-      setTranslating(false)
+      setTranslatingSections(s => ({ ...s, translateAll: false }))
+      setTranslateProgress('')
     }
   }
 
@@ -253,8 +295,23 @@ export default function ScholarshipsPage() {
     try {
       const result = await autoTranslate(form.coverage)
       setForm(f => ({ ...f, coverage_ru: result.ru || f.coverage_ru, coverage_en: result.en || f.coverage_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingSections(s => ({ ...s, coverage: false }))
+    }
+  }
+
+  async function handleTranslate() {
+    if (!form.description_uz.trim()) return
+    setTranslatingSections(s => ({ ...s, description: true }))
+    try {
+      const result = await autoTranslate(form.description_uz)
+      setForm(f => ({ ...f, description_ru: result.ru || f.description_ru, description_en: result.en || f.description_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingSections(s => ({ ...s, description: false }))
     }
   }
 
@@ -265,6 +322,8 @@ export default function ScholarshipsPage() {
     try {
       const result = await autoTranslate(doc.uz)
       setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
     }
@@ -277,8 +336,24 @@ export default function ScholarshipsPage() {
     try {
       const result = await autoTranslate(step.description_uz)
       setProcessSteps(ps => ps.map((p, j) => j === i ? { ...p, description_ru: result.ru || p.description_ru, description_en: result.en || p.description_en } : p))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingSections(s => ({ ...s, [`step_${i}`]: false }))
+    }
+  }
+
+  async function handleTranslateStepLabel(i: number) {
+    const step = processSteps[i]
+    if (!step.label_uz.trim()) return
+    setTranslatingSections(s => ({ ...s, [`stepLabel_${i}`]: true }))
+    try {
+      const result = await autoTranslate(step.label_uz)
+      setProcessSteps(ps => ps.map((p, j) => j === i ? { ...p, label_ru: result.ru || p.label_ru, label_en: result.en || p.label_en } : p))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingSections(s => ({ ...s, [`stepLabel_${i}`]: false }))
     }
   }
 
@@ -287,22 +362,15 @@ export default function ScholarshipsPage() {
     setSaving(true)
     setError(null)
 
-    let description_ru = form.description_ru
-    let description_en = form.description_en
-
-    if (form.description_uz.trim() && (!description_ru || !description_en)) {
-      try {
-        const result = await autoTranslate(form.description_uz)
-        if (!description_ru) description_ru = result.ru
-        if (!description_en) description_en = result.en
-      } catch {
-        // ignore translate errors
-      }
-    }
-
     const filteredDocs = requiredDocs.filter(d => d.uz.trim())
-    const filteredSteps = processSteps.filter(s => s.value.trim() || s.label.trim()).map(s => ({
-      key: s.key, label: s.label, type: s.type, value: s.value,
+    const filteredSteps = processSteps.filter(s => s.value.trim() || s.label_uz.trim() || s.label.trim()).map(s => ({
+      key: s.key,
+      label: s.label_uz || s.label,
+      label_uz: s.label_uz || s.label || null,
+      label_ru: s.label_ru || null,
+      label_en: s.label_en || null,
+      type: s.type,
+      value: s.value,
       description_uz: s.description_uz || null,
       description_ru: s.description_ru || null,
       description_en: s.description_en || null,
@@ -320,8 +388,8 @@ export default function ScholarshipsPage() {
       category: form.category || null,
       degrees_available: form.degrees_available.length > 0 ? form.degrees_available : null,
       description_uz: form.description_uz || null,
-      description_ru: description_ru || null,
-      description_en: description_en || null,
+      description_ru: form.description_ru || null,
+      description_en: form.description_en || null,
       open_date: form.open_date || null,
       close_date: form.close_date || null,
       results_date_type: form.results_date_type,
@@ -481,160 +549,115 @@ export default function ScholarshipsPage() {
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
-              {/* Title */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi *</label>
-                <input
-                  required
-                  value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })}
-                  className={inp}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
-                <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="turkiye-burslari" />
-              </div>
+              {/* Language Tabs */}
+              <LanguageTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onTranslateAll={handleTranslateAll}
+                translating={!!translatingSections['translateAll']}
+                translateProgress={translateProgress}
+              />
 
-              {/* Country */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Davlat *</label>
-                <CountrySelect
-                  value={form.country}
-                  onChange={v => setForm({ ...form, country: v })}
-                  required
-                  className={inp}
-                />
-              </div>
-
-              {/* University */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitet</label>
-                <input
-                  value={form.university}
-                  onChange={e => setForm({ ...form, university: e.target.value })}
-                  className={inp}
-                />
-              </div>
-
-              {/* Coverage */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Qamrov (vergul bilan) (UZ)</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslateCoverage}
-                    disabled={!!translatingSections['coverage'] || !form.coverage.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translatingSections['coverage'] ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
-                  </button>
+              {/* Translatable fields — shown per tab */}
+              {activeTab === 'uz' && (
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
+                      <button type="button" onClick={handleTranslate} disabled={!!translatingSections['description'] || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                        {translatingSections['description'] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                      </button>
+                    </div>
+                    <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Qamrov (vergul bilan) (UZ)</label>
+                      <button type="button" onClick={handleTranslateCoverage} disabled={!!translatingSections['coverage'] || !form.coverage.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40">
+                        {translatingSections['coverage'] ? 'Tarjimon...' : 'RU/EN tarjima'}
+                      </button>
+                    </div>
+                    <input value={form.coverage} onChange={e => setForm({ ...form, coverage: e.target.value })} placeholder="Turar joy, Ovqat, Stipendiya" className={inp} />
+                  </div>
                 </div>
-                <input
-                  value={form.coverage}
-                  onChange={e => setForm({ ...form, coverage: e.target.value })}
-                  placeholder="Turar joy, Ovqat, Stipendiya"
-                  className={inp}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (RU)</label>
-                <input
-                  value={form.coverage_ru}
-                  onChange={e => setForm({ ...form, coverage_ru: e.target.value })}
-                  placeholder="Жильё, Питание, Стипендия"
-                  className={inp}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (EN)</label>
-                <input
-                  value={form.coverage_en}
-                  onChange={e => setForm({ ...form, coverage_en: e.target.value })}
-                  placeholder="Housing, Meals, Stipend"
-                  className={inp}
-                />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kategoriya</label>
-                <select
-                  value={form.category}
-                  onChange={e => setForm({ ...form, category: e.target.value as Category | '' })}
-                  className={inp}
-                >
-                  <option value="">— Tanlang —</option>
-                  <option value="fully_funded">To&apos;liq moliyalashtirilgan</option>
-                  <option value="partially_funded">Qisman moliyalashtirilgan</option>
-                  <option value="self_funded">O&apos;z hisobiga</option>
-                </select>
-              </div>
-
-              {/* Degrees available */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Ta&apos;lim darajalari</label>
-                <div className="flex flex-wrap gap-3">
-                  {DEGREE_OPTIONS.map(opt => (
-                    <label key={opt.value} className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.degrees_available.includes(opt.value)}
-                        onChange={e => {
-                          const updated = e.target.checked
-                            ? [...form.degrees_available, opt.value]
-                            : form.degrees_available.filter(d => d !== opt.value)
-                          setForm({ ...form, degrees_available: updated })
-                        }}
-                        className="w-4 h-4 rounded accent-teal-600"
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
-                    </label>
-                  ))}
+              )}
+              {activeTab === 'ru' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (RU)</label>
+                    <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (RU)</label>
+                    <input value={form.coverage_ru} onChange={e => setForm({ ...form, coverage_ru: e.target.value })} placeholder="Жильё, Питание, Стипендия" className={inp} />
+                  </div>
                 </div>
-              </div>
-
-              {/* Description UZ */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslate}
-                    disabled={translating || !form.description_uz.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translating ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
-                  </button>
+              )}
+              {activeTab === 'en' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (EN)</label>
+                    <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (EN)</label>
+                    <input value={form.coverage_en} onChange={e => setForm({ ...form, coverage_en: e.target.value })} placeholder="Housing, Meals, Stipend" className={inp} />
+                  </div>
                 </div>
-                <textarea
-                  rows={3}
-                  value={form.description_uz}
-                  onChange={e => setForm({ ...form, description_uz: e.target.value })}
-                  className={inp}
-                />
-              </div>
+              )}
 
-              {/* Description RU */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (RU)</label>
-                <textarea
-                  rows={3}
-                  value={form.description_ru}
-                  onChange={e => setForm({ ...form, description_ru: e.target.value })}
-                  className={inp}
-                />
-              </div>
+              {/* Non-translatable common fields */}
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi *</label>
+                  <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })} className={inp} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
+                  <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="turkiye-burslari" />
+                </div>
 
-              {/* Description EN */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (EN)</label>
-                <textarea
-                  rows={3}
-                  value={form.description_en}
-                  onChange={e => setForm({ ...form, description_en: e.target.value })}
-                  className={inp}
-                />
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Davlat *</label>
+                  <CountrySelect value={form.country} onChange={v => setForm({ ...form, country: v })} required className={inp} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitet</label>
+                  <input value={form.university} onChange={e => setForm({ ...form, university: e.target.value })} className={inp} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kategoriya</label>
+                  <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value as Category | '' })} className={inp}>
+                    <option value="">— Tanlang —</option>
+                    <option value="fully_funded">To&apos;liq moliyalashtirilgan</option>
+                    <option value="partially_funded">Qisman moliyalashtirilgan</option>
+                    <option value="self_funded">O&apos;z hisobiga</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Ta&apos;lim darajalari</label>
+                  <div className="flex flex-wrap gap-3">
+                    {DEGREE_OPTIONS.map(opt => (
+                      <label key={opt.value} className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={form.degrees_available.includes(opt.value)}
+                          onChange={e => {
+                            const updated = e.target.checked
+                              ? [...form.degrees_available, opt.value]
+                              : form.degrees_available.filter(d => d !== opt.value)
+                            setForm({ ...form, degrees_available: updated })
+                          }}
+                          className="w-4 h-4 rounded accent-teal-600"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Grant Jarayoni — Scholarship Process */}
@@ -643,44 +666,75 @@ export default function ScholarshipsPage() {
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Grant Jarayoni</h3>
                   <button
                     type="button"
-                    onClick={() => setProcessSteps(ps => [...ps, { key: `custom_${Date.now()}`, label: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '', custom: true }])}
+                    onClick={() => setProcessSteps(ps => [...ps, { key: `custom_${Date.now()}`, label: '', label_uz: '', label_ru: '', label_en: '', type: 'period', value: '', description_uz: '', description_ru: '', description_en: '', custom: true }])}
                     className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline"
                   >
                     + Bosqich qo&apos;shish
                   </button>
                 </div>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">Bosqichlarni tortib qayta tartiblash mumkin</p>
                 <div className="space-y-2">
                   {processSteps.map((step, idx) => (
                     <div
                       key={step.key}
-                      draggable
-                      onDragStart={() => { dragIdx.current = idx }}
-                      onDragOver={e => { e.preventDefault() }}
-                      onDrop={() => {
-                        if (dragIdx.current === null || dragIdx.current === idx) return
-                        setProcessSteps(ps => {
-                          const next = [...ps]
-                          const [moved] = next.splice(dragIdx.current!, 1)
-                          next.splice(idx, 0, moved)
-                          return next
-                        })
-                        dragIdx.current = null
-                      }}
-                      className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 cursor-grab active:cursor-grabbing"
+                      className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3"
                     >
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-gray-400 dark:text-gray-500 cursor-grab select-none">⠿</span>
-                        {step.custom ? (
-                          <input
-                            value={step.label}
-                            onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label: e.target.value } : p))}
-                            placeholder="Bosqich nomi..."
-                            className="flex-1 text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                          />
-                        ) : (
-                          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{step.label}</span>
-                        )}
+                        {/* Up/Down arrows */}
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => setProcessSteps(ps => swapArr(ps, idx, idx - 1))}
+                            className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5"
+                          >▲</button>
+                          <button
+                            type="button"
+                            disabled={idx === processSteps.length - 1}
+                            onClick={() => setProcessSteps(ps => swapArr(ps, idx, idx + 1))}
+                            className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5"
+                          >▼</button>
+                        </div>
+                        {/* Label (UZ) — editable for custom, display for default */}
+                        <div className="flex-1">
+                          {step.custom ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1">
+                                <input
+                                  value={step.label_uz}
+                                  onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_uz: e.target.value, label: e.target.value } : p))}
+                                  placeholder="Bosqich nomi (UZ)..."
+                                  className="flex-1 text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={!step.label_uz.trim() || !!translatingSections[`stepLabel_${idx}`]}
+                                  onClick={() => handleTranslateStepLabel(idx)}
+                                  className="text-xs text-teal-600 hover:underline disabled:opacity-40 whitespace-nowrap"
+                                >
+                                  {translatingSections[`stepLabel_${idx}`] ? '...' : 'RU/EN'}
+                                </button>
+                              </div>
+                              <input value={step.label_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: e.target.value } : p))} placeholder="Nomi (RU)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
+                              <input value={step.label_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: e.target.value } : p))} placeholder="Name (EN)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex-1">{step.label_uz || step.label}</span>
+                                <button
+                                  type="button"
+                                  disabled={!(step.label_uz || step.label).trim() || !!translatingSections[`stepLabel_${idx}`]}
+                                  onClick={() => handleTranslateStepLabel(idx)}
+                                  className="text-xs text-teal-600 hover:underline disabled:opacity-40 whitespace-nowrap"
+                                >
+                                  {translatingSections[`stepLabel_${idx}`] ? '...' : 'RU/EN'}
+                                </button>
+                              </div>
+                              <input value={step.label_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: e.target.value } : p))} placeholder="Nomi (RU)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
+                              <input value={step.label_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: e.target.value } : p))} placeholder="Name (EN)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
+                            </div>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={() => setProcessSteps(ps => ps.filter((_, j) => j !== idx))}
@@ -743,24 +797,14 @@ export default function ScholarshipsPage() {
                           <div className="flex items-center gap-3">
                             <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wide">Hujjat {i + 1}</span>
                             <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={doc.mandatory !== false}
-                                onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, mandatory: e.target.checked } : r))}
-                                className="w-3.5 h-3.5 rounded accent-red-500"
-                              />
+                              <input type="checkbox" checked={doc.mandatory !== false} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, mandatory: e.target.checked } : r))} className="w-3.5 h-3.5 rounded accent-red-500" />
                               <span className="text-xs text-gray-600 dark:text-gray-400">Majburiy</span>
                             </label>
                           </div>
                           <div className="flex items-center gap-2">
-                            <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i-1], a[i]] = [a[i], a[i-1]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
-                            <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => { const a = [...d]; [a[i], a[i+1]] = [a[i+1], a[i]]; return a })} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
-                            <button
-                              type="button"
-                              disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]}
-                              onClick={() => handleTranslateDoc(i)}
-                              className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40"
-                            >
+                            <button type="button" disabled={i === 0} onClick={() => setRequiredDocs(d => swapArr(d, i, i - 1))} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▲</button>
+                            <button type="button" disabled={i === requiredDocs.length - 1} onClick={() => setRequiredDocs(d => swapArr(d, i, i + 1))} className="text-gray-400 hover:text-teal-700 disabled:opacity-30 text-xs leading-none px-0.5">▼</button>
+                            <button type="button" disabled={!doc.uz.trim() || !!translatingSections[`doc_${i}`]} onClick={() => handleTranslateDoc(i)} className="text-xs text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-40">
                               {translatingSections[`doc_${i}`] ? 'Tarjimon...' : 'RU/EN tarjima'}
                             </button>
                             <button type="button" onClick={() => setRequiredDocs(d => d.filter((_, j) => j !== i))} className="text-red-500 text-xs hover:underline">O&apos;chirish</button>
@@ -790,90 +834,45 @@ export default function ScholarshipsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Natijalar sanasi turi</label>
-                  <select
-                    value={form.results_date_type}
-                    onChange={e => setForm({ ...form, results_date_type: e.target.value as ResultsDateType, results_date: '' })}
-                    className={inp}
-                  >
+                  <select value={form.results_date_type} onChange={e => setForm({ ...form, results_date_type: e.target.value as ResultsDateType, results_date: '' })} className={inp}>
                     <option value="exact">Aniq sana</option>
                     <option value="month">Oy</option>
                     <option value="period">Davr</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    {resultsDateLabel(form.results_date_type)}
-                  </label>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{resultsDateLabel(form.results_date_type)}</label>
                   {form.results_date_type === 'exact' ? (
-                    <input
-                      type="date"
-                      value={form.results_date}
-                      onChange={e => setForm({ ...form, results_date: e.target.value })}
-                      className={inp}
-                    />
+                    <input type="date" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />
                   ) : (
-                    <input
-                      type="text"
-                      value={form.results_date}
-                      onChange={e => setForm({ ...form, results_date: e.target.value })}
-                      placeholder={form.results_date_type === 'month' ? '2025-04' : 'Mart-Aprel'}
-                      className={inp}
-                    />
+                    <input type="text" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} placeholder={form.results_date_type === 'month' ? '2025-04' : 'Mart-Aprel'} className={inp} />
                   )}
                 </div>
               </div>
 
-              {/* Application URL */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ariza URL</label>
-                <input
-                  type="url"
-                  value={form.application_url}
-                  onChange={e => setForm({ ...form, application_url: e.target.value })}
-                  className={inp}
-                />
+                <input type="url" value={form.application_url} onChange={e => setForm({ ...form, application_url: e.target.value })} className={inp} />
               </div>
 
-              {/* Home order */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo'sh = ko'rsatilmaydi)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={form.home_order}
-                  onChange={e => setForm({ ...form, home_order: e.target.value })}
-                  className={inp}
-                  placeholder="1, 2 yoki 3"
-                />
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Bosh sahifa tartibi (1-3, bo&apos;sh = ko&apos;rsatilmaydi)</label>
+                <input type="number" min="1" max="99" value={form.home_order} onChange={e => setForm({ ...form, home_order: e.target.value })} className={inp} placeholder="1, 2 yoki 3" />
               </div>
 
-              {/* Status */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Status</label>
-                <select
-                  value={form.status}
-                  onChange={e => setForm({ ...form, status: e.target.value as Scholarship['status'] })}
-                  className={inp}
-                >
+                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as Scholarship['status'] })} className={inp}>
                   <option value="open">Ochiq</option>
                   <option value="closed">Yopiq</option>
                   <option value="upcoming">Kelayotgan</option>
                 </select>
               </div>
 
-              {/* Photos */}
               <div>
-                <ImageUpload
-                  bucket="scholarships"
-                  urls={form.photo_urls}
-                  onChange={urls => setForm({ ...form, photo_urls: urls })}
-                  multiple
-                  label="Rasmlar"
-                />
+                <ImageUpload bucket="scholarships" urls={form.photo_urls} onChange={urls => setForm({ ...form, photo_urls: urls })} multiple label="Rasmlar" />
               </div>
 
-              {/* Student results (edit mode only) */}
               {editId && (
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Bizning natijalarimiz</h3>
@@ -896,9 +895,7 @@ export default function ScholarshipsPage() {
                             <tr key={r.id} className="border-t border-gray-100 dark:border-gray-700">
                               <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{r.student_name}</td>
                               <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{r.year}</td>
-                              <td className="px-3 py-2 text-gray-600 dark:text-gray-400">
-                                {degreeLevelLabel[r.degree_level] ?? r.degree_level}
-                              </td>
+                              <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{degreeLevelLabel[r.degree_level] ?? r.degree_level}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -911,18 +908,10 @@ export default function ScholarshipsPage() {
               <MediaLinksAdmin links={mediaLinks} onChange={setMediaLinks} />
 
               <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg disabled:opacity-60 transition-colors"
-                >
+                <button type="submit" disabled={saving} className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg disabled:opacity-60 transition-colors">
                   {saving ? 'Saqlanmoqda...' : 'Saqlash'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   Bekor
                 </button>
               </div>

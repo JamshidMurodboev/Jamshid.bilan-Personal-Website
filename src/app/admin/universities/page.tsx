@@ -10,6 +10,7 @@ import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
+import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -105,6 +106,8 @@ export default function UniversitiesPage() {
   const [saving, setSaving] = useState(false)
   const [translating, setTranslating] = useState(false)
   const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
+  const [activeTab, setActiveTab] = useState<LangTab>('uz')
+  const [translateProgress, setTranslateProgress] = useState('')
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
@@ -192,6 +195,7 @@ export default function UniversitiesPage() {
     setRequiredDocs([])
     setMediaLinks([])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -225,6 +229,7 @@ export default function UniversitiesPage() {
     setRequiredDocs((item as any).required_documents ?? [])
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
+    setActiveTab('uz')
     setShowModal(true)
     loadMajors(item.id)
     loadStudentResults(item.id)
@@ -236,8 +241,33 @@ export default function UniversitiesPage() {
     try {
       const result = await autoTranslate(form.description_uz)
       setForm(f => ({ ...f, description_ru: result.ru || f.description_ru, description_en: result.en || f.description_en }))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslating(false)
+    }
+  }
+
+  async function handleTranslateAll() {
+    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
+      { uz: form.description_uz, setRu: v => setForm(f => ({ ...f, description_ru: v })), setEn: v => setForm(f => ({ ...f, description_en: v })) },
+    ]
+    const active = fields.filter(f => f.uz.trim())
+    if (active.length === 0) return
+    setTranslatingSections(s => ({ ...s, translateAll: true }))
+    setTranslateProgress(`0/${active.length}`)
+    try {
+      for (let i = 0; i < active.length; i++) {
+        setTranslateProgress(`${i + 1}/${active.length}`)
+        const result = await autoTranslate(active[i].uz)
+        active[i].setRu(result.ru)
+        active[i].setEn(result.en)
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+    } finally {
+      setTranslatingSections(s => ({ ...s, translateAll: false }))
+      setTranslateProgress('')
     }
   }
 
@@ -248,6 +278,8 @@ export default function UniversitiesPage() {
     try {
       const result = await autoTranslate(doc.uz)
       setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru: result.ru || r.ru, en: result.en || r.en } : r))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
     } finally {
       setTranslatingSections(s => ({ ...s, [`doc_${i}`]: false }))
     }
@@ -487,6 +519,39 @@ export default function UniversitiesPage() {
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
+              <LanguageTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onTranslateAll={handleTranslateAll}
+                translating={!!translatingSections['translateAll']}
+                translateProgress={translateProgress}
+              />
+
+              {/* Translatable per-tab */}
+              {activeTab === 'uz' && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
+                    <button type="button" onClick={handleTranslate} disabled={translating || !form.description_uz.trim()} className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
+                      {translating ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
+                    </button>
+                  </div>
+                  <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
+                </div>
+              )}
+              {activeTab === 'ru' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
+                  <textarea rows={6} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={`${inp} min-h-32`} placeholder="Описание на русском..." />
+                </div>
+              )}
+              {activeTab === 'en' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
+                  <textarea rows={6} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={`${inp} min-h-32`} placeholder="Description in English..." />
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Nomi *</label>
@@ -601,6 +666,8 @@ export default function UniversitiesPage() {
                             try {
                               const result = await autoTranslate(form.tuition_note_uz)
                               setForm(f => ({ ...f, tuition_note_ru: result.ru || f.tuition_note_ru, tuition_note_en: result.en || f.tuition_note_en }))
+                            } catch (e: unknown) {
+                              setError(e instanceof Error ? e.message : 'Tarjima xatosi')
                             } finally { setTranslatingSections(s => ({ ...s, tuition_note: false })) }
                           }}
                           className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40"
@@ -622,29 +689,6 @@ export default function UniversitiesPage() {
                 )}
               </div>
 
-              {/* Description UZ + auto-translate */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                  <button
-                    type="button"
-                    onClick={handleTranslate}
-                    disabled={translating || !form.description_uz.trim()}
-                    className="text-xs text-teal-700 dark:text-teal-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {translating ? 'Tarjimon...' : 'RU/EN ga tarjima qilish'}
-                  </button>
-                </div>
-                <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
-                <textarea rows={6} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={`${inp} min-h-32`} placeholder="Описание на русском..." />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
-                <textarea rows={6} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={`${inp} min-h-32`} placeholder="Description in English..." />
-              </div>
 
               <div>
                 <ImageUpload bucket="universities" urls={form.photo_urls} onChange={urls => setForm({ ...form, photo_urls: urls })} multiple label="Rasmlar" />
@@ -739,9 +783,14 @@ export default function UniversitiesPage() {
                               onClick={async () => {
                                 if (!m.name) return
                                 setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: true }))
-                                const result = await autoTranslate(m.name)
-                                updateMajor(i, { name_ru: result.ru, name_en: result.en })
-                                setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: false }))
+                                try {
+                                  const result = await autoTranslate(m.name)
+                                  updateMajor(i, { name_ru: result.ru, name_en: result.en })
+                                } catch (e: unknown) {
+                                  setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+                                } finally {
+                                  setTranslatingSections(prev => ({ ...prev, [`major_${i}`]: false }))
+                                }
                               }}
                               disabled={!!translatingSections[`major_${i}`] || !m.name.trim()}
                               className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50 whitespace-nowrap"
@@ -825,9 +874,14 @@ export default function UniversitiesPage() {
                                   onClick={async () => {
                                     if (!m.tuition_note_uz.trim()) return
                                     setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: true }))
-                                    const result = await autoTranslate(m.tuition_note_uz)
-                                    updateMajor(i, { tuition_note_ru: result.ru, tuition_note_en: result.en })
-                                    setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: false }))
+                                    try {
+                                      const result = await autoTranslate(m.tuition_note_uz)
+                                      updateMajor(i, { tuition_note_ru: result.ru, tuition_note_en: result.en })
+                                    } catch (e: unknown) {
+                                      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
+                                    } finally {
+                                      setTranslatingSections(prev => ({ ...prev, [`major_note_${i}`]: false }))
+                                    }
                                   }}
                                   disabled={!!translatingSections[`major_note_${i}`] || !m.tuition_note_uz.trim()}
                                   className="text-xs text-teal-500 hover:text-teal-400 disabled:opacity-50"

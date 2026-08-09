@@ -166,19 +166,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone: data.phone,
-        password: data.password,
-        fullName: data.fullName,
-        dob: data.dob,
-        gender: data.gender,
-        photoUrl,
-      }),
-    });
-    const json = await res.json();
+    const signupAbort = new AbortController();
+    const signupTimeout = setTimeout(() => signupAbort.abort(), 15000);
+    let res: Response;
+    try {
+      res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: data.phone,
+          password: data.password,
+          fullName: data.fullName,
+          dob: data.dob,
+          gender: data.gender,
+          photoUrl,
+        }),
+        signal: signupAbort.signal,
+      });
+    } finally {
+      clearTimeout(signupTimeout);
+    }
+    const json = await res!.json();
     if (!res.ok) return json.error || 'Xatolik yuz berdi';
 
     // Cache photo locally for instant display

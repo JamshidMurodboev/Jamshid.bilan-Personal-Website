@@ -170,14 +170,23 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
     setTgLoading(true);
     setTgError('');
     try {
-      const res = await fetch('/api/telegram/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: tgSessionId, otp: tgOtp }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setTgError(data.error || t('wrongCode')); return; }
+      const verifyAbort = new AbortController();
+      const verifyTimeout = setTimeout(() => verifyAbort.abort(), 15000);
+      let verifyRes: Response;
+      try {
+        verifyRes = await fetch('/api/telegram/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: tgSessionId, otp: tgOtp }),
+          signal: verifyAbort.signal,
+        });
+      } finally {
+        clearTimeout(verifyTimeout);
+      }
+      const data = await verifyRes!.json();
+      if (!verifyRes!.ok) { setTgError(data.error || t('wrongCode')); return; }
 
+      setTgError('Akkaunt yaratilmoqda...');
       const err = await signup({
         fullName: suName,
         dob: suDob,
@@ -187,6 +196,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
         photoDataUrl: suPhoto || undefined,
       });
       if (err) { setTgError(err); return; }
+      setTgError('');
       setRegistered(true);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
