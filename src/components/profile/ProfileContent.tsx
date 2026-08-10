@@ -96,10 +96,10 @@ export default function ProfileContent() {
     reader.readAsDataURL(file);
   }
 
-  function save(e: React.FormEvent) {
+  async function save(e: React.FormEvent) {
     e.preventDefault();
-    const lc = certType ? { type: certType, score: certScore } : undefined;
-    updateProfile({ fullName: name, dob, gender, phone, photoDataUrl: photo || undefined, languageCertificate: lc });
+    const lc = certType ? { type: certType, score: certScore } : null;
+    await updateProfile({ fullName: name, dob, gender, phone, photoDataUrl: photo || undefined, languageCertificate: lc ?? undefined });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
