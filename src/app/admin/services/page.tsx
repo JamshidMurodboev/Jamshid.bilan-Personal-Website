@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Service } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
-import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
-import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
@@ -58,9 +56,6 @@ export default function ServicesAdminPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<LangTab>('uz')
-  const [translatingAll, setTranslatingAll] = useState(false)
-  const [translateAllProgress, setTranslateAllProgress] = useState('')
   const [allScholarships, setAllScholarships] = useState<{id: string; title: string}[]>([])
   const [allUniversities, setAllUniversities] = useState<{id: string; name: string}[]>([])
   const [allResults, setAllResults] = useState<{id: string; student_name: string; category: string}[]>([])
@@ -141,7 +136,6 @@ export default function ServicesAdminPage() {
     setSelectedUniversities([])
     setSelectedResults([])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -174,31 +168,6 @@ export default function ServicesAdminPage() {
     setSelectedScholarships((schRes.data ?? []).map((r: any) => r.scholarship_id))
     setSelectedUniversities((uniRes.data ?? []).map((r: any) => r.university_id))
     setSelectedResults((resRes.data ?? []).map((r: any) => r.result_id))
-  }
-
-  // "Translate all" — translates name and description.
-  async function handleTranslateAll() {
-    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
-      { uz: form.name_uz, setRu: v => setForm(f => ({ ...f, name_ru: v })), setEn: v => setForm(f => ({ ...f, name_en: v })) },
-      { uz: form.description_uz, setRu: v => setForm(f => ({ ...f, description_ru: v })), setEn: v => setForm(f => ({ ...f, description_en: v })) },
-    ]
-    const active = fields.filter(f => f.uz.trim())
-    if (active.length === 0) return
-    setTranslatingAll(true)
-    setTranslateAllProgress(`0/${active.length}`)
-    try {
-      for (let i = 0; i < active.length; i++) {
-        setTranslateAllProgress(`${i + 1}/${active.length}`)
-        const result = await autoTranslate(active[i].uz)
-        active[i].setRu(result.ru)
-        active[i].setEn(result.en)
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingAll(false)
-      setTranslateAllProgress('')
-    }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -341,38 +310,45 @@ export default function ServicesAdminPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
 
-              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              {/* Nomi — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Nomi *</label>
+                <div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇺🇿</span>
+                    <input required value={form.name_uz} onChange={e => setForm({ ...form, name_uz: e.target.value, slug: form.slug || slugify(e.target.value) })} placeholder="O'zbek..." className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.name_uz} onResult={(ru, en) => setForm(f => ({ ...f, name_ru: ru, name_en: en }))} />
+                  </div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇷🇺</span>
+                    <input value={form.name_ru} onChange={e => setForm({ ...form, name_ru: e.target.value })} placeholder="Русский..." className={`${inp} flex-1`} />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-400 w-6">🇬🇧</span>
+                    <input value={form.name_en} onChange={e => setForm({ ...form, name_en: e.target.value })} placeholder="English..." className={`${inp} flex-1`} />
+                  </div>
+                </div>
+              </div>
 
-              {activeTab === 'uz' && (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Nomi (UZ) *</label>
-                      <TranslateFieldButton value={form.name_uz} onResult={(ru, en) => setForm(f => ({ ...f, name_ru: ru, name_en: en }))} />
-                    </div>
-                    <input required value={form.name_uz} onChange={e => setForm({ ...form, name_uz: e.target.value, slug: form.slug || slugify(e.target.value) })} className={inp} />
+              {/* Tavsif — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Tavsif</label>
+                <div>
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇺🇿</span>
+                    <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} placeholder="O'zbek..." className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
-                      <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
-                    </div>
-                    <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇷🇺</span>
+                    <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} placeholder="Русский..." className={`${inp} flex-1`} />
+                  </div>
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇬🇧</span>
+                    <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} placeholder="English..." className={`${inp} flex-1`} />
                   </div>
                 </div>
-              )}
-              {activeTab === 'ru' && (
-                <div className="space-y-3">
-                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi (RU)</label><input value={form.name_ru} onChange={e => setForm({ ...form, name_ru: e.target.value })} className={inp} /></div>
-                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (RU)</label><textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} /></div>
-                </div>
-              )}
-              {activeTab === 'en' && (
-                <div className="space-y-3">
-                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi (EN)</label><input value={form.name_en} onChange={e => setForm({ ...form, name_en: e.target.value })} className={inp} /></div>
-                  <div><label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (EN)</label><textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} /></div>
-                </div>
-              )}
+              </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug</label>

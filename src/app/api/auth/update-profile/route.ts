@@ -7,10 +7,11 @@ const supabaseAdmin = createAdminClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { userId, fullName, dob, gender, phone, languageCertificate } = await req.json();
+  const { userId, email, fullName, dob, gender, phone, languageCertificate } = await req.json();
   if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
 
   const updates: Record<string, unknown> = {};
+  if (email !== undefined) updates.email = email;
   if (fullName !== undefined) updates.full_name = fullName;
   if (dob !== undefined) updates.dob = dob;
   if (gender !== undefined) updates.gender = gender;

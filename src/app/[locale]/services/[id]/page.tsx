@@ -43,11 +43,17 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
   const description = (svc as any)[`description_${locale}`] || svc.description_uz || '';
   const price = priceDisplay(svc, t('free'));
 
-  const [{ data: schLinks }, { data: uniLinks }, { data: resLinks }] = await Promise.all([
+  const [schLinksRes, uniLinksRes, resLinksRes] = await Promise.all([
     supabase.from('service_scholarships').select('scholarship_id').eq('service_id', svc.id),
     supabase.from('service_universities').select('university_id').eq('service_id', svc.id),
     supabase.from('service_results').select('result_id').eq('service_id', svc.id),
   ]);
+  if (schLinksRes.error) console.error('service_scholarships error:', schLinksRes.error);
+  if (uniLinksRes.error) console.error('service_universities error:', uniLinksRes.error);
+  if (resLinksRes.error) console.error('service_results error:', resLinksRes.error);
+  const { data: schLinks } = schLinksRes;
+  const { data: uniLinks } = uniLinksRes;
+  const { data: resLinks } = resLinksRes;
 
   const scholarshipIds = (schLinks ?? []).map((r: { scholarship_id: string }) => r.scholarship_id);
   const universityIds = (uniLinks ?? []).map((r: { university_id: string }) => r.university_id);

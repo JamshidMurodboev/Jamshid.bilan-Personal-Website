@@ -6,11 +6,9 @@ import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 import type { Scholarship, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
 import ImageUpload from '@/components/admin/ImageUpload'
-import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
-import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -111,9 +109,6 @@ export default function ScholarshipsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
-  const [translateProgress, setTranslateProgress] = useState('')
-  const [activeTab, setActiveTab] = useState<LangTab>('uz')
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [resultsLoading, setResultsLoading] = useState(false)
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
@@ -176,7 +171,6 @@ export default function ScholarshipsPage() {
     setProcessSteps(DEFAULT_STEPS.map(s => ({ ...s })))
     setMediaLinks([])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -250,62 +244,8 @@ export default function ScholarshipsPage() {
       ])
     }
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
     loadStudentResults(item.id)
-  }
-
-  // "Translate all" — translates every free-text UZ field on the form, including
-  // nested process steps (label + description) and required documents.
-  async function handleTranslateAll() {
-    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
-      {
-        uz: form.description_uz,
-        setRu: v => setForm(f => ({ ...f, description_ru: v })),
-        setEn: v => setForm(f => ({ ...f, description_en: v })),
-      },
-      {
-        uz: form.coverage,
-        setRu: v => setForm(f => ({ ...f, coverage_ru: v })),
-        setEn: v => setForm(f => ({ ...f, coverage_en: v })),
-      },
-    ]
-    processSteps.forEach((step, idx) => {
-      fields.push({
-        uz: step.label_uz,
-        setRu: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: v } : p)),
-        setEn: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: v } : p)),
-      })
-      fields.push({
-        uz: step.description_uz,
-        setRu: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: v } : p)),
-        setEn: v => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_en: v } : p)),
-      })
-    })
-    requiredDocs.forEach((doc, idx) => {
-      fields.push({
-        uz: doc.uz,
-        setRu: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, ru: v } : r)),
-        setEn: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, en: v } : r)),
-      })
-    })
-    const active = fields.filter(f => f.uz.trim())
-    if (active.length === 0) return
-    setTranslatingSections(s => ({ ...s, translateAll: true }))
-    setTranslateProgress(`0/${active.length}`)
-    try {
-      for (let i = 0; i < active.length; i++) {
-        setTranslateProgress(`${i + 1}/${active.length}`)
-        const result = await autoTranslate(active[i].uz)
-        active[i].setRu(result.ru)
-        active[i].setEn(result.en)
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, translateAll: false }))
-      setTranslateProgress('')
-    }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -500,55 +440,45 @@ export default function ScholarshipsPage() {
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
-              {/* Language Tabs */}
-              <LanguageTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                onTranslateAll={handleTranslateAll}
-                translating={!!translatingSections['translateAll']}
-                translateProgress={translateProgress}
-              />
+              {/* Tavsif — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Tavsif</label>
+                <div>
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇺🇿</span>
+                    <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} placeholder="O'zbek..." className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
+                  </div>
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇷🇺</span>
+                    <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} placeholder="Русский..." className={`${inp} flex-1`} />
+                  </div>
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇬🇧</span>
+                    <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} placeholder="English..." className={`${inp} flex-1`} />
+                  </div>
+                </div>
+              </div>
 
-              {/* Translatable fields — shown per tab */}
-              {activeTab === 'uz' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      Tavsif (UZ)
-                      <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
-                    </label>
-                    <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
+              {/* Qamrov — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Qamrov (vergul bilan)</label>
+                <div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇺🇿</span>
+                    <input value={form.coverage} onChange={e => setForm({ ...form, coverage: e.target.value })} placeholder="Turar joy, Ovqat, Stipendiya" className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.coverage} onResult={(ru, en) => setForm(f => ({ ...f, coverage_ru: ru, coverage_en: en }))} />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (vergul bilan) (UZ)</label>
-                    <input value={form.coverage} onChange={e => setForm({ ...form, coverage: e.target.value })} placeholder="Turar joy, Ovqat, Stipendiya" className={inp} />
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇷🇺</span>
+                    <input value={form.coverage_ru} onChange={e => setForm({ ...form, coverage_ru: e.target.value })} placeholder="Жильё, Питание, Стипендия" className={`${inp} flex-1`} />
                   </div>
-                </div>
-              )}
-              {activeTab === 'ru' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (RU)</label>
-                    <textarea rows={3} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={inp} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (RU)</label>
-                    <input value={form.coverage_ru} onChange={e => setForm({ ...form, coverage_ru: e.target.value })} placeholder="Жильё, Питание, Стипендия" className={inp} />
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-400 w-6">🇬🇧</span>
+                    <input value={form.coverage_en} onChange={e => setForm({ ...form, coverage_en: e.target.value })} placeholder="Housing, Meals, Stipend" className={`${inp} flex-1`} />
                   </div>
                 </div>
-              )}
-              {activeTab === 'en' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (EN)</label>
-                    <textarea rows={3} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={inp} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Qamrov (EN)</label>
-                    <input value={form.coverage_en} onChange={e => setForm({ ...form, coverage_en: e.target.value })} placeholder="Housing, Meals, Stipend" className={inp} />
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Non-translatable common fields */}
               <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-4">
