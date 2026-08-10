@@ -110,7 +110,7 @@ function DetailPanel({ item, onClose, onNotesChange }: DetailPanelProps) {
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 dark:bg-black/50"
-        onClick={onClose}
+        
       />
       {/* Panel */}
       <aside className="relative z-50 w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 overflow-y-auto flex flex-col">
@@ -119,7 +119,7 @@ function DetailPanel({ item, onClose, onNotesChange }: DetailPanelProps) {
             {item.name}
           </h2>
           <button
-            onClick={onClose}
+            
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
           >
             ✕

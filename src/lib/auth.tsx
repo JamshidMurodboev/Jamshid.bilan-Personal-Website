@@ -1,6 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { createClient } from '@/lib/supabase/client';
+
+const USER_KEY = '__jb_user__';
 
 export interface LanguageCertificate {
   type: string;
@@ -12,8 +13,8 @@ export interface AuthUser {
   fullName: string;
   dob: string;
   gender: string;
-  phone: string;   // user-visible identifier (formatted phone)
-  email: string;   // synthetic email stored in Supabase auth (e.g. 998912345678@jamshid.bilan)
+  phone: string;
+  email: string;
   photoDataUrl?: string;
   languageCertificate?: LanguageCertificate;
 }
@@ -54,21 +55,19 @@ async function compressPhoto(dataUrl: string, maxDim = 300): Promise<string> {
   });
 }
 
-function rowToAuthUser(row: Record<string, unknown>, id: string, email: string): AuthUser {
-  return {
-    id,
-    email,
-    fullName: (row.full_name as string) || '',
-    dob: (row.dob as string) || '',
-    gender: (row.gender as string) || '',
-    phone: (row.phone as string) || '',
-    languageCertificate: row.language_certificate
-      ? (() => {
-          const parts = (row.language_certificate as string).split(':');
-          return { type: parts[0] || '', score: parts[1] || '' };
-        })()
-      : undefined,
-  };
+function saveUser(u: AuthUser) {
+  try { localStorage.setItem(USER_KEY, JSON.stringify(u)); } catch {}
+}
+
+function loadUser(): AuthUser | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearUser() {
+  try { localStorage.removeItem(USER_KEY); } catch {}
 }
 
 interface ServerAuthUser {
@@ -104,61 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-
-    // Load initial session from local storage/cookies (no network call)
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const sbUser = session?.user;
-      if (sbUser) {
-        const { data: profile } = await supabase
-          .from('site_users')
-          .select('*')
-          .eq('id', sbUser.id)
-          .single();
-        const authUser = profile
-          ? rowToAuthUser(profile as Record<string, unknown>, sbUser.id, sbUser.email || '')
-          : {
-              id: sbUser.id,
-              email: sbUser.email || '',
-              fullName: '',
-              dob: '',
-              gender: '',
-              phone: '',
-            };
-        // Load photo from localStorage
-        const photo = localStorage.getItem(`auth_photo_${sbUser.id}`);
-        if (photo) authUser.photoDataUrl = photo;
-        setUser(authUser);
-      }
-    });
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('site_users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        const authUser = profile
-          ? rowToAuthUser(profile as Record<string, unknown>, session.user.id, session.user.email || '')
-          : {
-              id: session.user.id,
-              email: session.user.email || '',
-              fullName: '',
-              dob: '',
-              gender: '',
-              phone: '',
-            };
-        const photo = localStorage.getItem(`auth_photo_${session.user.id}`);
-        if (photo) authUser.photoDataUrl = photo;
-        setUser(authUser);
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Instant restore from localStorage — no network call, no SDK race conditions
+    const stored = loadUser();
+    if (stored) setUser(stored);
   }, []);
 
   async function login(phone: string, password: string): Promise<string | null> {
@@ -169,14 +116,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     const json = await res.json();
     if (!res.ok) return json.error || "Telefon raqam yoki parol noto'g'ri";
-    // Store session in localStorage without awaiting — avoids blocking on onAuthStateChange
-    if (json.accessToken && json.refreshToken) {
-      createClient().auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken }).catch(() => {});
-    }
+
     const authUser = serverUserToAuthUser(json.user);
-    if (authUser.photoDataUrl) {
-      try { localStorage.setItem(`auth_photo_${authUser.id}`, authUser.photoDataUrl); } catch {}
+    if (json.user?.photoUrl) {
+      try { localStorage.setItem(`auth_photo_${authUser.id}`, json.user.photoUrl); } catch {}
     }
+    const photo = localStorage.getItem(`auth_photo_${authUser.id}`);
+    if (photo) authUser.photoDataUrl = photo;
+
+    saveUser(authUser);
     setUser(authUser);
     return null;
   }
@@ -184,11 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function signup(data: SignupInput): Promise<string | null> {
     let photoUrl: string | null = null;
     if (data.photoDataUrl) {
-      try {
-        photoUrl = await compressPhoto(data.photoDataUrl);
-      } catch {
-        photoUrl = data.photoDataUrl;
-      }
+      try { photoUrl = await compressPhoto(data.photoDataUrl); }
+      catch { photoUrl = data.photoDataUrl; }
     }
 
     const res = await fetch('/api/auth/signup', {
@@ -206,32 +151,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const json = await res.json();
     if (!res.ok) return json.error || 'Xatolik yuz berdi';
 
-    // Cache photo locally for instant display
     if (photoUrl && json.userId) {
       try { localStorage.setItem(`auth_photo_${json.userId}`, photoUrl); } catch {}
     }
 
-    // Store session in localStorage without awaiting — avoids blocking on onAuthStateChange
-    if (json.accessToken && json.refreshToken) {
-      createClient().auth.setSession({ access_token: json.accessToken, refresh_token: json.refreshToken }).catch(() => {});
-    }
     if (json.user) {
-      setUser(serverUserToAuthUser(json.user));
+      const authUser = serverUserToAuthUser(json.user);
+      if (photoUrl) authUser.photoDataUrl = photoUrl;
+      saveUser(authUser);
+      setUser(authUser);
     }
 
     return null;
   }
 
   async function logout(): Promise<void> {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    clearUser();
     setUser(null);
+    // Best-effort signOut — don't block on it
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
   }
 
   async function updateProfile(data: Partial<Omit<AuthUser, 'id' | 'email'>>): Promise<void> {
     if (!user) return;
 
-    // Use server-side admin API to bypass RLS on site_users
     await fetch('/api/auth/update-profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -249,20 +194,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.photoDataUrl !== undefined) {
       try { localStorage.setItem(`auth_photo_${user.id}`, data.photoDataUrl || ''); } catch {}
     }
+    saveUser(updated);
     setUser(updated);
   }
 
   async function changePassword(currentPassword: string, newPassword: string): Promise<string | null> {
     if (!user) return 'Foydalanuvchi topilmadi';
-    const supabase = createClient();
-    // Re-authenticate using the synthetic email already stored in user.email
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password: currentPassword,
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, currentPassword, newPassword }),
     });
-    if (signInError) return "Joriy parol noto'g'ri";
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) return 'Xatolik yuz berdi';
+    const json = await res.json();
+    if (!res.ok) return json.error || 'Xatolik yuz berdi';
     return null;
   }
 

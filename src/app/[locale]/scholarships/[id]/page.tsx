@@ -75,7 +75,8 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
       return sp.filter(step => step.value).map((step, i) => {
         const c = COLORS[i % COLORS.length];
         const labelKey: Record<string, string> = { application: t('applicationPeriod'), interview_exam: t('interviewExamPeriod'), results: t('resultsPeriod'), admission: t('admissionDeadline') };
-        return { key: step.key, label: labelKey[step.key] || step.key, value: step.value, description: (step as any)[`description_${locale}`] || step.description_uz || '', ...c };
+        const customLabel = (step as any)[`label_${locale}`] || (step as any).label_uz || (step as any).label || '';
+        return { key: step.key, label: labelKey[step.key] || customLabel || step.key, value: step.value, description: (step as any)[`description_${locale}`] || step.description_uz || '', ...c };
       });
     }
     // fallback: old flat fields

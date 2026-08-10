@@ -5,8 +5,8 @@ export type LangTab = 'uz' | 'ru' | 'en'
 interface Props {
   activeTab: LangTab
   onTabChange: (tab: LangTab) => void
-  onTranslateAll: () => void
-  translating: boolean
+  onTranslateAll?: () => void
+  translating?: boolean
   translateProgress?: string
 }
 
@@ -36,21 +36,6 @@ export default function LanguageTabs({ activeTab, onTabChange, onTranslateAll, t
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={onTranslateAll}
-        disabled={translating}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-700 dark:text-teal-400 border border-teal-300 dark:border-teal-700 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ml-auto"
-      >
-        <span>🔄</span>
-        <span>
-          {translating
-            ? translateProgress
-              ? `Tarjima qilinmoqda... (${translateProgress})`
-              : 'Tarjima qilinmoqda...'
-            : 'Hammasini tarjima qilish'}
-        </span>
-      </button>
     </div>
   )
 }
