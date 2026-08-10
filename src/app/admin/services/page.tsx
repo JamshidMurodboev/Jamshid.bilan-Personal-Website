@@ -7,6 +7,7 @@ import ImageUpload from '@/components/admin/ImageUpload'
 import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
+import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -331,7 +332,7 @@ export default function ServicesAdminPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{editId ? 'Xizmatni tahrirlash' : 'Yangi xizmat'}</h2>
@@ -340,16 +341,22 @@ export default function ServicesAdminPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
 
-              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} onTranslateAll={handleTranslateAll} translating={translatingAll} translateProgress={translateAllProgress} />
+              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
               {activeTab === 'uz' && (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi (UZ) *</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Nomi (UZ) *</label>
+                      <TranslateFieldButton value={form.name_uz} onResult={(ru, en) => setForm(f => ({ ...f, name_ru: ru, name_en: en }))} />
+                    </div>
                     <input required value={form.name_uz} onChange={e => setForm({ ...form, name_uz: e.target.value, slug: form.slug || slugify(e.target.value) })} className={inp} />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (UZ)</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
+                      <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
+                    </div>
                     <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
                   </div>
                 </div>

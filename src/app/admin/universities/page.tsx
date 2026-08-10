@@ -11,6 +11,7 @@ import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
 import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
+import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -498,7 +499,7 @@ export default function UniversitiesPage() {
       {showModal && (
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}
+          onClick={e => e.stopPropagation()}
         >
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
@@ -513,18 +514,15 @@ export default function UniversitiesPage() {
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
-              <LanguageTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                onTranslateAll={handleTranslateAll}
-                translating={!!translatingSections['translateAll']}
-                translateProgress={translateProgress}
-              />
+              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
               {/* Translatable per-tab */}
               {activeTab === 'uz' && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (UZ)</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
+                    <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
+                  </div>
                   <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
                 </div>
               )}
@@ -739,7 +737,10 @@ export default function UniversitiesPage() {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Yo'nalish nomi *</label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Yo'nalish nomi *</label>
+                            <TranslateFieldButton value={m.name} onResult={(ru, en) => updateMajor(i, { name_ru: ru, name_en: en })} />
+                          </div>
                           <input
                             value={m.name}
                             onChange={e => setMajorField(i, 'name', e.target.value)}

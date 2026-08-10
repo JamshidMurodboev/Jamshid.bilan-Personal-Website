@@ -4,7 +4,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 import type { Service } from '@/lib/supabase/types';
 import PageNav from '@/components/shared/PageNav';
 import ActivityTracker from '@/components/shared/ActivityTracker';
@@ -24,7 +24,10 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'services' });
 
-  const supabase = await createClient();
+  const supabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   let svc: Service | null = null;
   if (isUUID(id)) {

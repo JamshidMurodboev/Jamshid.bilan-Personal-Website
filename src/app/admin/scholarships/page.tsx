@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 import type { Scholarship, StudentResult } from '@/lib/supabase/types'
 import CountrySelect from '@/components/admin/CountrySelect'
 import ImageUpload from '@/components/admin/ImageUpload'
@@ -479,7 +480,7 @@ export default function ScholarshipsPage() {
       {showModal && (
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}
+          onClick={e => e.stopPropagation()}
         >
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -512,7 +513,10 @@ export default function ScholarshipsPage() {
               {activeTab === 'uz' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tavsif (UZ)</label>
+                    <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Tavsif (UZ)
+                      <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
+                    </label>
                     <textarea rows={3} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={inp} />
                   </div>
                   <div>
@@ -645,6 +649,7 @@ export default function ScholarshipsPage() {
                                   placeholder="Bosqich nomi (UZ)..."
                                   className="flex-1 text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
                                 />
+                                <TranslateFieldButton value={step.label_uz} onResult={(ru, en) => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: ru, label_en: en } : p))} />
                               </div>
                               <input value={step.label_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_ru: e.target.value } : p))} placeholder="Nomi (RU)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
                               <input value={step.label_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, label_en: e.target.value } : p))} placeholder="Name (EN)" className="w-full text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 focus:outline-none" />
@@ -685,7 +690,10 @@ export default function ScholarshipsPage() {
                       </div>
                       {/* Descriptions */}
                       <div className="space-y-1.5">
-                        <label className="block text-xs text-gray-500 dark:text-gray-400">Tavsif (UZ)</label>
+                        <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          Tavsif (UZ)
+                          <TranslateFieldButton value={step.description_uz} onResult={(ru, en) => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: ru, description_en: en } : p))} />
+                        </label>
                         <input value={step.description_uz} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_uz: e.target.value } : p))} className={inp} placeholder="Bu bosqich haqida qo'shimcha ma'lumot..." />
                         <input value={step.description_ru} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_ru: e.target.value } : p))} className={inp} placeholder="Описание (RU)" />
                         <input value={step.description_en} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, description_en: e.target.value } : p))} className={inp} placeholder="Description (EN)" />
