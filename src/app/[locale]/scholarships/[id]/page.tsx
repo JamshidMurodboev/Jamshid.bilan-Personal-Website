@@ -20,21 +20,50 @@ const MONTHS = {
   en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
 }
 
+function formatMonthName(mo: string, locale: string): string {
+  const idx = parseInt(mo) - 1
+  const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
+  return months[idx] || mo
+}
+
+function formatSingleDate(value: string, locale: string): string {
+  if (!value) return ''
+  const d = new Date(value + 'T00:00:00')
+  if (isNaN(d.getTime())) return value
+  const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+}
+
 function formatDateValue(value: string, type: string, locale: string): string {
   if (!value) return ''
   if (type === 'exact') {
-    const d = new Date(value + 'T00:00:00')
-    if (isNaN(d.getTime())) return value
-    const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
-    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+    if (value.includes('|')) {
+      const [start, end] = value.split('|')
+      const s = formatSingleDate(start, locale)
+      const e = formatSingleDate(end, locale)
+      return s && e ? `${s} – ${e}` : s || e
+    }
+    return formatSingleDate(value, locale)
   }
   if (type === 'month') {
+    // new format: "03" (just month), legacy: "2025-03"
+    if (/^\d{1,2}$/.test(value)) return formatMonthName(value.padStart(2, '0'), locale)
     const parts = value.split('-')
     if (parts.length === 2) {
-      const monthIdx = parseInt(parts[1]) - 1
       const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
-      return `${months[monthIdx] || value} ${parts[0]}`
+      return `${months[parseInt(parts[1]) - 1] || value} ${parts[0]}`
     }
+    return value
+  }
+  if (type === 'period') {
+    if (value.includes('|')) {
+      const [start, end] = value.split('|')
+      // new format: "02|04" (month numbers), legacy: "2025-02|2025-04"
+      const startFmt = /^\d{1,2}$/.test(start) ? formatMonthName(start.padStart(2, '0'), locale) : (() => { const p = start.split('-'); return p.length === 2 ? `${(MONTHS[locale as keyof typeof MONTHS]||MONTHS.uz)[parseInt(p[1])-1]} ${p[0]}` : start })()
+      const endFmt = /^\d{1,2}$/.test(end) ? formatMonthName(end.padStart(2, '0'), locale) : (() => { const p = end.split('-'); return p.length === 2 ? `${(MONTHS[locale as keyof typeof MONTHS]||MONTHS.uz)[parseInt(p[1])-1]} ${p[0]}` : end })()
+      return `${startFmt} – ${endFmt}`
+    }
+    return value // legacy free-text period
   }
   return value
 }

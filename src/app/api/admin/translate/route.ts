@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies()
-  const adminLoggedIn = cookieStore.get('admin_logged_in')?.value
-  if (!adminLoggedIn) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ ru: '', en: '' })
 

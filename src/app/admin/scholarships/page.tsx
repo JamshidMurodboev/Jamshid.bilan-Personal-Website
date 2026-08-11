@@ -550,6 +550,18 @@ export default function ScholarshipsPage() {
                 </div>
               </div>
 
+              {/* Qabul muddati — open and close dates */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ariza boshlanish sanasi</label>
+                  <input type="date" value={form.open_date} onChange={e => setForm({...form, open_date: e.target.value})} className={inp} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ariza oxirgi muddati *</label>
+                  <input type="date" value={form.close_date} onChange={e => setForm({...form, close_date: e.target.value})} className={inp} />
+                </div>
+              </div>
+
               {/* Grant Jarayoni — Scholarship Process */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
@@ -618,29 +630,40 @@ export default function ScholarshipsPage() {
                           O&apos;chirish
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="space-y-2 mb-2">
                         <select
                           value={step.type}
                           onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, type: e.target.value as ResultsDateType, value: '' } : p))}
                           className={inp}
                         >
-                          <option value="exact">Aniq sana</option>
+                          <option value="exact">Aniq sana (boshlanish + tugash)</option>
                           <option value="month">Oy</option>
-                          <option value="period">Davr</option>
+                          <option value="period">Davr (boshlanish – tugash oy)</option>
                         </select>
                         {step.type === 'exact' ? (
-                          <input type="date" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} className={inp} />
+                          <div className="flex gap-2 items-center">
+                            <input type="date" value={step.value.split('|')[0] || ''} onChange={e => { const start = e.target.value; const end = step.value.split('|')[1] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${end}` } : p)) }} className={`${inp} flex-1`} placeholder="Boshlanish" />
+                            <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                            <input type="date" value={step.value.split('|')[1] || ''} onChange={e => { const end = e.target.value; const start = step.value.split('|')[0] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${end}` } : p)) }} className={`${inp} flex-1`} placeholder="Tugash" />
+                          </div>
                         ) : step.type === 'month' ? (
-                          <div className="flex gap-1">
-                            <input type="number" placeholder="2025" min="2024" max="2030" value={step.value.split('-')[0] || ''} onChange={e => { const yr = e.target.value; const mo = step.value.split('-')[1] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: yr && mo ? `${yr}-${mo}` : yr } : p)) }} className={`${inp} w-24`} />
-                            <select value={step.value.split('-')[1] || ''} onChange={e => { const mo = e.target.value; const yr = step.value.split('-')[0] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: yr && mo ? `${yr}-${mo}` : mo } : p)) }} className={inp}>
-                              <option value="">Oy</option>
+                          <select value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} className={inp}>
+                            <option value="">Oy tanlang</option>
+                            {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                          </select>
+                        ) : step.type === 'period' ? (
+                          <div className="flex gap-2 items-center">
+                            <select value={step.value.split('|')[0] || ''} onChange={e => { const start = e.target.value; const end = step.value.split('|')[1] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${end}` } : p)) }} className={`${inp} flex-1`}>
+                              <option value="">Boshlanish oy</option>
+                              {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                            </select>
+                            <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                            <select value={step.value.split('|')[1] || ''} onChange={e => { const end = e.target.value; const start = step.value.split('|')[0] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${end}` } : p)) }} className={`${inp} flex-1`}>
+                              <option value="">Tugash oy</option>
                               {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
                             </select>
                           </div>
-                        ) : (
-                          <input type="text" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} placeholder="Mart – Aprel" className={inp} />
-                        )}
+                        ) : null}
                       </div>
                       {/* Descriptions */}
                       <div className="space-y-1.5">
@@ -721,32 +744,34 @@ export default function ScholarshipsPage() {
                 )}
               </div>
 
-              {/* Results date type + results date */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Natijalar sanasi turi</label>
-                  <select value={form.results_date_type} onChange={e => setForm({ ...form, results_date_type: e.target.value as ResultsDateType, results_date: '' })} className={inp}>
-                    <option value="exact">Aniq sana</option>
-                    <option value="month">Oy</option>
-                    <option value="period">Davr</option>
+              {/* Results date */}
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Natijalar sanasi</label>
+                <select value={form.results_date_type} onChange={e => setForm({ ...form, results_date_type: e.target.value as ResultsDateType, results_date: '' })} className={inp}>
+                  <option value="exact">Aniq sana</option>
+                  <option value="month">Oy</option>
+                  <option value="period">Davr (boshlanish – tugash oy)</option>
+                </select>
+                {form.results_date_type === 'exact' ? (
+                  <input type="date" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />
+                ) : form.results_date_type === 'month' ? (
+                  <select value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp}>
+                    <option value="">Oy tanlang</option>
+                    {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
                   </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{resultsDateLabel(form.results_date_type)}</label>
-                  {form.results_date_type === 'exact' ? (
-                    <input type="date" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />
-                  ) : form.results_date_type === 'month' ? (
-                    <div className="flex gap-1">
-                      <input type="number" placeholder="2025" min="2024" max="2030" value={form.results_date.split('-')[0] || ''} onChange={e => { const yr = e.target.value; const mo = form.results_date.split('-')[1] || ''; setForm({ ...form, results_date: yr && mo ? `${yr}-${mo}` : yr }) }} className={`${inp} w-24`} />
-                      <select value={form.results_date.split('-')[1] || ''} onChange={e => { const mo = e.target.value; const yr = form.results_date.split('-')[0] || ''; setForm({ ...form, results_date: yr && mo ? `${yr}-${mo}` : mo }) }} className={inp}>
-                        <option value="">Oy</option>
-                        {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
-                      </select>
-                    </div>
-                  ) : (
-                    <input type="text" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} placeholder="Mart-Aprel" className={inp} />
-                  )}
-                </div>
+                ) : (
+                  <div className="flex gap-2 items-center">
+                    <select value={form.results_date.split('|')[0] || ''} onChange={e => { const s = e.target.value; const end = form.results_date.split('|')[1] || ''; setForm({ ...form, results_date: `${s}|${end}` }) }} className={`${inp} flex-1`}>
+                      <option value="">Boshlanish oy</option>
+                      {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                    </select>
+                    <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                    <select value={form.results_date.split('|')[1] || ''} onChange={e => { const end = e.target.value; const s = form.results_date.split('|')[0] || ''; setForm({ ...form, results_date: `${s}|${end}` }) }} className={`${inp} flex-1`}>
+                      <option value="">Tugash oy</option>
+                      {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div>
