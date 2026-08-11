@@ -32,7 +32,7 @@ export default function FaqAdminPage() {
       question_uz: item.question_uz, question_ru: item.question_ru ?? '', question_en: item.question_en ?? '',
       answer_uz: item.answer_uz, answer_ru: item.answer_ru ?? '', answer_en: item.answer_en ?? '',
     })
-    setError(null); setActiveTab('uz'); setShowModal(true)
+    setError(null); setShowModal(true)
   }
 
   async function handleSave(e: React.FormEvent) {
