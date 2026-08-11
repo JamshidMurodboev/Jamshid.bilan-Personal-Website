@@ -11,6 +11,7 @@ import ActivityTracker from '@/components/shared/ActivityTracker';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { isUUID } from '@/lib/slugify';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
+import ShareButton from '@/components/shared/ShareButton';
 import StudentCard from '@/components/results/StudentCard';
 
 function priceDisplay(s: Service, freeLabel: string) {
@@ -85,7 +86,10 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
 
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{name}</h1>
-          <FavouriteButton entityType="service" entityId={svc.id} />
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <FavouriteButton entityType="service" entityId={svc.id} />
+            <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/services/${(svc as any).slug ?? svc.id}`} title={name} entityType="service" entityId={svc.id} entityName={svc.name_uz} />
+          </div>
         </div>
 
         {description && (

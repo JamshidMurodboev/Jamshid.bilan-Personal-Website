@@ -39,7 +39,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{(s as any)[`title_${locale ?? currentLocale}`] || s.title}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{translateCountry(s.country, locale ?? currentLocale)}{s.university ? ` · ${s.university}` : ''}</p>
           </div>
           <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>

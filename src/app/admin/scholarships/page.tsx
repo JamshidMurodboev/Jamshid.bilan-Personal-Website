@@ -46,6 +46,8 @@ const DEGREE_OPTIONS = [
 
 const emptyForm = {
   title: '',
+  title_ru: '',
+  title_en: '',
   country: '',
   university: '',
   coverage: '',
@@ -194,6 +196,8 @@ export default function ScholarshipsPage() {
     setEditId(item.id)
     setForm({
       title: item.title,
+      title_ru: (item as any).title_ru ?? '',
+      title_en: (item as any).title_en ?? '',
       country: item.country,
       university: item.university ?? '',
       coverage: item.coverage?.join(', ') ?? '',
@@ -285,6 +289,8 @@ export default function ScholarshipsPage() {
 
     const payload = {
       title: form.title,
+      title_ru: form.title_ru || null,
+      title_en: form.title_en || null,
       country: form.country,
       university: form.university || null,
       coverage: form.coverage ? form.coverage.split(',').map(s => s.trim()).filter(Boolean) : [],
@@ -498,9 +504,14 @@ export default function ScholarshipsPage() {
 
               {/* Non-translatable common fields */}
               <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nomi *</label>
-                  <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })} className={inp} />
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Nomi *</label>
+                    <TranslateFieldButton value={form.title} onResult={(ru, en) => setForm(f => ({ ...f, title_ru: ru, title_en: en }))} />
+                  </div>
+                  <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇺🇿</span><input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })} className={`${inp} flex-1`} /></div>
+                  <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇷🇺</span><input value={form.title_ru} onChange={e => setForm({ ...form, title_ru: e.target.value })} className={`${inp} flex-1`} /></div>
+                  <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇬🇧</span><input value={form.title_en} onChange={e => setForm({ ...form, title_en: e.target.value })} className={`${inp} flex-1`} /></div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>

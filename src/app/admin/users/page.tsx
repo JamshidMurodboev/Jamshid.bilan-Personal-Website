@@ -157,6 +157,8 @@ function Field({ label, value }: { label: string; value: string | null | undefin
   )
 }
 
+type ShareEvent = { id: string; entity_type: string; entity_name: string | null; platform: string; user_name: string | null; created_at: string }
+
 export default function UsersPage() {
   const supabase = createClient()
 
@@ -167,6 +169,8 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<SiteUser | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [shares, setShares] = useState<ShareEvent[]>([])
+  const [sharesLoading, setSharesLoading] = useState(true)
 
   async function fetchUsers() {
     setLoading(true)
@@ -182,6 +186,10 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers()
+    supabase.from('share_events').select('*').order('created_at', { ascending: false }).limit(100).then(({ data }) => {
+      setShares((data ?? []) as ShareEvent[])
+      setSharesLoading(false)
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -421,6 +429,48 @@ export default function UsersPage() {
       <p className="mt-4 text-xs text-gray-400 dark:text-gray-600">
         Jami: {filtered.length} ta foydalanuvchi ko'rsatilmoqda
       </p>
+
+      {/* Shares section */}
+      <div className="mt-12">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Ulashishlar</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+          {sharesLoading ? (
+            <div className="p-6 text-teal-600 animate-pulse text-sm">Yuklanmoqda...</div>
+          ) : shares.length === 0 ? (
+            <div className="p-6 text-gray-400 text-sm">Hali ulashish yo'q</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <tr>
+                  <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Sana</th>
+                  <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Platforma</th>
+                  <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Kontent</th>
+                  <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Foydalanuvchi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shares.map(s => (
+                  <tr key={s.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{formatDateTime(s.created_at)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                        s.platform === 'telegram' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                        s.platform === 'whatsapp' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                        s.platform === 'instagram' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' :
+                        'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>{s.platform}</span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-800 dark:text-gray-200">
+                      <span className="text-xs text-gray-400 mr-1">[{s.entity_type}]</span>{s.entity_name || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{s.user_name || 'Anonim'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
