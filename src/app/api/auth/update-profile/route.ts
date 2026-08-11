@@ -7,10 +7,11 @@ const supabaseAdmin = createAdminClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { userId, fullName, dob, gender, phone, languageCertificate } = await req.json();
+  const { userId, email, fullName, dob, gender, phone, languageCertificate } = await req.json();
   if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
 
   const updates: Record<string, unknown> = {};
+  if (email !== undefined) updates.email = email;
   if (fullName !== undefined) updates.full_name = fullName;
   if (dob !== undefined) updates.dob = dob;
   if (gender !== undefined) updates.gender = gender;
@@ -27,8 +28,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from('site_users')
-    .update(updates)
-    .eq('id', userId);
+    .upsert({ id: userId, ...updates }, { onConflict: 'id' });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

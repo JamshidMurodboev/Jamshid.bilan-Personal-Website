@@ -6,14 +6,26 @@ import type { University, UniversityMajor, StudentResult, RequiredDocument } fro
 import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
-import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
-import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+
+const PRESET_DOCS = [
+  { key: 'diploma',        uz: 'Shahodatnoma/Diplom',          ru: 'Диплом/Аттестат',             en: 'Diploma/Certificate' },
+  { key: 'photo',          uz: 'Shaxsiy Surat',                ru: 'Фотография',                  en: 'Personal Photo' },
+  { key: 'motivletter',    uz: 'Maqsad Xati',                  ru: 'Мотивационное письмо',        en: 'Motivation Letter' },
+  { key: 'recommendation', uz: 'Tavsiyanoma',                   ru: 'Рекомендательное письмо',     en: 'Recommendation Letter' },
+  { key: 'research',       uz: 'Ilmiy Ish Taklifi',            ru: 'Научная работа/Предложение',  en: 'Research Proposal' },
+  { key: 'achievements',   uz: 'Yutuqlar',                     ru: 'Достижения',                  en: 'Achievements' },
+  { key: 'langcert',       uz: 'Til Sertifikatlari',           ru: 'Языковые сертификаты',        en: 'Language Certificates' },
+  { key: 'passport',       uz: 'Pasport',                      ru: 'Паспорт',                     en: 'Passport' },
+  { key: 'transcript',     uz: 'Akademik Transkript',          ru: 'Академическая транскрипция',  en: 'Academic Transcript' },
+  { key: 'essay',          uz: 'Esse',                         ru: 'Эссе',                        en: 'Essay' },
+  { key: 'other',          uz: '',                             ru: '',                            en: '' },
+]
 
 type MajorRow = {
   name: string
@@ -105,9 +117,6 @@ export default function UniversitiesPage() {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [majors, setMajors] = useState<MajorRow[]>([emptyMajor()])
   const [saving, setSaving] = useState(false)
-  const [translatingSections, setTranslatingSections] = useState<Record<string, boolean>>({})
-  const [activeTab, setActiveTab] = useState<LangTab>('uz')
-  const [translateProgress, setTranslateProgress] = useState('')
   const [studentResults, setStudentResults] = useState<StudentResult[]>([])
   const [requiredDocs, setRequiredDocs] = useState<DocRow[]>([])
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
@@ -195,7 +204,6 @@ export default function UniversitiesPage() {
     setRequiredDocs([])
     setMediaLinks([])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
   }
 
@@ -229,55 +237,9 @@ export default function UniversitiesPage() {
     setRequiredDocs((item as any).required_documents ?? [])
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
     loadMajors(item.id)
     loadStudentResults(item.id)
-  }
-
-  // "Translate all" — translates every free-text UZ field: description, tuition
-  // note, every required document, and every major's name + tuition note.
-  async function handleTranslateAll() {
-    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
-      { uz: form.description_uz, setRu: v => setForm(f => ({ ...f, description_ru: v })), setEn: v => setForm(f => ({ ...f, description_en: v })) },
-      { uz: form.tuition_note_uz, setRu: v => setForm(f => ({ ...f, tuition_note_ru: v })), setEn: v => setForm(f => ({ ...f, tuition_note_en: v })) },
-    ]
-    requiredDocs.forEach((doc, idx) => {
-      fields.push({
-        uz: doc.uz,
-        setRu: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, ru: v } : r)),
-        setEn: v => setRequiredDocs(d => d.map((r, j) => j === idx ? { ...r, en: v } : r)),
-      })
-    })
-    majors.forEach((m, idx) => {
-      fields.push({
-        uz: m.name,
-        setRu: v => updateMajor(idx, { name_ru: v }),
-        setEn: v => updateMajor(idx, { name_en: v }),
-      })
-      fields.push({
-        uz: m.tuition_note_uz,
-        setRu: v => updateMajor(idx, { tuition_note_ru: v }),
-        setEn: v => updateMajor(idx, { tuition_note_en: v }),
-      })
-    })
-    const active = fields.filter(f => f.uz.trim())
-    if (active.length === 0) return
-    setTranslatingSections(s => ({ ...s, translateAll: true }))
-    setTranslateProgress(`0/${active.length}`)
-    try {
-      for (let i = 0; i < active.length; i++) {
-        setTranslateProgress(`${i + 1}/${active.length}`)
-        const result = await autoTranslate(active[i].uz)
-        active[i].setRu(result.ru)
-        active[i].setEn(result.en)
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingSections(s => ({ ...s, translateAll: false }))
-      setTranslateProgress('')
-    }
   }
 
   async function saveMajors(universityId: string) {
@@ -514,30 +476,25 @@ export default function UniversitiesPage() {
                 <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>
               )}
 
-              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-              {/* Translatable per-tab */}
-              {activeTab === 'uz' && (
+              {/* Tavsif — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Tavsif</label>
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Tavsif (UZ)</label>
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇺🇿</span>
+                    <textarea rows={4} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} placeholder="O'zbek tilida tavsif..." className={`${inp} flex-1 min-h-20`} />
                     <TranslateFieldButton value={form.description_uz} onResult={(ru, en) => setForm(f => ({ ...f, description_ru: ru, description_en: en }))} />
                   </div>
-                  <textarea rows={6} value={form.description_uz} onChange={e => setForm({ ...form, description_uz: e.target.value })} className={`${inp} min-h-32`} placeholder="O'zbek tilida tavsif..." />
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇷🇺</span>
+                    <textarea rows={4} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} placeholder="Описание на русском..." className={`${inp} flex-1 min-h-20`} />
+                  </div>
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇬🇧</span>
+                    <textarea rows={4} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} placeholder="Description in English..." className={`${inp} flex-1 min-h-20`} />
+                  </div>
                 </div>
-              )}
-              {activeTab === 'ru' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (RU)</label>
-                  <textarea rows={6} value={form.description_ru} onChange={e => setForm({ ...form, description_ru: e.target.value })} className={`${inp} min-h-32`} placeholder="Описание на русском..." />
-                </div>
-              )}
-              {activeTab === 'en' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Tavsif (EN)</label>
-                  <textarea rows={6} value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} className={`${inp} min-h-32`} placeholder="Description in English..." />
-                </div>
-              )}
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
@@ -667,7 +624,22 @@ export default function UniversitiesPage() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
-                  <button type="button" onClick={() => setRequiredDocs(d => [...d, { uz: '', ru: '', en: '', mandatory: true }])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo&apos;shish</button>
+                  <select
+                    className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    value=""
+                    onChange={e => {
+                      const key = e.target.value
+                      if (!key) return
+                      const preset = PRESET_DOCS.find(p => p.key === key)
+                      if (preset) setRequiredDocs(d => [...d, { uz: preset.uz, ru: preset.ru, en: preset.en, mandatory: true }])
+                      e.currentTarget.value = ''
+                    }}
+                  >
+                    <option value="">+ Qo&apos;shish...</option>
+                    {PRESET_DOCS.map(p => (
+                      <option key={p.key} value={p.key}>{p.key === 'other' ? "Boshqa (qoʼlda kiriting)" : p.uz}</option>
+                    ))}
+                  </select>
                 </div>
                 {requiredDocs.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo&apos;shilmagan</p>
@@ -696,7 +668,10 @@ export default function UniversitiesPage() {
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O&apos;zbek</label>
+                            <div className="flex items-center gap-1 mb-1">
+                              <label className="text-xs text-gray-500 dark:text-gray-400 flex-1">O&apos;zbek</label>
+                              <TranslateFieldButton value={doc.uz} onResult={(ru, en) => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru, en } : r))} />
+                            </div>
                             <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
                           </div>
                           <div>

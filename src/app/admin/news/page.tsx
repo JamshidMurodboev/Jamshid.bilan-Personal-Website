@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { NewsPost } from '@/lib/supabase/types'
 import ImageUpload from '@/components/admin/ImageUpload'
-import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
-import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
 import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
@@ -37,12 +35,11 @@ export default function NewsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<LangTab>('uz')
-  const [translatingAll, setTranslatingAll] = useState(false)
-  const [translateAllProgress, setTranslateAllProgress] = useState('')
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [scholarships, setScholarships] = useState<any[]>([])
   const [universities, setUniversities] = useState<any[]>([])
+  const [selectedScholarships, setSelectedScholarships] = useState<string[]>([])
+  const [selectedUniversities, setSelectedUniversities] = useState<string[]>([])
 
   async function load() {
     setLoading(true)
@@ -66,12 +63,13 @@ export default function NewsPage() {
     setEditId(null)
     setForm(emptyForm)
     setMediaLinks([])
+    setSelectedScholarships([])
+    setSelectedUniversities([])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
   }
 
-  function openEdit(item: NewsPost) {
+  async function openEdit(item: NewsPost) {
     setEditId(item.id)
     setForm({
       title_uz: item.title_uz,
@@ -90,32 +88,23 @@ export default function NewsPage() {
     })
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
-    setActiveTab('uz')
     setShowModal(true)
-  }
-
-  // "Translate all" — translates title and body.
-  async function handleTranslateAll() {
-    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
-      { uz: form.title_uz, setRu: v => setForm(f => ({ ...f, title_ru: v })), setEn: v => setForm(f => ({ ...f, title_en: v })) },
-      { uz: form.body_uz, setRu: v => setForm(f => ({ ...f, body_ru: v })), setEn: v => setForm(f => ({ ...f, body_en: v })) },
-    ]
-    const active = fields.filter(f => f.uz.trim())
-    if (active.length === 0) return
-    setTranslatingAll(true)
-    setTranslateAllProgress(`0/${active.length}`)
-    try {
-      for (let i = 0; i < active.length; i++) {
-        setTranslateAllProgress(`${i + 1}/${active.length}`)
-        const result = await autoTranslate(active[i].uz)
-        active[i].setRu(result.ru)
-        active[i].setEn(result.en)
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingAll(false)
-      setTranslateAllProgress('')
+    // Load existing multi-select connections from join tables
+    const sb = createClient()
+    const [schRes, uniRes] = await Promise.all([
+      sb.from('news_scholarships').select('scholarship_id').eq('news_id', item.id),
+      sb.from('news_universities').select('university_id').eq('news_id', item.id),
+    ])
+    if (schRes.data && schRes.data.length > 0) {
+      setSelectedScholarships(schRes.data.map((r: any) => r.scholarship_id))
+    } else {
+      // Fall back to single FK field
+      setSelectedScholarships(item.scholarship_id ? [item.scholarship_id] : [])
+    }
+    if (uniRes.data && uniRes.data.length > 0) {
+      setSelectedUniversities(uniRes.data.map((r: any) => r.university_id))
+    } else {
+      setSelectedUniversities(item.university_id ? [item.university_id] : [])
     }
   }
 
@@ -134,21 +123,39 @@ export default function NewsPage() {
       cover_url: form.cover_url || null,
       published: form.published,
       published_at: form.published_at || null,
-      scholarship_id: form.scholarship_id || null,
-      university_id: form.university_id || null,
+      // Keep single FK for backward compat (first selected)
+      scholarship_id: selectedScholarships[0] || null,
+      university_id: selectedUniversities[0] || null,
       slug: form.slug || slugify(form.title_uz) || null,
       media_links: mediaLinks.filter(l => l.url.trim()).length > 0 ? mediaLinks.filter(l => l.url.trim()) : null,
     }
     const supabase = createClient()
-    const res = editId
-      ? await supabase.from('news_posts').update(payload).eq('id', editId)
-      : await supabase.from('news_posts').insert(payload)
-    if (res.error) {
-      setError(res.error.message)
+    let newsId = editId
+    if (editId) {
+      const res = await supabase.from('news_posts').update(payload).eq('id', editId)
+      if (res.error) { setError(res.error.message); setSaving(false); return }
     } else {
-      setShowModal(false)
-      load()
+      const res = await supabase.from('news_posts').insert(payload).select('id').single()
+      if (res.error || !res.data) { setError(res.error?.message ?? 'Insert failed'); setSaving(false); return }
+      newsId = res.data.id
     }
+    // Save join table connections
+    if (newsId) {
+      const sb = createClient()
+      // Try to save to join tables (may not exist yet — ignore errors)
+      try {
+        await sb.from('news_scholarships').delete().eq('news_id', newsId)
+        await sb.from('news_universities').delete().eq('news_id', newsId)
+        if (selectedScholarships.length > 0) {
+          await sb.from('news_scholarships').insert(selectedScholarships.map(sid => ({ news_id: newsId, scholarship_id: sid })))
+        }
+        if (selectedUniversities.length > 0) {
+          await sb.from('news_universities').insert(selectedUniversities.map(uid => ({ news_id: newsId, university_id: uid })))
+        }
+      } catch {}
+    }
+    setShowModal(false)
+    load()
     setSaving(false)
   }
 
@@ -258,57 +265,51 @@ export default function NewsPage() {
                 </div>
               )}
 
-              <LanguageTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              {/* Sarlavha — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Sarlavha *</label>
+                <div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇺🇿</span>
+                    <input required value={form.title_uz} onChange={e => setForm({ ...form, title_uz: e.target.value, slug: form.slug || slugify(e.target.value) })} placeholder="O'zbek..." className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.title_uz} onResult={(ru, en) => setForm(f => ({ ...f, title_ru: ru, title_en: en }))} />
+                  </div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6">🇷🇺</span>
+                    <input value={form.title_ru} onChange={e => setForm({ ...form, title_ru: e.target.value })} placeholder="Русский..." className={`${inp} flex-1`} />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-400 w-6">🇬🇧</span>
+                    <input value={form.title_en} onChange={e => setForm({ ...form, title_en: e.target.value })} placeholder="English..." className={`${inp} flex-1`} />
+                  </div>
+                </div>
+              </div>
 
-              {activeTab === 'uz' && (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Sarlavha (UZ) *</label>
-                      <TranslateFieldButton value={form.title_uz} onResult={(ru, en) => setForm(f => ({ ...f, title_ru: ru, title_en: en }))} />
-                    </div>
-                    <input required value={form.title_uz} onChange={e => setForm({ ...form, title_uz: e.target.value })} className={inp} />
+              {/* Matn — all languages at once */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Matn *</label>
+                <div>
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇺🇿</span>
+                    <textarea required rows={4} value={form.body_uz} onChange={e => setForm({ ...form, body_uz: e.target.value })} placeholder="O'zbek..." className={`${inp} flex-1`} />
+                    <TranslateFieldButton value={form.body_uz} onResult={(ru, en) => setForm(f => ({ ...f, body_ru: ru, body_en: en }))} />
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Matn (UZ) *</label>
-                      <TranslateFieldButton value={form.body_uz} onResult={(ru, en) => setForm(f => ({ ...f, body_ru: ru, body_en: en }))} />
-                    </div>
-                    <textarea required rows={5} value={form.body_uz} onChange={e => setForm({ ...form, body_uz: e.target.value })} className={inp} />
+                  <div className="flex items-start gap-1 mb-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇷🇺</span>
+                    <textarea rows={4} value={form.body_ru} onChange={e => setForm({ ...form, body_ru: e.target.value })} placeholder="Русский..." className={`${inp} flex-1`} />
                   </div>
-                </div>
-              )}
-              {activeTab === 'ru' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (RU)</label>
-                    <input value={form.title_ru} onChange={e => setForm({ ...form, title_ru: e.target.value })} className={inp} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (RU)</label>
-                    <textarea rows={5} value={form.body_ru} onChange={e => setForm({ ...form, body_ru: e.target.value })} className={inp} />
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs text-gray-400 w-6 pt-2">🇬🇧</span>
+                    <textarea rows={4} value={form.body_en} onChange={e => setForm({ ...form, body_en: e.target.value })} placeholder="English..." className={`${inp} flex-1`} />
                   </div>
                 </div>
-              )}
-              {activeTab === 'en' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sarlavha (EN)</label>
-                    <input value={form.title_en} onChange={e => setForm({ ...form, title_en: e.target.value })} className={inp} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Matn (EN)</label>
-                    <textarea rows={5} value={form.body_en} onChange={e => setForm({ ...form, body_en: e.target.value })} className={inp} />
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Slug */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
                 <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} className={inp} placeholder="yangilik-sarlavhasi" />
               </div>
-
 
               {/* Photo URLs via ImageUpload */}
               <div>
@@ -343,32 +344,38 @@ export default function NewsPage() {
                 />
               </div>
 
+              {/* Multi-select scholarships */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Grant bilan bog&apos;lash (ixtiyoriy)</label>
-                <select
-                  value={form.scholarship_id}
-                  onChange={e => setForm({ ...form, scholarship_id: e.target.value })}
-                  className={inp}
-                >
-                  <option value="">— Bog&apos;lanmaslik —</option>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Grantlar bilan bog&apos;lash (ixtiyoriy)</label>
+                <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2 space-y-1">
                   {scholarships.map(s => (
-                    <option key={s.id} value={s.id}>{s.title} ({s.country})</option>
+                    <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="checkbox" checked={selectedScholarships.includes(s.id)}
+                        onChange={e => setSelectedScholarships(prev => e.target.checked ? [...prev, s.id] : prev.filter(id => id !== s.id))}
+                        className="w-4 h-4 accent-teal-600"
+                      />
+                      <span className="text-gray-700 dark:text-gray-300">{s.title} ({s.country})</span>
+                    </label>
                   ))}
-                </select>
+                  {scholarships.length === 0 && <p className="text-xs text-gray-400">Grant yo&apos;q</p>}
+                </div>
               </div>
 
+              {/* Multi-select universities */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitet bilan bog&apos;lash (ixtiyoriy)</label>
-                <select
-                  value={form.university_id}
-                  onChange={e => setForm({ ...form, university_id: e.target.value })}
-                  className={inp}
-                >
-                  <option value="">— Bog&apos;lanmaslik —</option>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitetlar bilan bog&apos;lash (ixtiyoriy)</label>
+                <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2 space-y-1">
                   {universities.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.country})</option>
+                    <label key={u.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="checkbox" checked={selectedUniversities.includes(u.id)}
+                        onChange={e => setSelectedUniversities(prev => e.target.checked ? [...prev, u.id] : prev.filter(id => id !== u.id))}
+                        className="w-4 h-4 accent-teal-600"
+                      />
+                      <span className="text-gray-700 dark:text-gray-300">{u.name} ({u.country})</span>
+                    </label>
                   ))}
-                </select>
+                  {universities.length === 0 && <p className="text-xs text-gray-400">Universitet yo&apos;q</p>}
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
