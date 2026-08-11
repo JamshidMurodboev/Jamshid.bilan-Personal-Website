@@ -186,7 +186,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers()
-    supabase.from('share_events').select('*').order('created_at', { ascending: false }).limit(100).then(({ data }) => {
+    supabase.from('share_events').select('*, site_users(full_name)').order('created_at', { ascending: false }).limit(100).then(({ data }) => {
       setShares((data ?? []) as ShareEvent[])
       setSharesLoading(false)
     })
@@ -463,7 +463,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3 text-gray-800 dark:text-gray-200">
                       <span className="text-xs text-gray-400 mr-1">[{s.entity_type}]</span>{s.entity_name || '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{s.user_name || 'Anonim'}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{(s as any).site_users?.full_name || s.user_name || 'Anonim'}</td>
                   </tr>
                 ))}
               </tbody>

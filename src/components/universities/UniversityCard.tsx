@@ -31,7 +31,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
           ? <Image src={coverPhoto} alt={u.name} fill className="object-cover" />
           : <span className="text-4xl font-bold text-white/60 select-none">{u.name?.charAt(0)?.toUpperCase()}</span>
         }
-        <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 right-2" />
+        <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 left-2" />
       </div>
       <div className="p-5 flex flex-col justify-between gap-3 flex-1">
       <div className="flex flex-col gap-3">

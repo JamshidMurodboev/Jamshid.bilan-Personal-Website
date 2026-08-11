@@ -67,22 +67,25 @@ export default function AboutSection() {
           <div>
             <p className="text-lg leading-[1.8] text-gray-600 dark:text-gray-300 mb-6">{body}</p>
 
-            {/* Social links */}
-            <div className="flex items-center gap-3 mb-8">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className={`w-10 h-10 flex items-center justify-center rounded-full ${s.bg} transition-transform duration-200 hover:scale-110 shadow-sm`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
-                    {s.icon}
-                  </svg>
-                </a>
-              ))}
+            {/* Follow my journey strip */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 mb-6 border-t border-b border-gray-100 dark:border-gray-700/50">
+              <span className="font-medium text-slate-700 dark:text-slate-300 text-sm flex-shrink-0">Follow my journey:</span>
+              <div className="flex items-center gap-3">
+                {SOCIALS.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full ${s.bg} transition-all duration-200 hover:scale-105 hover:shadow-md`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+                      {s.icon}
+                    </svg>
+                  </a>
+                ))}
+              </div>
             </div>
 
             {/* Credential badges — passport stamp style */}

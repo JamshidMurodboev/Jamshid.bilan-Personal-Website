@@ -22,7 +22,7 @@ export const SOCIALS = [
   {
     href: 'https://youtube.com/@jamshidbilan',
     label: 'YouTube',
-    bg: 'bg-[#FF0000]',
+    bg: 'bg-red-600',
     icon: (
       <>
         <rect x="2" y="5" width="20" height="14" rx="4" fill="none" stroke="white" strokeWidth="1.5" />
