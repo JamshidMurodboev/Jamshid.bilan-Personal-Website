@@ -211,18 +211,15 @@ export default function ServicesAdminPage() {
       serviceId = res.data.id
     }
 
-    // Attempt to save price_note columns separately — silently ignore if columns don't exist yet
+    // Save price_note columns
     if (serviceId) {
-      try {
-        const priceNotePayload = {
-          price_note_uz: form.price_note_uz || null,
-          price_note_ru: form.price_note_ru || null,
-          price_note_en: form.price_note_en || null,
-        }
-        await sb.from('services').update(priceNotePayload).eq('id', serviceId)
-      } catch (_) {
-        // price_note columns may not exist yet — ignore
+      const priceNotePayload = {
+        price_note_uz: form.price_note_uz || null,
+        price_note_ru: form.price_note_ru || null,
+        price_note_en: form.price_note_en || null,
       }
+      const pnRes = await sb.from('services').update(priceNotePayload).eq('id', serviceId)
+      if (pnRes.error) console.warn('price_note save error:', pnRes.error.message)
     }
 
     // Save connections

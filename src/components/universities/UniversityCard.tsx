@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import type { University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
@@ -20,9 +21,19 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
   const t = useTranslations();
   const TYPE_LABELS = { public: t('filters.publicType'), private: t('filters.privateType') };
   const STATUS_LABELS = { open: t('common.open'), closed: t('common.closed'), upcoming: t('common.upcoming') };
+  const photos: string[] = (u as any).photo_urls?.length ? (u as any).photo_urls : [];
+  const coverPhoto = photos[0] || null;
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
-      <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 right-2" />
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
+      {/* Cover image or gradient placeholder */}
+      <div className="relative w-full h-36 flex-shrink-0 bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center">
+        {coverPhoto
+          ? <Image src={coverPhoto} alt={u.name} fill className="object-cover" />
+          : <span className="text-4xl font-bold text-white/60 select-none">{u.name?.charAt(0)?.toUpperCase()}</span>
+        }
+        <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 right-2" />
+      </div>
+      <div className="p-5 flex flex-col justify-between gap-3 flex-1">
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>
@@ -77,6 +88,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
             {t('universities.officialSite')}
           </a>
         )}
+      </div>
       </div>
     </div>
   );

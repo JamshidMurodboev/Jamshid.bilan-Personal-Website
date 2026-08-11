@@ -67,7 +67,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
       ? supabase.from('universities').select('id,name,slug,photo_urls,country,city,type').in('id', universityIds)
       : Promise.resolve({ data: [] }),
     resultIds.length > 0
-      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year,degree_level,major,major_uz,major_ru,major_en,language,category,university_name,university_name_uz,university_name_ru,university_name_en').in('id', resultIds)
+      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year,degree_level,major,language,category,university_name').in('id', resultIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -139,7 +139,8 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
         )}
 
         {price && (
-          <div className="inline-block mb-2 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
+          <div className="inline-flex items-center gap-2 mb-2 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
+            <span className="font-normal text-base opacity-70">{t('price')}:</span>
             {price}
           </div>
         )}
