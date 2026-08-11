@@ -23,6 +23,9 @@ type FormState = {
   status: 'active' | 'inactive'
   home_order: string
   slug: string
+  price_note_uz: string
+  price_note_ru: string
+  price_note_en: string
 }
 
 const emptyForm: FormState = {
@@ -39,6 +42,9 @@ const emptyForm: FormState = {
   status: 'active',
   home_order: '',
   slug: '',
+  price_note_uz: '',
+  price_note_ru: '',
+  price_note_en: '',
 }
 
 function formatPrice(price?: number, currency?: string, custom?: string) {
@@ -155,6 +161,9 @@ export default function ServicesAdminPage() {
       status: item.status ?? 'active',
       home_order: item.home_order?.toString() ?? '',
       slug: item.slug ?? slugify(item.name_uz),
+      price_note_uz: (item as any).price_note_uz ?? '',
+      price_note_ru: (item as any).price_note_ru ?? '',
+      price_note_en: (item as any).price_note_en ?? '',
     })
     setError(null)
     setShowModal(true)
@@ -189,6 +198,9 @@ export default function ServicesAdminPage() {
       status: form.status,
       home_order: form.home_order ? parseInt(form.home_order) : null,
       slug: form.slug || slugify(form.name_uz) || null,
+      price_note_uz: form.price_note_uz || null,
+      price_note_ru: form.price_note_ru || null,
+      price_note_en: form.price_note_en || null,
     }
 
     const sb = createClient()
@@ -444,6 +456,19 @@ export default function ServicesAdminPage() {
                   <input value={form.currency_custom} onChange={e => setForm({ ...form, currency_custom: e.target.value })} className={inp} placeholder="Masalan: SOм" />
                 </div>
               )}
+
+              {/* Price note */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Narx izohi (ixtiyoriy)</label>
+                  <TranslateFieldButton value={form.price_note_uz} onResult={(ru, en) => setForm(f => ({ ...f, price_note_ru: ru, price_note_en: en }))} />
+                </div>
+                <input value={form.price_note_uz} onChange={e => setForm({...form, price_note_uz: e.target.value})} placeholder="Masalan: 3 ta konsultatsiya kiritilgan" className={inp} />
+                <div className="flex gap-2 mt-1">
+                  <div className="flex items-center gap-1 flex-1"><span className="text-xs text-gray-400">🇷🇺</span><input value={form.price_note_ru} onChange={e => setForm({...form, price_note_ru: e.target.value})} placeholder="Примечание к цене..." className={inp} /></div>
+                  <div className="flex items-center gap-1 flex-1"><span className="text-xs text-gray-400">🇬🇧</span><input value={form.price_note_en} onChange={e => setForm({...form, price_note_en: e.target.value})} placeholder="Price note..." className={inp} /></div>
+                </div>
+              </div>
 
               {/* Status + home_order */}
               <div className="grid grid-cols-2 gap-3">

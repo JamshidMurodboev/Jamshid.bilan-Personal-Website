@@ -14,6 +14,31 @@ import ApplyNowCTA from '@/components/scholarships/ApplyNowCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { formatDate } from '@/lib/format';
 
+const MONTHS = {
+  uz: ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
+  ru: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+}
+
+function formatDateValue(value: string, type: string, locale: string): string {
+  if (!value) return ''
+  if (type === 'exact') {
+    const d = new Date(value + 'T00:00:00')
+    if (isNaN(d.getTime())) return value
+    const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+  }
+  if (type === 'month') {
+    const parts = value.split('-')
+    if (parts.length === 2) {
+      const monthIdx = parseInt(parts[1]) - 1
+      const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
+      return `${months[monthIdx] || value} ${parts[0]}`
+    }
+  }
+  return value
+}
+
 const STATUS_COLORS = {
   open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
   closed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
@@ -76,7 +101,8 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
         const c = COLORS[i % COLORS.length];
         const labelKey: Record<string, string> = { application: t('applicationPeriod'), interview_exam: t('interviewExamPeriod'), results: t('resultsPeriod'), admission: t('admissionDeadline') };
         const customLabel = (step as any)[`label_${locale}`] || (step as any).label_uz || (step as any).label || '';
-        return { key: step.key, label: labelKey[step.key] || customLabel || step.key, value: step.value, description: (step as any)[`description_${locale}`] || step.description_uz || '', ...c };
+        const formattedValue = formatDateValue(step.value, step.type, locale)
+        return { key: step.key, label: labelKey[step.key] || customLabel || step.key, value: formattedValue || step.value, description: (step as any)[`description_${locale}`] || step.description_uz || '', ...c };
       });
     }
     // fallback: old flat fields
@@ -332,7 +358,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                   {s.results_date && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500 dark:text-gray-400">{t('resultsDateLabel')}</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{s.results_date}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{formatDateValue(s.results_date, s.results_date_type ?? 'exact', locale)}</span>
                     </div>
                   )}
                 </div>

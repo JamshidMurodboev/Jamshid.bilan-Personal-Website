@@ -12,6 +12,22 @@ import type { MediaLink } from '@/lib/supabase/types'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
+const PRESET_DOCS = [
+  { key: 'diploma',        uz: 'Shahodatnoma/Diplom',          ru: 'Диплом/Аттестат',             en: 'Diploma/Certificate' },
+  { key: 'photo',          uz: 'Shaxsiy Surat',                ru: 'Фотография',                  en: 'Personal Photo' },
+  { key: 'motivletter',    uz: 'Maqsad Xati',                  ru: 'Мотивационное письмо',        en: 'Motivation Letter' },
+  { key: 'recommendation', uz: 'Tavsiyanoma',                   ru: 'Рекомендательное письмо',     en: 'Recommendation Letter' },
+  { key: 'research',       uz: 'Ilmiy Ish Taklifi',            ru: 'Научная работа/Предложение',  en: 'Research Proposal' },
+  { key: 'achievements',   uz: 'Yutuqlar',                     ru: 'Достижения',                  en: 'Achievements' },
+  { key: 'langcert',       uz: 'Til Sertifikatlari',           ru: 'Языковые сертификаты',        en: 'Language Certificates' },
+  { key: 'passport',       uz: 'Pasport',                      ru: 'Паспорт',                     en: 'Passport' },
+  { key: 'transcript',     uz: 'Akademik Transkript',          ru: 'Академическая транскрипция',  en: 'Academic Transcript' },
+  { key: 'essay',          uz: 'Esse',                         ru: 'Эссе',                        en: 'Essay' },
+  { key: 'other',          uz: '',                             ru: '',                            en: '' },
+]
+
+const MONTHS_UZ = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
+
 type Category = 'fully_funded' | 'partially_funded' | 'self_funded'
 type ResultsDateType = 'exact' | 'month' | 'period'
 
@@ -614,8 +630,16 @@ export default function ScholarshipsPage() {
                         </select>
                         {step.type === 'exact' ? (
                           <input type="date" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} className={inp} />
+                        ) : step.type === 'month' ? (
+                          <div className="flex gap-1">
+                            <input type="number" placeholder="2025" min="2024" max="2030" value={step.value.split('-')[0] || ''} onChange={e => { const yr = e.target.value; const mo = step.value.split('-')[1] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: yr && mo ? `${yr}-${mo}` : yr } : p)) }} className={`${inp} w-24`} />
+                            <select value={step.value.split('-')[1] || ''} onChange={e => { const mo = e.target.value; const yr = step.value.split('-')[0] || ''; setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: yr && mo ? `${yr}-${mo}` : mo } : p)) }} className={inp}>
+                              <option value="">Oy</option>
+                              {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                            </select>
+                          </div>
                         ) : (
-                          <input type="text" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} placeholder={step.type === 'month' ? '2025-04' : 'Mart – Aprel'} className={inp} />
+                          <input type="text" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} placeholder="Mart – Aprel" className={inp} />
                         )}
                       </div>
                       {/* Descriptions */}
@@ -637,7 +661,22 @@ export default function ScholarshipsPage() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
-                  <button type="button" onClick={() => setRequiredDocs(d => [...d, emptyDoc()])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo&apos;shish</button>
+                  <select
+                    className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    value=""
+                    onChange={e => {
+                      const key = e.target.value
+                      if (!key) return
+                      const preset = PRESET_DOCS.find(p => p.key === key)
+                      if (preset) setRequiredDocs(d => [...d, { uz: preset.uz, ru: preset.ru, en: preset.en, mandatory: true }])
+                      e.currentTarget.value = ''
+                    }}
+                  >
+                    <option value="">+ Qo&apos;shish...</option>
+                    {PRESET_DOCS.map(p => (
+                      <option key={p.key} value={p.key}>{p.key === 'other' ? "Boshqa (qoʼlda kiriting)" : p.uz}</option>
+                    ))}
+                  </select>
                 </div>
                 {requiredDocs.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo&apos;shilmagan</p>
@@ -661,7 +700,10 @@ export default function ScholarshipsPage() {
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O&apos;zbek</label>
+                            <div className="flex items-center gap-1 mb-1">
+                              <label className="text-xs text-gray-500 dark:text-gray-400 flex-1">O&apos;zbek</label>
+                              <TranslateFieldButton value={doc.uz} onResult={(ru, en) => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru, en } : r))} />
+                            </div>
                             <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
                           </div>
                           <div>
@@ -693,8 +735,16 @@ export default function ScholarshipsPage() {
                   <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{resultsDateLabel(form.results_date_type)}</label>
                   {form.results_date_type === 'exact' ? (
                     <input type="date" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} className={inp} />
+                  ) : form.results_date_type === 'month' ? (
+                    <div className="flex gap-1">
+                      <input type="number" placeholder="2025" min="2024" max="2030" value={form.results_date.split('-')[0] || ''} onChange={e => { const yr = e.target.value; const mo = form.results_date.split('-')[1] || ''; setForm({ ...form, results_date: yr && mo ? `${yr}-${mo}` : yr }) }} className={`${inp} w-24`} />
+                      <select value={form.results_date.split('-')[1] || ''} onChange={e => { const mo = e.target.value; const yr = form.results_date.split('-')[0] || ''; setForm({ ...form, results_date: yr && mo ? `${yr}-${mo}` : mo }) }} className={inp}>
+                        <option value="">Oy</option>
+                        {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                      </select>
+                    </div>
                   ) : (
-                    <input type="text" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} placeholder={form.results_date_type === 'month' ? '2025-04' : 'Mart-Aprel'} className={inp} />
+                    <input type="text" value={form.results_date} onChange={e => setForm({ ...form, results_date: e.target.value })} placeholder="Mart-Aprel" className={inp} />
                   )}
                 </div>
               </div>

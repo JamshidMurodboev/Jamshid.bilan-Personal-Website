@@ -13,6 +13,20 @@ import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
+const PRESET_DOCS = [
+  { key: 'diploma',        uz: 'Shahodatnoma/Diplom',          ru: 'Диплом/Аттестат',             en: 'Diploma/Certificate' },
+  { key: 'photo',          uz: 'Shaxsiy Surat',                ru: 'Фотография',                  en: 'Personal Photo' },
+  { key: 'motivletter',    uz: 'Maqsad Xati',                  ru: 'Мотивационное письмо',        en: 'Motivation Letter' },
+  { key: 'recommendation', uz: 'Tavsiyanoma',                   ru: 'Рекомендательное письмо',     en: 'Recommendation Letter' },
+  { key: 'research',       uz: 'Ilmiy Ish Taklifi',            ru: 'Научная работа/Предложение',  en: 'Research Proposal' },
+  { key: 'achievements',   uz: 'Yutuqlar',                     ru: 'Достижения',                  en: 'Achievements' },
+  { key: 'langcert',       uz: 'Til Sertifikatlari',           ru: 'Языковые сертификаты',        en: 'Language Certificates' },
+  { key: 'passport',       uz: 'Pasport',                      ru: 'Паспорт',                     en: 'Passport' },
+  { key: 'transcript',     uz: 'Akademik Transkript',          ru: 'Академическая транскрипция',  en: 'Academic Transcript' },
+  { key: 'essay',          uz: 'Esse',                         ru: 'Эссе',                        en: 'Essay' },
+  { key: 'other',          uz: '',                             ru: '',                            en: '' },
+]
+
 type MajorRow = {
   name: string
   name_ru: string
@@ -610,7 +624,22 @@ export default function UniversitiesPage() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Talab qilinadigan hujjatlar</h3>
-                  <button type="button" onClick={() => setRequiredDocs(d => [...d, { uz: '', ru: '', en: '', mandatory: true }])} className="text-xs text-teal-700 dark:text-teal-400 font-medium hover:underline">+ Qo&apos;shish</button>
+                  <select
+                    className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    value=""
+                    onChange={e => {
+                      const key = e.target.value
+                      if (!key) return
+                      const preset = PRESET_DOCS.find(p => p.key === key)
+                      if (preset) setRequiredDocs(d => [...d, { uz: preset.uz, ru: preset.ru, en: preset.en, mandatory: true }])
+                      e.currentTarget.value = ''
+                    }}
+                  >
+                    <option value="">+ Qo&apos;shish...</option>
+                    {PRESET_DOCS.map(p => (
+                      <option key={p.key} value={p.key}>{p.key === 'other' ? "Boshqa (qoʼlda kiriting)" : p.uz}</option>
+                    ))}
+                  </select>
                 </div>
                 {requiredDocs.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500 italic">Hujjat qo&apos;shilmagan</p>
@@ -639,7 +668,10 @@ export default function UniversitiesPage() {
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">O&apos;zbek</label>
+                            <div className="flex items-center gap-1 mb-1">
+                              <label className="text-xs text-gray-500 dark:text-gray-400 flex-1">O&apos;zbek</label>
+                              <TranslateFieldButton value={doc.uz} onResult={(ru, en) => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, ru, en } : r))} />
+                            </div>
                             <input value={doc.uz} onChange={e => setRequiredDocs(d => d.map((r, j) => j === i ? { ...r, uz: e.target.value } : r))} className={inp} placeholder="..." />
                           </div>
                           <div>
