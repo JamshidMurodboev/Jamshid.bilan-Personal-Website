@@ -88,12 +88,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           <FavouriteButton entityType="service" entityId={svc.id} />
         </div>
 
-        {price && (
-          <div className="inline-block mb-3 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
-            {price}
-          </div>
-        )}
-
         {description && (
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
         )}
@@ -144,6 +138,11 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           </div>
         )}
 
+        {price && (
+          <div className="inline-block mb-2 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
+            {price}
+          </div>
+        )}
         {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{note}</p> : null; })()}
         <ServiceContactButtons
           serviceContext={svc.name_uz}
