@@ -14,13 +14,18 @@ async function logShare(platform: string, entityType: string, entityId: string, 
   try {
     const sb = createClient();
     const { data: { user } } = await sb.auth.getUser();
+    let userName: string | null = null;
+    if (user?.id) {
+      const { data: profile } = await sb.from('site_users').select('full_name').eq('id', user.id).single();
+      userName = profile?.full_name || user.email || null;
+    }
     await sb.from('share_events').insert({
       entity_type: entityType,
       entity_id: entityId,
       entity_name: entityName || null,
       platform,
       user_id: user?.id || null,
-      user_name: user?.email || null,
+      user_name: userName,
     });
   } catch (_) {}
 }
