@@ -550,6 +550,18 @@ export default function ScholarshipsPage() {
                 </div>
               </div>
 
+              {/* Qabul muddati — open and close dates */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ariza boshlanish sanasi</label>
+                  <input type="date" value={form.open_date} onChange={e => setForm({...form, open_date: e.target.value})} className={inp} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ariza oxirgi muddati *</label>
+                  <input type="date" value={form.close_date} onChange={e => setForm({...form, close_date: e.target.value})} className={inp} />
+                </div>
+              </div>
+
               {/* Grant Jarayoni — Scholarship Process */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
@@ -638,9 +650,61 @@ export default function ScholarshipsPage() {
                               {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
                             </select>
                           </div>
-                        ) : (
-                          <input type="text" value={step.value} onChange={e => setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: e.target.value } : p))} placeholder="Mart – Aprel" className={inp} />
-                        )}
+                        ) : step.type === 'period' ? (
+                          <div className="flex gap-1 items-center">
+                            <div className="flex gap-1 flex-1">
+                              <input type="number" placeholder="2025" min="2024" max="2035"
+                                value={step.value.split('|')[0]?.split('-')[0] || ''}
+                                onChange={e => {
+                                  const yr = e.target.value
+                                  const startMo = step.value.split('|')[0]?.split('-')[1] || ''
+                                  const end = step.value.split('|')[1] || ''
+                                  setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${yr}-${startMo}|${end}` } : p))
+                                }}
+                                className={`${inp} w-20`}
+                              />
+                              <select
+                                value={step.value.split('|')[0]?.split('-')[1] || ''}
+                                onChange={e => {
+                                  const startMo = e.target.value
+                                  const yr = step.value.split('|')[0]?.split('-')[0] || ''
+                                  const end = step.value.split('|')[1] || ''
+                                  setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${yr}-${startMo}|${end}` } : p))
+                                }}
+                                className={inp}
+                              >
+                                <option value="">Boshlanish oy</option>
+                                {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                              </select>
+                            </div>
+                            <span className="text-gray-400 text-xs">–</span>
+                            <div className="flex gap-1 flex-1">
+                              <input type="number" placeholder="2025" min="2024" max="2035"
+                                value={step.value.split('|')[1]?.split('-')[0] || ''}
+                                onChange={e => {
+                                  const yr = e.target.value
+                                  const endMo = step.value.split('|')[1]?.split('-')[1] || ''
+                                  const start = step.value.split('|')[0] || ''
+                                  setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${yr}-${endMo}` } : p))
+                                }}
+                                className={`${inp} w-20`}
+                              />
+                              <select
+                                value={step.value.split('|')[1]?.split('-')[1] || ''}
+                                onChange={e => {
+                                  const endMo = e.target.value
+                                  const yr = step.value.split('|')[1]?.split('-')[0] || ''
+                                  const start = step.value.split('|')[0] || ''
+                                  setProcessSteps(ps => ps.map((p, j) => j === idx ? { ...p, value: `${start}|${yr}-${endMo}` } : p))
+                                }}
+                                className={inp}
+                              >
+                                <option value="">Tugash oy</option>
+                                {MONTHS_UZ.map((m, mi) => <option key={mi} value={String(mi + 1).padStart(2, '0')}>{m}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                       {/* Descriptions */}
                       <div className="space-y-1.5">

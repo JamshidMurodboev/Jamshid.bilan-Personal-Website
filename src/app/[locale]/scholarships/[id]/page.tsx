@@ -20,6 +20,16 @@ const MONTHS = {
   en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
 }
 
+function formatMonthYear(value: string, locale: string): string {
+  const parts = value.split('-')
+  if (parts.length === 2) {
+    const monthIdx = parseInt(parts[1]) - 1
+    const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
+    return `${months[monthIdx] || value} ${parts[0]}`
+  }
+  return value
+}
+
 function formatDateValue(value: string, type: string, locale: string): string {
   if (!value) return ''
   if (type === 'exact') {
@@ -29,12 +39,14 @@ function formatDateValue(value: string, type: string, locale: string): string {
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
   }
   if (type === 'month') {
-    const parts = value.split('-')
-    if (parts.length === 2) {
-      const monthIdx = parseInt(parts[1]) - 1
-      const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz
-      return `${months[monthIdx] || value} ${parts[0]}`
+    return formatMonthYear(value, locale)
+  }
+  if (type === 'period') {
+    if (value.includes('|')) {
+      const [start, end] = value.split('|')
+      return `${formatMonthYear(start, locale)} – ${formatMonthYear(end, locale)}`
     }
+    return value // legacy text period
   }
   return value
 }

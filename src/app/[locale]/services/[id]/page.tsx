@@ -93,7 +93,6 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
             {price}
           </div>
         )}
-        {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{note}</p> : null; })()}
 
         {description && (
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
@@ -145,6 +144,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           </div>
         )}
 
+        {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{note}</p> : null; })()}
         <ServiceContactButtons
           serviceContext={svc.name_uz}
           applyLabel={t('applyNow')}
