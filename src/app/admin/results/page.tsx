@@ -243,7 +243,7 @@ export default function ResultsPage() {
     setForm(emptyForm)
     setMediaLinks([])
     setError(null)
-    setActiveTab('uz')
+
     setShowModal(true)
   }
 
@@ -274,7 +274,7 @@ export default function ResultsPage() {
     })
     setMediaLinks((item as any).media_links ?? [])
     setError(null)
-    setActiveTab('uz')
+
     setShowModal(true)
   }
 
