@@ -13,6 +13,7 @@ import { formatDate } from '@/lib/format';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ShareButton from '@/components/shared/ShareButton';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
 
 function formatAdmissionDate(value: string, type: string, locale: string): string {
@@ -119,6 +120,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
             <div className="flex items-start gap-3">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex-1">{u.name}</h1>
               <FavouriteButton entityType="university" entityId={u.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/universities/${u.slug ?? u.id}`} title={u.name} entityType="university" entityId={u.id} entityName={u.name} />
             </div>
             <p className="text-gray-500 dark:text-gray-400 mb-6">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
 

@@ -11,6 +11,7 @@ import ActivityTracker from '@/components/shared/ActivityTracker';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import { isUUID } from '@/lib/slugify';
 import ServiceContactButtons from '@/components/services/ServiceContactButtons';
+import ShareButton from '@/components/shared/ShareButton';
 import StudentCard from '@/components/results/StudentCard';
 
 function priceDisplay(s: Service, freeLabel: string) {
@@ -67,7 +68,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
       ? supabase.from('universities').select('id,name,slug,photo_urls,country,city,type').in('id', universityIds)
       : Promise.resolve({ data: [] }),
     resultIds.length > 0
-      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year,degree_level,major,major_uz,major_ru,major_en,language,category,university_name,university_name_uz,university_name_ru,university_name_en').in('id', resultIds)
+      ? supabase.from('student_results').select('id,student_name,slug,photo_url,photo_urls,country,year,degree_level,major,language,category,university_name').in('id', resultIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -85,14 +86,11 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
 
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{name}</h1>
-          <FavouriteButton entityType="service" entityId={svc.id} />
-        </div>
-
-        {price && (
-          <div className="inline-block mb-3 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
-            {price}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <FavouriteButton entityType="service" entityId={svc.id} />
+            <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/services/${(svc as any).slug ?? svc.id}`} title={name} entityType="service" entityId={svc.id} entityName={svc.name_uz} />
           </div>
-        )}
+        </div>
 
         {description && (
           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
@@ -144,6 +142,12 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           </div>
         )}
 
+        {price && (
+          <div className="inline-flex items-center gap-2 mb-2 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
+            <span className="font-normal text-base opacity-70">{t('price')}:</span>
+            {price}
+          </div>
+        )}
         {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{note}</p> : null; })()}
         <ServiceContactButtons
           serviceContext={svc.name_uz}

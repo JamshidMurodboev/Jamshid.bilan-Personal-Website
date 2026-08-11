@@ -12,6 +12,7 @@ interface Props {
 export default function ScholarshipFilters({ search, onSearch, country, onCountry, status, onStatus, category, onCategory, countries }: Props) {
   const t = useTranslations('filters');
   const tc = useTranslations('common');
+  const hasFilter = !!(search || country || status || category);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -46,6 +47,14 @@ export default function ScholarshipFilters({ search, onSearch, country, onCountr
             <option value="upcoming">{tc('upcoming')}</option>
           </select>
         </div>
+        {hasFilter && (
+          <button
+            onClick={() => { onSearch(''); onCountry(''); onStatus(''); onCategory(''); }}
+            className="w-full text-xs text-teal-700 dark:text-teal-400 hover:underline pt-1"
+          >
+            {t('clearFilters')}
+          </button>
+        )}
       </div>
     </div>
   );

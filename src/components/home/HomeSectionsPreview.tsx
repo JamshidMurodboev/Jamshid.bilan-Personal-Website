@@ -64,7 +64,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
     <div className="bg-white dark:bg-[#0d1117]">
       {/* Scholarships */}
       {scholarships.length > 0 && (
-        <section className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
+        <section id="scholarships" className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`🎓 ${t('scholarships.title')}`} href={`/${locale}/scholarships`} label={t('scholarships.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -113,7 +113,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
       {/* Universities */}
       {universities.length > 0 && (
-        <section className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
+        <section id="universities" className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`🏫 ${t('universities.title')}`} href={`/${locale}/universities`} label={t('universities.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -154,7 +154,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
       {/* Results */}
       {results.length > 0 && (
-        <section className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
+        <section id="results" className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`🏆 ${t('results.title')}`} href={`/${locale}/results`} label={t('results.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -217,7 +217,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
       {/* News */}
       {news.length > 0 && (
-        <section className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
+        <section id="news" className="py-14 px-4 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`📰 ${t('news.title')}`} href={`/${locale}/news`} label={t('news.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +250,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
 
       {/* Services */}
       {services.length > 0 && (
-        <section className="py-14 px-4">
+        <section id="services" className="py-14 px-4">
           <div className="max-w-6xl mx-auto">
             <SectionHeader title={`🎯 ${t('services.title')}`} href={`/${locale}/services`} label={t('services.viewAll')} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

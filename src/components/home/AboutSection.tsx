@@ -2,6 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { SOCIALS } from '@/lib/socials';
 import { createClient } from '@/lib/supabase/client';
 
 interface DbAbout {
@@ -64,7 +65,25 @@ export default function AboutSection() {
 
           {/* Content */}
           <div>
-            <p className="text-lg leading-[1.8] text-gray-600 dark:text-gray-300 mb-10">{body}</p>
+            <p className="text-lg leading-[1.8] text-gray-600 dark:text-gray-300 mb-6">{body}</p>
+
+            {/* Social links */}
+            <div className="flex items-center gap-3 mb-8">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full ${s.bg} transition-transform duration-200 hover:scale-110 shadow-sm`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+                    {s.icon}
+                  </svg>
+                </a>
+              ))}
+            </div>
 
             {/* Credential badges — passport stamp style */}
             <div className="grid grid-cols-2 gap-3">

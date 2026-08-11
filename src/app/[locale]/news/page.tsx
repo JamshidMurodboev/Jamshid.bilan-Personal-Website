@@ -22,7 +22,7 @@ export default async function NewsPage({ params: { locale } }: { params: { local
   return (
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav backHref={`/${locale}`} />
+        <PageNav backHref={`/${locale}#news`} />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('news')}</h1>
         <div className="grid gap-6 sm:grid-cols-2">
           {news.map((n) => <NewsCard key={n.id} post={n} />)}

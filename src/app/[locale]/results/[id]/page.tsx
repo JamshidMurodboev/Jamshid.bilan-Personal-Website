@@ -10,6 +10,7 @@ import { translateLanguage } from '@/lib/translateLanguage';
 import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ShareButton from '@/components/shared/ShareButton';
 import ResultPhotoGallery from '@/components/results/ResultPhotoGallery';
 
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
@@ -74,6 +75,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
             <div className="flex items-start gap-2 mb-3">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{r.student_name}</h1>
               <FavouriteButton entityType="result" entityId={r.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/results/${r.slug ?? r.id}`} title={r.student_name} entityType="result" entityId={r.id} entityName={r.student_name} />
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">

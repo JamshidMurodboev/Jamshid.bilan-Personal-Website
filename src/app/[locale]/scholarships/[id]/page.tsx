@@ -12,6 +12,7 @@ import { isUUID } from '@/lib/slugify';
 import { translateCountry } from '@/lib/translateCountry';
 import ApplyNowCTA from '@/components/scholarships/ApplyNowCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ShareButton from '@/components/shared/ShareButton';
 import { formatDate } from '@/lib/format';
 
 const MONTHS = {
@@ -151,7 +152,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/scholarships`} />
-        <ActivityTracker entityType="scholarship" entityId={s.id} entityName={s.title} />
+        <ActivityTracker entityType="scholarship" entityId={s.id} entityName={(s as any)[`title_${locale}`] || s.title} />
 
         {s.photo_urls && s.photo_urls.length > 0 && (
           <div className="relative w-full h-64 rounded-2xl mt-4 mb-0 overflow-hidden">
@@ -174,8 +175,9 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
             </div>
 
             <div className="flex items-start gap-3">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex-1">{s.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex-1">{(s as any)[`title_${locale}`] || s.title}</h1>
               <FavouriteButton entityType="scholarship" entityId={s.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/scholarships/${s.slug ?? s.id}`} title={(s as any)[`title_${locale}`] || s.title} entityType="scholarship" entityId={s.id} entityName={s.title} />
             </div>
             <p className="text-gray-500 dark:text-gray-400 mb-6">{translateCountry(s.country, locale)}{s.university ? ` · ${s.university}` : ''}</p>
 

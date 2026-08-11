@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Scholarship } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
@@ -21,14 +22,24 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
   const t = useTranslations('scholarships');
   const tc = useTranslations('common');
   const currentLocale = useLocale();
+  const photos: string[] = (s as any).photo_urls?.length ? (s as any).photo_urls : [];
+  const coverPhoto = photos[0] || null;
 
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3 border border-gray-100 dark:border-gray-700 h-full">
-      <FavouriteButton entityType="scholarship" entityId={s.id} className="absolute top-2 right-2" />
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
+      {/* Cover image or gradient placeholder */}
+      <div className="relative w-full h-36 flex-shrink-0 bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
+        {coverPhoto
+          ? <Image src={coverPhoto} alt={s.title} fill className="object-cover" />
+          : <span className="text-4xl font-bold text-white/60 select-none">{s.title?.charAt(0)?.toUpperCase()}</span>
+        }
+        <FavouriteButton entityType="scholarship" entityId={s.id} className="absolute top-2 right-2" />
+      </div>
+      <div className="p-5 flex flex-col justify-between gap-3 flex-1">
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start gap-2">
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{s.title}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{(s as any)[`title_${locale ?? currentLocale}`] || s.title}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{translateCountry(s.country, locale ?? currentLocale)}{s.university ? ` · ${s.university}` : ''}</p>
           </div>
           <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[s.status]}`}>
@@ -80,6 +91,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
             {t('applyBtn')}
           </a>
         )}
+      </div>
       </div>
     </div>
   );
