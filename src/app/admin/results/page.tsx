@@ -6,11 +6,10 @@ import type { StudentResult, Scholarship, University } from '@/lib/supabase/type
 import CountrySelect from '@/components/admin/CountrySelect'
 import LanguageSelect from '@/components/admin/LanguageSelect'
 import ImageUpload from '@/components/admin/ImageUpload'
-import { autoTranslate } from '@/lib/translate'
 import { slugify } from '@/lib/slugify'
 import MediaLinksAdmin from '@/components/admin/MediaLinksAdmin'
 import type { MediaLink } from '@/lib/supabase/types'
-import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs'
+import TranslateFieldButton from '@/components/admin/TranslateFieldButton'
 
 const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 
@@ -196,9 +195,6 @@ export default function ResultsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<LangTab>('uz')
-  const [translateAllProgress, setTranslateAllProgress] = useState('')
-  const [translatingAll, setTranslatingAll] = useState(false)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [orderPending, setOrderPending] = useState(false)
 
@@ -224,31 +220,6 @@ export default function ResultsPage() {
     setOrderPending(false)
   }
 
-  // "Translate all" — translates every free-text UZ field: testimonial, major, university name.
-  async function handleTranslateAll() {
-    const fields: Array<{ uz: string; setRu: (v: string) => void; setEn: (v: string) => void }> = [
-      { uz: form.testimonial, setRu: v => setForm(f => ({ ...f, testimonial_ru: v })), setEn: v => setForm(f => ({ ...f, testimonial_en: v })) },
-      { uz: form.major, setRu: v => setForm(f => ({ ...f, major_ru: v })), setEn: v => setForm(f => ({ ...f, major_en: v })) },
-      { uz: form.university_name, setRu: v => setForm(f => ({ ...f, university_name_ru: v })), setEn: v => setForm(f => ({ ...f, university_name_en: v })) },
-    ]
-    const active = fields.filter(f => f.uz.trim())
-    if (active.length === 0) return
-    setTranslatingAll(true)
-    setTranslateAllProgress(`0/${active.length}`)
-    try {
-      for (let i = 0; i < active.length; i++) {
-        setTranslateAllProgress(`${i + 1}/${active.length}`)
-        const result = await autoTranslate(active[i].uz)
-        active[i].setRu(result.ru)
-        active[i].setEn(result.en)
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Tarjima xatosi')
-    } finally {
-      setTranslatingAll(false)
-      setTranslateAllProgress('')
-    }
-  }
 
   async function load() {
     setLoading(true)
@@ -508,35 +479,16 @@ export default function ResultsPage() {
                 </div>
               )}
 
-              <LanguageTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                onTranslateAll={handleTranslateAll}
-                translating={translatingAll}
-                translateProgress={translateAllProgress}
-              />
-
-              {/* Translatable per-tab */}
-              {activeTab === 'uz' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (UZ)</label>
-                    <textarea rows={3} value={form.testimonial} onChange={e => setForm({ ...form, testimonial: e.target.value })} className={inp} placeholder="Talabaning sharhi (o'zbekcha)..." />
-                  </div>
+              {/* Testimonial - all languages */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Sharh / Fikr</label>
+                  <TranslateFieldButton value={form.testimonial} onResult={(ru, en) => setForm(f => ({ ...f, testimonial_ru: ru, testimonial_en: en }))} />
                 </div>
-              )}
-              {activeTab === 'ru' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (RU)</label>
-                  <textarea rows={3} value={form.testimonial_ru} onChange={e => setForm({ ...form, testimonial_ru: e.target.value })} className={inp} placeholder="Отзыв студента (русский)..." />
-                </div>
-              )}
-              {activeTab === 'en' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sharh / Fikr (EN)</label>
-                  <textarea rows={3} value={form.testimonial_en} onChange={e => setForm({ ...form, testimonial_en: e.target.value })} className={inp} placeholder="Student testimonial (English)..." />
-                </div>
-              )}
+                <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-6 pt-2">🇺🇿</span><textarea rows={3} value={form.testimonial} onChange={e => setForm({ ...form, testimonial: e.target.value })} className={`${inp} flex-1`} placeholder="Talabaning sharhi (o'zbekcha)..." /></div>
+                <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-6 pt-2">🇷🇺</span><textarea rows={3} value={form.testimonial_ru} onChange={e => setForm({ ...form, testimonial_ru: e.target.value })} className={`${inp} flex-1`} placeholder="Отзыв студента (русский)..." /></div>
+                <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-6 pt-2">🇬🇧</span><textarea rows={3} value={form.testimonial_en} onChange={e => setForm({ ...form, testimonial_en: e.target.value })} className={`${inp} flex-1`} placeholder="Student testimonial (English)..." /></div>
+              </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">URL Slug (avtomatik)</label>
@@ -592,13 +544,14 @@ export default function ResultsPage() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Universitet nomi (o&apos;qish joyi)</label>
-                    <input value={form.university_name} onChange={(e) => setForm({ ...form, university_name: e.target.value })} className={inp} placeholder="Masalan: Seoul National University" />
-                    <div className="grid grid-cols-2 gap-2 mt-1">
-                      <input value={form.university_name_ru} onChange={e => setForm({ ...form, university_name_ru: e.target.value })} className={inp} placeholder="Uni name (RU)" />
-                      <input value={form.university_name_en} onChange={e => setForm({ ...form, university_name_en: e.target.value })} className={inp} placeholder="Uni name (EN)" />
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Universitet nomi (o&apos;qish joyi)</label>
+                      <TranslateFieldButton value={form.university_name} onResult={(ru, en) => setForm(f => ({ ...f, university_name_ru: ru, university_name_en: en }))} />
                     </div>
+                    <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇺🇿</span><input value={form.university_name} onChange={(e) => setForm({ ...form, university_name: e.target.value })} className={`${inp} flex-1`} placeholder="Masalan: Seoul National University" /></div>
+                    <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇷🇺</span><input value={form.university_name_ru} onChange={e => setForm({ ...form, university_name_ru: e.target.value })} className={`${inp} flex-1`} placeholder="Uni name (RU)" /></div>
+                    <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇬🇧</span><input value={form.university_name_en} onChange={e => setForm({ ...form, university_name_en: e.target.value })} className={`${inp} flex-1`} placeholder="Uni name (EN)" /></div>
                   </div>
                 </>
               )}
@@ -637,13 +590,14 @@ export default function ResultsPage() {
                 </>
               )}
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Mutaxassislik</label>
-                <input value={form.major} onChange={(e) => setForm({ ...form, major: e.target.value })} className={inp} placeholder="Masalan: Computer Science" />
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  <input value={form.major_ru} onChange={e => setForm({ ...form, major_ru: e.target.value })} className={inp} placeholder="Mutaxassislik (RU)" />
-                  <input value={form.major_en} onChange={e => setForm({ ...form, major_en: e.target.value })} className={inp} placeholder="Major (EN)" />
+              <div className="space-y-1">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Mutaxassislik</label>
+                  <TranslateFieldButton value={form.major} onResult={(ru, en) => setForm(f => ({ ...f, major_ru: ru, major_en: en }))} />
                 </div>
+                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇺🇿</span><input value={form.major} onChange={(e) => setForm({ ...form, major: e.target.value })} className={`${inp} flex-1`} placeholder="Masalan: Computer Science" /></div>
+                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇷🇺</span><input value={form.major_ru} onChange={e => setForm({ ...form, major_ru: e.target.value })} className={`${inp} flex-1`} placeholder="Mutaxassislik (RU)" /></div>
+                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇬🇧</span><input value={form.major_en} onChange={e => setForm({ ...form, major_en: e.target.value })} className={`${inp} flex-1`} placeholder="Major (EN)" /></div>
               </div>
 
               <div>
