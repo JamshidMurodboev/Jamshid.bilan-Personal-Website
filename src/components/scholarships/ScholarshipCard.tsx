@@ -33,7 +33,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
           ? <Image src={coverPhoto} alt={s.title} fill className="object-cover" />
           : <span className="text-4xl font-bold text-white/60 select-none">{s.title?.charAt(0)?.toUpperCase()}</span>
         }
-        <FavouriteButton entityType="scholarship" entityId={s.id} className="absolute top-2 right-2" />
+        <FavouriteButton entityType="scholarship" entityId={s.id} className="absolute top-2 left-2" />
       </div>
       <div className="p-5 flex flex-col justify-between gap-3 flex-1">
       <div className="flex flex-col gap-3">

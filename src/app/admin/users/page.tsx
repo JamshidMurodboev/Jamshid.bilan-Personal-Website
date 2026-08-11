@@ -187,7 +187,7 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers()
     supabase.from('share_events').select('*').order('created_at', { ascending: false }).limit(100).then(({ data }) => {
-      setShares((data ?? []) as ShareEvent[])
+        if (data) setShares(data as ShareEvent[])
       setSharesLoading(false)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,7 +261,7 @@ export default function UsersPage() {
     }`
 
   return (
-    <div className="ml-60 p-8 min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div>
       {selectedUser && (
         <DetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
       )}
@@ -318,22 +318,22 @@ export default function UsersPage() {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                   {[
-                    "To'liq ismi",
-                    'Email',
-                    'Telefon',
-                    'Jinsi',
-                    "Tug'ilgan sana",
-                    "Ro'yxatdan",
-                    'Oxirgi faollik',
-                    'Kirish',
-                    'Holat',
-                    'Amallar',
-                  ].map((h) => (
+                    { label: "To'liq ismi", cls: '' },
+                    { label: 'Email', cls: 'hidden md:table-cell' },
+                    { label: 'Telefon', cls: 'hidden md:table-cell' },
+                    { label: 'Jinsi', cls: 'hidden lg:table-cell' },
+                    { label: "Tug'ilgan sana", cls: 'hidden lg:table-cell' },
+                    { label: "Ro'yxatdan", cls: 'hidden lg:table-cell' },
+                    { label: 'Oxirgi faollik', cls: 'hidden xl:table-cell' },
+                    { label: 'Kirish', cls: 'hidden xl:table-cell' },
+                    { label: 'Holat', cls: '' },
+                    { label: 'Amallar', cls: '' },
+                  ].map(({ label, cls }) => (
                     <th
-                      key={h}
-                      className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide whitespace-nowrap"
+                      key={label}
+                      className={`text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide whitespace-nowrap ${cls}`}
                     >
-                      {h}
+                      {label}
                     </th>
                   ))}
                 </tr>
@@ -362,25 +362,25 @@ export default function UsersPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[160px] truncate whitespace-nowrap">
+                    <td className="hidden md:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[160px] truncate whitespace-nowrap">
                       {user.email || '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden md:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {user.phone || '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {user.gender || '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {formatDate(user.dob)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {formatDate(user.created_at)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden xl:table-cell px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {formatDateTime(user.last_active_at)}
                     </td>
-                    <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
+                    <td className="hidden xl:table-cell px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                       {user.login_count ?? 0}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
