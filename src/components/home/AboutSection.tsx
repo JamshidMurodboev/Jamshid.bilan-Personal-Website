@@ -69,7 +69,7 @@ export default function AboutSection() {
 
             {/* Follow my journey strip */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 mb-6 border-t border-b border-gray-100 dark:border-gray-700/50">
-              <span className="font-medium text-slate-700 dark:text-slate-300 text-sm flex-shrink-0">Follow my journey:</span>
+              <span className="font-medium text-slate-700 dark:text-slate-300 text-sm flex-shrink-0">{t('followJourney')}</span>
               <div className="flex items-center gap-3">
                 {SOCIALS.map((s) => (
                   <a
