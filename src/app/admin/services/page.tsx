@@ -198,6 +198,9 @@ export default function ServicesAdminPage() {
       status: form.status,
       home_order: form.home_order ? parseInt(form.home_order) : null,
       slug: form.slug || slugify(form.name_uz) || null,
+      price_note_uz: form.price_note_uz || null,
+      price_note_ru: form.price_note_ru || null,
+      price_note_en: form.price_note_en || null,
     }
 
     const sb = createClient()
@@ -209,17 +212,6 @@ export default function ServicesAdminPage() {
       const res = await sb.from('services').insert(payload).select('id').single()
       if (res.error || !res.data) { setError(res.error?.message ?? 'Insert failed'); setSaving(false); return }
       serviceId = res.data.id
-    }
-
-    // Save price_note columns
-    if (serviceId) {
-      const priceNotePayload = {
-        price_note_uz: form.price_note_uz || null,
-        price_note_ru: form.price_note_ru || null,
-        price_note_en: form.price_note_en || null,
-      }
-      const pnRes = await sb.from('services').update(priceNotePayload).eq('id', serviceId)
-      if (pnRes.error) console.warn('price_note save error:', pnRes.error.message)
     }
 
     // Save connections
