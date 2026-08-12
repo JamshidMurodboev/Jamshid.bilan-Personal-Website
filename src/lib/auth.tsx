@@ -30,6 +30,7 @@ export interface SignupInput {
 
 interface AuthContextType {
   user: AuthUser | null;
+  isReady: boolean;
   login: (phone: string, password: string) => Promise<string | null>;
   signup: (data: SignupInput) => Promise<string | null>;
   logout: () => Promise<void>;
@@ -101,11 +102,12 @@ function serverUserToAuthUser(su: ServerAuthUser): AuthUser {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Instant restore from localStorage — no network call, no SDK race conditions
     const stored = loadUser();
     if (stored) setUser(stored);
+    setIsReady(true);
   }, []);
 
   async function login(phone: string, password: string): Promise<string | null> {
@@ -212,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateProfile, changePassword }}>
+    <AuthContext.Provider value={{ user, isReady, login, signup, logout, updateProfile, changePassword }}>
       {children}
     </AuthContext.Provider>
   );
