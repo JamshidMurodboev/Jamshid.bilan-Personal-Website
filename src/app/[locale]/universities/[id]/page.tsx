@@ -276,10 +276,10 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                         <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
                           {t('tableHeaders.program')}
                         </th>
-                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
+                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium whitespace-nowrap">
                           {t('tableHeaders.degree')}
                         </th>
-                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium hidden sm:table-cell">
+                        <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium whitespace-nowrap">
                           {t('tableHeaders.language')}
                         </th>
                         <th className="text-right px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
@@ -291,10 +291,10 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                       {majors.map((m) => (
                         <tr key={m.id} className="border-b border-gray-50 dark:border-gray-700/50 last:border-0">
                           <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{(m as any)[`name_${locale}`] || m.name}</td>
-                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell text-xs">
+                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap text-xs">
                             {m.degree ? (DEGREE_LABELS[m.degree] ?? m.degree) : '—'}
                           </td>
-                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell">{m.language ? translateLanguage(m.language, locale) : '—'}</td>
+                          <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{m.language ? translateLanguage(m.language, locale) : '—'}</td>
                           <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
                             <div className="text-right">
                               <div>{m.tuition ? `${m.tuition.toLocaleString()} ${m.currency}` : '—'}</div>
