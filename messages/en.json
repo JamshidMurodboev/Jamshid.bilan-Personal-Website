@@ -152,7 +152,12 @@
     "student": "Student",
     "country": "Country",
     "year": "Year",
-    "noResults": "Nothing found"
+    "noResults": "Nothing found",
+    "share": "Share",
+    "university": "University",
+    "major": "Major",
+    "educationLanguage": "Language of study",
+    "ranking": "Ranking"
   },
   "languages": {
     "turkish": "Turkish",
