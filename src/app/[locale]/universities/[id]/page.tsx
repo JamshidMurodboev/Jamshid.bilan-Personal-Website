@@ -290,7 +290,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
                     <tbody>
                       {majors.map((m) => (
                         <tr key={m.id} className="border-b border-gray-50 dark:border-gray-700/50 last:border-0">
-                          <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{m.name}</td>
+                          <td className="px-4 py-3 text-gray-900 dark:text-gray-100">{(m as any)[`name_${locale}`] || m.name}</td>
                           <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell text-xs">
                             {m.degree ? (DEGREE_LABELS[m.degree] ?? m.degree) : '—'}
                           </td>

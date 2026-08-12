@@ -152,7 +152,12 @@
     "student": "Talaba",
     "country": "Mamlakat",
     "year": "Yil",
-    "noResults": "Hech narsa topilmadi"
+    "noResults": "Hech narsa topilmadi",
+    "share": "Ulashish",
+    "university": "Universitet",
+    "major": "Mutaxassislik",
+    "educationLanguage": "Ta'lim tili",
+    "ranking": "Reyting"
   },
   "languages": {
     "turkish": "Turk tili",

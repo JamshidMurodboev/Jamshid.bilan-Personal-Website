@@ -16,6 +16,7 @@ import ResultPhotoGallery from '@/components/results/ResultPhotoGallery';
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'results' });
+  const tc = await getTranslations({ locale, namespace: 'common' });
 
   const supabase = await createClient();
 
@@ -96,25 +97,25 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
             <div className="space-y-2 mb-4">
               {uniName && (
                 <div className="flex gap-2 text-sm">
-                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Universitet:</span>
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('university')}:</span>
                   <span className="font-medium text-gray-900 dark:text-white">{uniName}</span>
                 </div>
               )}
               {major && (
                 <div className="flex gap-2 text-sm">
-                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Mutaxassislik:</span>
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('major')}:</span>
                   <span className="font-medium text-gray-900 dark:text-white">{major}</span>
                 </div>
               )}
               {r.language && (
                 <div className="flex gap-2 text-sm">
-                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Ta&apos;lim tili:</span>
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('educationLanguage')}:</span>
                   <span className="font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</span>
                 </div>
               )}
               {r.university_ranking && (
                 <div className="flex gap-2 text-sm">
-                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">Reyting:</span>
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('ranking')}:</span>
                   <span className="font-medium text-gray-900 dark:text-white">#{r.university_ranking}</span>
                 </div>
               )}
@@ -140,7 +141,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
                 {university && (
                   <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Universitet</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{tc('university')}</div>
                       <div className="font-medium text-gray-900 dark:text-white text-sm truncate">{university.name}</div>
                     </div>
                     <Link href={`/${locale}/universities/${(university as any).slug ?? university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline flex-shrink-0">→</Link>

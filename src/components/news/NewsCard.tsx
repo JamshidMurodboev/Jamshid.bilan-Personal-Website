@@ -6,8 +6,9 @@ import type { NewsPost } from '@/lib/supabase/types';
 import { formatDate } from '@/lib/format';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
-export default function NewsCard({ post }: { post: NewsPost }) {
-  const locale = useLocale();
+export default function NewsCard({ post, locale: localeProp }: { post: NewsPost; locale?: string }) {
+  const localeHook = useLocale();
+  const locale = localeProp || localeHook;
   const title = (post as any)[`title_${locale}`] || post.title_uz;
   const body = (post as any)[`body_${locale}`] || post.body_uz;
   const coverImage = post.cover_url || (post as any).photo_urls?.[0];

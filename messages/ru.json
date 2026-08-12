@@ -152,7 +152,12 @@
     "student": "Студент",
     "country": "Страна",
     "year": "Год",
-    "noResults": "Ничего не найдено"
+    "noResults": "Ничего не найдено",
+    "share": "Поделиться",
+    "university": "Университет",
+    "major": "Специальность",
+    "educationLanguage": "Язык обучения",
+    "ranking": "Рейтинг"
   },
   "languages": {
     "turkish": "Турецкий",
