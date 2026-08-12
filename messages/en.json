@@ -326,7 +326,8 @@
     "closeDate": "Closes",
     "resultsDateLabel": "Results",
     "mediaLinks": "Media",
-    "askQuestion": "Ask a question"
+    "askQuestion": "Ask a question",
+    "moreComing": "More scholarships are on the way — stay tuned!"
   },
   "universities": {
     "relatedServices": "Related Services",
@@ -374,7 +375,8 @@
       "resultsDate": "Results Date"
     },
     "applyLabel": "Apply",
-    "askLabel": "Ask a question"
+    "askLabel": "Ask a question",
+    "moreComing": "More universities are on the way — stay tuned!"
   },
   "filters": {
     "title": "Filter",

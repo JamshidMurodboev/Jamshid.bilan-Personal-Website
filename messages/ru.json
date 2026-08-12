@@ -326,7 +326,8 @@
     "closeDate": "Закрытие",
     "resultsDateLabel": "Результаты",
     "mediaLinks": "Медиа",
-    "askQuestion": "Задать вопрос"
+    "askQuestion": "Задать вопрос",
+    "moreComing": "Больше стипендий уже добавляется — следите за обновлениями!"
   },
   "universities": {
     "relatedServices": "Связанные услуги",
@@ -374,7 +375,8 @@
       "resultsDate": "Дата результатов"
     },
     "applyLabel": "Подать документы",
-    "askLabel": "Задать вопрос"
+    "askLabel": "Задать вопрос",
+    "moreComing": "Больше университетов уже добавляется — следите за обновлениями!"
   },
   "filters": {
     "title": "Фильтр",

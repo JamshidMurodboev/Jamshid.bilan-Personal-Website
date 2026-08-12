@@ -326,7 +326,8 @@
     "closeDate": "Yopilish",
     "resultsDateLabel": "Natijalar",
     "mediaLinks": "Media",
-    "askQuestion": "Savol berish"
+    "askQuestion": "Savol berish",
+    "moreComing": "Yana ko'proq grantlar qo'shilmoqda — tez orada!"
   },
   "universities": {
     "relatedServices": "Tegishli xizmatlar",
@@ -374,7 +375,8 @@
       "resultsDate": "Natijalar sanasi"
     },
     "applyLabel": "Ariza topshirish",
-    "askLabel": "Savol berish"
+    "askLabel": "Savol berish",
+    "moreComing": "Yana ko'proq universitetlar qo'shilmoqda — tez orada!"
   },
   "filters": {
     "title": "Filtr",

@@ -22,6 +22,10 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         <UniversityList universities={universities} locale={locale} />
+        <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 px-5 py-4 text-sm text-teal-700 dark:text-teal-300">
+          <span className="text-lg">🚀</span>
+          {t('moreComing')}
+        </div>
       </div>
     </div>
   );
