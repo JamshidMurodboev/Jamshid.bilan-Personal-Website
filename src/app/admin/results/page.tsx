@@ -227,7 +227,7 @@ export default function ResultsPage() {
     const [resultsRes, schRes, uniRes] = await Promise.all([
       supabase.from('student_results').select('*').order('home_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
       supabase.from('scholarships').select('id,title,country').order('title'),
-      supabase.from('universities').select('id,name,name_ru,name_en,country').order('name'),
+      supabase.from('universities').select('*').order('name'),
     ])
     if (resultsRes.error) setError(resultsRes.error.message)
     else setItems(resultsRes.data ?? [])
