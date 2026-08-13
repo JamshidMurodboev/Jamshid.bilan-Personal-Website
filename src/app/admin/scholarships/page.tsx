@@ -133,6 +133,12 @@ export default function ScholarshipsPage() {
   const [processSteps, setProcessSteps] = useState<ProcessStep[]>(DEFAULT_STEPS)
   const [mediaLinks, setMediaLinks] = useState<MediaLink[]>([])
   const [orderPending, setOrderPending] = useState(false)
+  const [scholarshipFaqs, setScholarshipFaqs] = useState<Array<{ id: string; question_uz: string; question_ru: string; question_en: string; answer_uz: string; answer_ru: string; answer_en: string; display_order: number }>>([])
+  const [faqLoading, setFaqLoading] = useState(false)
+  const [faqForm, setFaqForm] = useState({ question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' })
+  const [faqEditId, setFaqEditId] = useState<string | null>(null)
+  const [showFaqForm, setShowFaqForm] = useState(false)
+  const [faqSaving, setFaqSaving] = useState(false)
 
   function handleDragStart(index: number) { setDragIndex(index) }
   function handleDragOver(e: React.DragEvent, index: number) {
@@ -169,6 +175,44 @@ export default function ScholarshipsPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  async function loadScholarshipFaqs(scholarshipId: string) {
+    setFaqLoading(true)
+    const { data } = await createClient().from('scholarship_faqs').select('*').eq('scholarship_id', scholarshipId).order('display_order')
+    setScholarshipFaqs((data ?? []) as any)
+    setFaqLoading(false)
+  }
+
+  async function handleFaqSave(scholarshipId: string) {
+    setFaqSaving(true)
+    const payload = {
+      scholarship_id: scholarshipId,
+      question_uz: faqForm.question_uz,
+      question_ru: faqForm.question_ru || null,
+      question_en: faqForm.question_en || null,
+      answer_uz: faqForm.answer_uz,
+      answer_ru: faqForm.answer_ru || null,
+      answer_en: faqForm.answer_en || null,
+      display_order: faqEditId ? undefined : scholarshipFaqs.length,
+    }
+    const sb = createClient()
+    if (faqEditId) {
+      await sb.from('scholarship_faqs').update(payload).eq('id', faqEditId)
+    } else {
+      await sb.from('scholarship_faqs').insert(payload)
+    }
+    setFaqEditId(null)
+    setFaqForm({ question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' })
+    setShowFaqForm(false)
+    loadScholarshipFaqs(scholarshipId)
+    setFaqSaving(false)
+  }
+
+  async function deleteFaq(faqId: string, scholarshipId: string) {
+    if (!confirm("O'chirishni tasdiqlaysizmi?")) return
+    await createClient().from('scholarship_faqs').delete().eq('id', faqId)
+    loadScholarshipFaqs(scholarshipId)
+  }
 
   async function loadStudentResults(scholarshipId: string) {
     setResultsLoading(true)
@@ -266,6 +310,10 @@ export default function ScholarshipsPage() {
     setError(null)
     setShowModal(true)
     loadStudentResults(item.id)
+    loadScholarshipFaqs(item.id)
+    setShowFaqForm(false)
+    setFaqEditId(null)
+    setFaqForm({ question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' })
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -835,6 +883,53 @@ export default function ScholarshipsPage() {
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {editId && (
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ko&apos;p so&apos;raladigan savollar (FAQ)</h3>
+                    <button type="button" onClick={() => { setFaqEditId(null); setFaqForm({ question_uz: '', question_ru: '', question_en: '', answer_uz: '', answer_ru: '', answer_en: '' }); setShowFaqForm(true) }} className="text-xs bg-teal-700 hover:bg-teal-800 text-white px-2 py-1 rounded">+ Qo&apos;shish</button>
+                  </div>
+                  {faqLoading ? <div className="text-xs text-gray-400 animate-pulse">Yuklanmoqda...</div> : (
+                    <div className="space-y-2">
+                      {scholarshipFaqs.map((faq) => (
+                        <div key={faq.id} className="flex items-start gap-2 rounded-lg border border-gray-200 dark:border-gray-700 p-2 text-xs">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-800 dark:text-gray-200 truncate">{faq.question_uz}</p>
+                            <p className="text-gray-500 dark:text-gray-400 truncate">{faq.answer_uz}</p>
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button type="button" onClick={() => { setFaqEditId(faq.id); setFaqForm({ question_uz: faq.question_uz, question_ru: faq.question_ru ?? '', question_en: faq.question_en ?? '', answer_uz: faq.answer_uz, answer_ru: faq.answer_ru ?? '', answer_en: faq.answer_en ?? '' }); setShowFaqForm(true) }} className="text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded hover:bg-teal-50 dark:hover:bg-teal-900/20">Tahrir</button>
+                            <button type="button" onClick={() => deleteFaq(faq.id, editId)} className="text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20">O&apos;chir</button>
+                          </div>
+                        </div>
+                      ))}
+                      {scholarshipFaqs.length === 0 && !showFaqForm && <p className="text-xs text-gray-400">FAQ yo&apos;q</p>}
+                    </div>
+                  )}
+                  {showFaqForm && (
+                    <div className="mt-3 p-3 rounded-lg border border-teal-300 dark:border-teal-700 bg-teal-50/50 dark:bg-teal-900/10 space-y-2">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">{faqEditId ? 'Tahrirlash' : 'Yangi savol'}</p>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500">Savol</p>
+                        <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇺🇿</span><input required value={faqForm.question_uz} onChange={e => setFaqForm({...faqForm, question_uz: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇷🇺</span><input value={faqForm.question_ru} onChange={e => setFaqForm({...faqForm, question_ru: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇬🇧</span><input value={faqForm.question_en} onChange={e => setFaqForm({...faqForm, question_en: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500">Javob</p>
+                        <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇺🇿</span><textarea rows={2} value={faqForm.answer_uz} onChange={e => setFaqForm({...faqForm, answer_uz: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇷🇺</span><textarea rows={2} value={faqForm.answer_ru} onChange={e => setFaqForm({...faqForm, answer_ru: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇬🇧</span><textarea rows={2} value={faqForm.answer_en} onChange={e => setFaqForm({...faqForm, answer_en: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" disabled={faqSaving || !faqForm.question_uz || !faqForm.answer_uz} onClick={() => handleFaqSave(editId)} className="text-xs bg-teal-700 hover:bg-teal-800 text-white px-3 py-1 rounded disabled:opacity-60">{faqSaving ? 'Saqlanmoqda...' : 'Saqlash'}</button>
+                        <button type="button" onClick={() => { setShowFaqForm(false); setFaqEditId(null) }} className="text-xs border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-3 py-1 rounded">Bekor</button>
+                      </div>
                     </div>
                   )}
                 </div>

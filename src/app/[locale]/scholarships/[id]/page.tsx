@@ -14,6 +14,7 @@ import ApplyNowCTA from '@/components/scholarships/ApplyNowCTA';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import ShareButton from '@/components/shared/ShareButton';
 import { formatDate } from '@/lib/format';
+import ScholarshipFAQ from '@/components/scholarships/ScholarshipFAQ';
 
 const MONTHS = {
   uz: ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
@@ -102,11 +103,13 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   const s = sData;
   if (!s) notFound();
 
-  const [{ data: linkedResultsData }, { data: linkedNewsData }, { data: serviceLinks }] = await Promise.all([
+  const [{ data: linkedResultsData }, { data: linkedNewsData }, { data: serviceLinks }, { data: scholarshipFaqsData }] = await Promise.all([
     supabase.from('student_results').select('id, student_name, degree_level, year, country, slug, photo_url, photo_urls, university_name, major').eq('scholarship_id', s.id).order('year', { ascending: false }),
     supabase.from('news_posts').select('id, title_uz, title_ru, title_en, cover_url, photo_urls, published_at, slug').eq('scholarship_id', s.id).eq('published', true).order('published_at', { ascending: false }).limit(3),
     supabase.from('service_scholarships').select('service_id').eq('scholarship_id', s.id),
+    supabase.from('scholarship_faqs').select('*').eq('scholarship_id', s.id).order('display_order'),
   ]);
+  const scholarshipFaqs = (scholarshipFaqsData ?? []) as unknown as Array<{ id: string; question_uz: string; question_ru?: string; question_en?: string; answer_uz: string; answer_ru?: string; answer_en?: string; display_order: number }>;
   const serviceIds = (serviceLinks ?? []).map((r: { service_id: string }) => r.service_id);
   const { data: linkedServices } = serviceIds.length > 0
     ? await supabase.from('services').select('id,name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url,price,currency,currency_custom,slug').in('id', serviceIds).eq('status', 'active')
@@ -259,6 +262,9 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
                 </div>
               </div>
             )}
+
+            {/* Scholarship FAQs */}
+            <ScholarshipFAQ faqs={scholarshipFaqs} locale={locale} title={t('faqTitle')} />
 
             {/* Linked News */}
             {linkedNews.length > 0 && (

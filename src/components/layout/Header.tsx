@@ -212,6 +212,8 @@ function HeaderInner() {
     { href: `/${locale}/results`, label: t('results') },
     { href: `/${locale}/news`, label: t('news') },
     { href: `/${locale}/services`, label: t('services') },
+    { href: `/${locale}/resources`, label: t('resources') },
+    { href: `/${locale}/booking`, label: t('booking') },
     { href: `/${locale}/contact`, label: t('contact') },
   ];
 
