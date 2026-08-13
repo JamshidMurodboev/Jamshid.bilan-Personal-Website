@@ -7,7 +7,9 @@
     "results": "Results",
     "news": "News",
     "contact": "Contact",
-    "services": "Services"
+    "services": "Services",
+    "resources": "Resources",
+    "booking": "Consultation"
   },
   "hero": {
     "badge": "Scholarships Mentor",
@@ -288,6 +290,39 @@
   "faq": {
     "title": "Frequently asked questions"
   },
+  "deadlines": {
+    "title": "Upcoming Deadlines",
+    "daysLeft": "{days} days left",
+    "ended": "Ended",
+    "apply": "Apply",
+    "today": "Today!"
+  },
+  "resources": {
+    "pageTitle": "Resources & Guides",
+    "pageSubtitle": "Materials to simplify your scholarship application",
+    "loginToDownload": "Log in to download",
+    "download": "Download",
+    "noResources": "No resources available yet"
+  },
+  "community": {
+    "title": "Join our community!",
+    "description": "Connect with scholarship winners and applicants on one platform",
+    "join": "Join"
+  },
+  "booking": {
+    "pageTitle": "Book a Consultation",
+    "pageSubtitle": "Free 15-minute consultation on studying abroad",
+    "name": "Full name",
+    "phone": "Phone",
+    "topic": "Goal / Question",
+    "topicPlaceholder": "e.g. I want advice on documents for Türkiye Burslari",
+    "preferredDate": "Preferred date",
+    "preferredTime": "Preferred time",
+    "preferredTimePlaceholder": "e.g. 10:00–12:00",
+    "submit": "Submit request",
+    "successTitle": "Your request has been received!",
+    "successDesc": "We will get in touch with you shortly"
+  },
   "scholarships": {
     "relatedServices": "Related Services",
     "fundingType": {
@@ -327,7 +362,8 @@
     "resultsDateLabel": "Results",
     "mediaLinks": "Media",
     "askQuestion": "Ask a question",
-    "moreComing": "More scholarships are on the way — stay tuned!"
+    "moreComing": "More scholarships are on the way — stay tuned!",
+    "faqTitle": "Frequently Asked Questions"
   },
   "universities": {
     "relatedServices": "Related Services",

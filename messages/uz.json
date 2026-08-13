@@ -7,7 +7,9 @@
     "results": "Natijalar",
     "news": "Yangiliklar",
     "contact": "Bog'lanish",
-    "services": "Xizmatlar"
+    "services": "Xizmatlar",
+    "resources": "Resurslar",
+    "booking": "Konsultatsiya"
   },
   "hero": {
     "badge": "Grantlar Bo'yicha Mentor",
@@ -288,6 +290,39 @@
   "faq": {
     "title": "Ko'p so'raladigan savollar"
   },
+  "deadlines": {
+    "title": "Yaqinlashayotgan muddatlar",
+    "daysLeft": "{days} kun qoldi",
+    "ended": "Tugadi",
+    "apply": "Ariza topshirish",
+    "today": "Bugun!"
+  },
+  "resources": {
+    "pageTitle": "Resurslar va Qo'llanmalar",
+    "pageSubtitle": "Grant ariza jarayonini osonlashtiruvchi materiallar",
+    "loginToDownload": "Yuklab olish uchun tizimga kiring",
+    "download": "Yuklab olish",
+    "noResources": "Hozircha resurslar mavjud emas"
+  },
+  "community": {
+    "title": "Bizning hamjamiyatimizga qo'shiling!",
+    "description": "Grant olgan talabalar va abituriyentlar bilan bir platformada muloqot qiling",
+    "join": "Qo'shilish"
+  },
+  "booking": {
+    "pageTitle": "Konsultatsiya olish",
+    "pageSubtitle": "Xorijda o'qish bo'yicha bepul 15 daqiqalik maslahat",
+    "name": "To'liq ism",
+    "phone": "Telefon",
+    "topic": "Maqsad / Savol",
+    "topicPlaceholder": "Masalan: Türkiye Burslari uchun hujjatlar haqida maslahat olmoqchiman",
+    "preferredDate": "Qulay sana",
+    "preferredTime": "Qulay vaqt",
+    "preferredTimePlaceholder": "Masalan: 10:00–12:00",
+    "submit": "Ariza yuborish",
+    "successTitle": "Arizangiz qabul qilindi!",
+    "successDesc": "Tez orada siz bilan bog'lanamiz"
+  },
   "scholarships": {
     "relatedServices": "Tegishli xizmatlar",
     "fundingType": {
@@ -327,7 +362,8 @@
     "resultsDateLabel": "Natijalar",
     "mediaLinks": "Media",
     "askQuestion": "Savol berish",
-    "moreComing": "Yana ko'proq grantlar qo'shilmoqda — tez orada!"
+    "moreComing": "Yana ko'proq grantlar qo'shilmoqda — tez orada!",
+    "faqTitle": "Ko'p so'raladigan savollar"
   },
   "universities": {
     "relatedServices": "Tegishli xizmatlar",
