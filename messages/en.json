@@ -426,7 +426,9 @@
       "student": "Student",
       "country": "Country",
       "year": "Year"
-    }
+    },
+    "moreScholarshipResults": "More scholarship winner results are on the way — stay tuned!",
+    "tuitionNote": "We have over 100 acceptance letters, but uploading all of them is not feasible."
   },
   "services": {
     "pageTitle": "Services",

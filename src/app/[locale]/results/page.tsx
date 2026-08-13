@@ -85,6 +85,20 @@ export default function ResultsPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => <StudentCard key={r.id} result={r} locale={locale} />)}
         </div>
+
+        {(activeFilter === 'all' || activeFilter === 'scholarship_winner') && (
+          <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 px-5 py-4 text-sm text-teal-700 dark:text-teal-300">
+            <span className="text-lg">🚀</span>
+            {t('moreScholarshipResults')}
+          </div>
+        )}
+
+        {(activeFilter === 'all' || activeFilter === 'tuition_based') && (
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-5 py-4 text-sm text-amber-700 dark:text-amber-300">
+            <span className="text-lg">📄</span>
+            {t('tuitionNote')}
+          </div>
+        )}
       </div>
     </div>
   )

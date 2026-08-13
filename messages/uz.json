@@ -426,7 +426,9 @@
       "student": "Talaba",
       "country": "Mamlakat",
       "year": "Yil"
-    }
+    },
+    "moreScholarshipResults": "Ko'proq grant g'oliblari natijalari qo'shilmoqda — tez orada!",
+    "tuitionNote": "100 dan ortiq qabul xatlarimiz bor, lekin ularning barchasini yuklab bo'lmaydi."
   },
   "services": {
     "pageTitle": "Xizmatlar",
