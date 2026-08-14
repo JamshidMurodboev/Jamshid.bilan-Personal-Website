@@ -60,13 +60,13 @@ export default function DeadlinesSection() {
         if (d.source_type === 'scholarship') {
           const s = scMap[d.source_id] || {};
           const title = s[`title_${locale}`] || s.title_uz || s.title || d.source_id;
-          return { id: d.id, source_type: 'scholarship', source_id: d.source_id, active: true, title, deadline_date: s.close_date || null, url: s.application_url || null };
+          return { id: d.id, source_type: 'scholarship' as const, source_id: d.source_id, active: true, title, deadline_date: s.close_date || null, url: s.application_url || null };
         } else {
           const u = unMap[d.source_id] || {};
           const title = (locale !== 'uz' ? u[`name_${locale}`] : null) || u.name || d.source_id;
-          return { id: d.id, source_type: 'university', source_id: d.source_id, active: true, title, deadline_date: null, url: u.website_url || null };
+          return { id: d.id, source_type: 'university' as const, source_id: d.source_id, active: true, title, deadline_date: null, url: u.website_url || null };
         }
-      }).filter((d: DeadlineItem) => d.deadline_date);
+      }).filter((d): d is DeadlineItem => !!d.deadline_date);
 
       setItems(enriched);
       setLoaded(true);
