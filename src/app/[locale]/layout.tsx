@@ -30,12 +30,12 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     title: titles[locale] ?? titles.uz,
     description: descriptions[locale] ?? descriptions.uz,
     alternates: {
-      canonical: `https://jamshidbilan.uz/${locale}`,
+      canonical: locale === 'uz' ? 'https://jamshidbilan.uz' : `https://jamshidbilan.uz/${locale}`,
       languages: {
         'uz': 'https://jamshidbilan.uz/uz',
         'ru': 'https://jamshidbilan.uz/ru',
         'en': 'https://jamshidbilan.uz/en',
-        'x-default': 'https://jamshidbilan.uz/uz',
+        'x-default': 'https://jamshidbilan.uz',
       },
     },
     openGraph: {
