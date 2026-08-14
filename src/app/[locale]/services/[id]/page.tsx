@@ -153,6 +153,7 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
           serviceContext={svc.name_uz}
           applyLabel={t('applyNow')}
           askLabel={t('askQuestion')}
+          preselectedTarget={`Xizmat: ${(svc as any)[`name_${locale}`] || svc.name_uz}`}
         />
       </div>
     </div>

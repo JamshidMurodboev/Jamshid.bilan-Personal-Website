@@ -101,6 +101,20 @@ export default function ServicesPage() {
               );
             })}
           </div>
+          {/* Coming soon teaser */}
+          <div className="mt-12 rounded-2xl border-2 border-dashed border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-900/10 p-8 text-center">
+            <div className="text-3xl mb-3">🚀</div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('comingSoonTitle')}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">{t('comingSoonSubtitle')}</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {(t.raw('comingSoonItems') as string[]).map((item: string, i: number) => (
+                <span key={i} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-teal-200 dark:border-teal-700 text-sm text-gray-700 dark:text-gray-300 font-medium shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-teal-400 dark:bg-teal-500 inline-block" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>

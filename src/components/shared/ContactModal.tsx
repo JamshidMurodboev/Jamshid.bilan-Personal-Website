@@ -5,9 +5,10 @@ import ContactForm from './ContactForm';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  preselectedTarget?: string;
 }
 
-export default function ContactModal({ isOpen, onClose }: Props) {
+export default function ContactModal({ isOpen, onClose, preselectedTarget }: Props) {
   const t = useTranslations('contact');
   if (!isOpen) return null;
   return (
@@ -17,7 +18,7 @@ export default function ContactModal({ isOpen, onClose }: Props) {
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
-        <ContactForm />
+        <ContactForm preselectedTarget={preselectedTarget} />
       </div>
     </div>
   );
