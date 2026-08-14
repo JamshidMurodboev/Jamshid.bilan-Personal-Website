@@ -5,11 +5,9 @@
     "scholarships": "Стипендии",
     "universities": "Университеты",
     "results": "Результаты",
-    "news": "Новости",
+    "news": "Новости и Блог",
     "contact": "Контакты",
-    "services": "Услуги",
-    "resources": "Ресурсы",
-    "booking": "Консультация"
+    "services": "Услуги"
   },
   "hero": {
     "badge": "Наставник по Стипендиям",
@@ -281,7 +279,15 @@
     "slots": "Ограниченное количество мест в месяц",
     "trust1": "Конфиденциально",
     "trust2": "Живой чат",
-    "trust3": "Проверено"
+    "trust3": "Проверено",
+    "duration": "15 минут • Личная стратегия",
+    "bookCta": "Записаться на консультацию",
+    "tgUsernameLabel": "Telegram username",
+    "tgUsernameNote": "Чтобы мы могли связаться с вами в Telegram",
+    "tgUsernamePlaceholder": "@username",
+    "bookingSuccess": "Ваша заявка принята!",
+    "bookingSuccessDesc": "Скоро с вами свяжутся",
+    "submitBtn": "Отправить заявку"
   },
   "footer": {
     "rights": "Все права защищены.",

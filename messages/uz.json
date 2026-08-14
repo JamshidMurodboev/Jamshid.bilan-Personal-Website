@@ -5,11 +5,9 @@
     "scholarships": "Grantlar",
     "universities": "Universitetlar",
     "results": "Natijalar",
-    "news": "Yangiliklar",
+    "news": "Yangiliklar va Blog",
     "contact": "Bog'lanish",
-    "services": "Xizmatlar",
-    "resources": "Resurslar",
-    "booking": "Konsultatsiya"
+    "services": "Xizmatlar"
   },
   "hero": {
     "badge": "Grantlar Bo'yicha Mentor",
@@ -281,7 +279,15 @@
     "slots": "Oylik o'rindiqlar cheklangan",
     "trust1": "Maxfiy",
     "trust2": "Jonli chat",
-    "trust3": "Tasdiqlangan"
+    "trust3": "Tasdiqlangan",
+    "duration": "15 daqiqa • Shaxsiy strategiya",
+    "bookCta": "Bepul konsultatsiya olish",
+    "tgUsernameLabel": "Telegram username",
+    "tgUsernameNote": "Telegramda siz bilan aloqaga chiqishimiz uchun",
+    "tgUsernamePlaceholder": "@username",
+    "bookingSuccess": "Arizangiz qabul qilindi!",
+    "bookingSuccessDesc": "Tez orada siz bilan bog'lanishadi",
+    "submitBtn": "Ariza yuborish"
   },
   "footer": {
     "rights": "Barcha huquqlar himoyalangan.",

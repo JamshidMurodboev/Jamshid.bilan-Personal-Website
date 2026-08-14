@@ -5,11 +5,9 @@
     "scholarships": "Scholarships",
     "universities": "Universities",
     "results": "Results",
-    "news": "News",
+    "news": "News & Blog",
     "contact": "Contact",
-    "services": "Services",
-    "resources": "Resources",
-    "booking": "Consultation"
+    "services": "Services"
   },
   "hero": {
     "badge": "Scholarships Mentor",
@@ -281,7 +279,15 @@
     "slots": "Limited monthly slots available",
     "trust1": "Confidential",
     "trust2": "Live chat",
-    "trust3": "Verified"
+    "trust3": "Verified",
+    "duration": "15 minutes • Personal strategy",
+    "bookCta": "Book a free consultation",
+    "tgUsernameLabel": "Telegram username",
+    "tgUsernameNote": "So we can reach you on Telegram",
+    "tgUsernamePlaceholder": "@username",
+    "bookingSuccess": "Your request has been received!",
+    "bookingSuccessDesc": "We will get in touch with you shortly",
+    "submitBtn": "Submit request"
   },
   "footer": {
     "rights": "All rights reserved.",

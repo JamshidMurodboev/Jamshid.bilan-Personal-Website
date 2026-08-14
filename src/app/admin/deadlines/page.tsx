@@ -1,158 +1,119 @@
-'use client'
+'use client';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-
-interface Deadline {
-  id: string
-  title_uz: string
-  title_ru: string | null
-  title_en: string | null
-  deadline_date: string
-  link: string | null
-  active: boolean
-  created_at: string
-}
-
-const emptyForm = { title_uz: '', title_ru: '', title_en: '', deadline_date: '', link: '', active: true }
-const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+interface Source { id: string; label: string; deadline?: string; url?: string; type: 'scholarship' | 'university'; }
+interface Deadline { id: string; source_type: string; source_id: string; active: boolean; created_at: string; _label?: string; _deadline?: string; _url?: string; }
 
 export default function DeadlinesAdminPage() {
-  const [items, setItems] = useState<Deadline[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [showModal, setShowModal] = useState(false)
-  const [editId, setEditId] = useState<string | null>(null)
-  const [form, setForm] = useState(emptyForm)
-  const [saving, setSaving] = useState(false)
+  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [sourceType, setSourceType] = useState<'scholarship' | 'university'>('scholarship');
+  const [sourceId, setSourceId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
-    setLoading(true)
-    const { data, error } = await createClient().from('scholarship_deadlines').select('*').order('deadline_date', { ascending: true })
-    if (error) setError(error.message); else setItems(data ?? [])
-    setLoading(false)
+    const sb = createClient();
+    const [{ data: dl }, { data: sc }, { data: un }] = await Promise.all([
+      sb.from('scholarship_deadlines').select('*').order('created_at', { ascending: false }),
+      sb.from('scholarships').select('id,title,close_date,application_url').order('title'),
+      sb.from('universities').select('id,name,website_url').order('name'),
+    ]);
+    const allSources: Source[] = [
+      ...(sc || []).map((s: any) => ({ id: s.id, label: s.title, deadline: s.close_date, url: s.application_url, type: 'scholarship' as const })),
+      ...(un || []).map((u: any) => ({ id: u.id, label: u.name, url: u.website_url, type: 'university' as const })),
+    ];
+    setSources(allSources);
+
+    const enriched = (dl || []).map((d: any) => {
+      const src = allSources.find(s => s.id === d.source_id);
+      return { ...d, _label: src?.label || d.source_id, _deadline: src?.deadline, _url: src?.url };
+    });
+    setDeadlines(enriched);
+    setLoading(false);
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(); }, []);
 
-  function openCreate() { setEditId(null); setForm(emptyForm); setError(null); setShowModal(true) }
-  function openEdit(item: Deadline) {
-    setEditId(item.id)
-    setForm({
-      title_uz: item.title_uz,
-      title_ru: item.title_ru ?? '',
-      title_en: item.title_en ?? '',
-      deadline_date: item.deadline_date,
-      link: item.link ?? '',
-      active: item.active,
-    })
-    setError(null); setShowModal(true)
+  const filteredSources = sources.filter(s => s.type === sourceType);
+
+  async function addDeadline() {
+    if (!sourceId) return;
+    setSaving(true);
+    const sb = createClient();
+    const { error } = await sb.from('scholarship_deadlines').insert({ source_type: sourceType, source_id: sourceId, active: true });
+    if (!error) { setSourceId(''); await load(); }
+    else alert(error.message);
+    setSaving(false);
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true); setError(null)
-    const payload = {
-      title_uz: form.title_uz,
-      title_ru: form.title_ru || null,
-      title_en: form.title_en || null,
-      deadline_date: form.deadline_date,
-      link: form.link || null,
-      active: form.active,
-    }
-    const supabase = createClient()
-    const res = editId
-      ? await supabase.from('scholarship_deadlines').update(payload).eq('id', editId)
-      : await supabase.from('scholarship_deadlines').insert(payload)
-    if (res.error) { setError(res.error.message) } else { setShowModal(false); load() }
-    setSaving(false)
+  async function toggleActive(id: string, active: boolean) {
+    const sb = createClient();
+    await sb.from('scholarship_deadlines').update({ active: !active }).eq('id', id);
+    setDeadlines(prev => prev.map(d => d.id === id ? { ...d, active: !active } : d));
   }
 
-  async function del(id: string) {
-    if (!confirm("O'chirishni tasdiqlaysizmi?")) return
-    const { error } = await createClient().from('scholarship_deadlines').delete().eq('id', id)
-    if (error) setError(error.message); else load()
+  async function remove(id: string) {
+    if (!confirm("O'chirishni tasdiqlaysizmi?")) return;
+    const sb = createClient();
+    await sb.from('scholarship_deadlines').delete().eq('id', id);
+    setDeadlines(prev => prev.filter(d => d.id !== id));
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Muddatlar</h1>
-        <button onClick={openCreate} className="bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium px-4 py-2 rounded-lg">+ Qo'shish</button>
-      </div>
-      {error && <div className="text-red-600 dark:text-red-400 text-sm mb-4 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
-      {loading ? <div className="text-teal-700 animate-pulse">Yuklanmoqda...</div> : (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Sarlavha</th>
-                <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Muddat</th>
-                <th className="text-left px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">Holat</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{item.title_uz}</td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.deadline_date}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${item.active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>
-                      {item.active ? 'Faol' : 'Nofaol'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
-                    <button onClick={() => openEdit(item)} className="text-teal-700 dark:text-teal-400 text-xs font-medium px-2 py-1 rounded hover:bg-teal-50 dark:hover:bg-teal-900/20">Tahrir</button>
-                    <button onClick={() => del(item.id)} className="text-red-600 dark:text-red-400 text-xs font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">O'chir</button>
-                  </td>
-                </tr>
-              ))}
-              {items.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">Ma'lumot yo'q</td></tr>}
-            </tbody>
-          </table>
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Muddatlar</h1>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
+        <h2 className="font-semibold text-gray-800 dark:text-white mb-4">Yangi muddat qo'shish</h2>
+        <div className="flex gap-3 flex-wrap">
+          <select value={sourceType} onChange={e => { setSourceType(e.target.value as any); setSourceId(''); }}
+            className="border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+            <option value="scholarship">Grant</option>
+            <option value="university">Universitet</option>
+          </select>
+          <select value={sourceId} onChange={e => setSourceId(e.target.value)}
+            className="flex-1 min-w-0 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+            <option value="">— tanlang —</option>
+            {filteredSources.map(s => (
+              <option key={s.id} value={s.id}>{s.label}{s.deadline ? ` (${s.deadline})` : ''}</option>
+            ))}
+          </select>
+          <button onClick={addDeadline} disabled={!sourceId || saving}
+            className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+            {saving ? '...' : "Qo'shish"}
+          </button>
         </div>
-      )}
+        <p className="text-xs text-gray-400 mt-2">Muddat sanasi va havolasi avtomatik ravishda shu grant/universitetdan olinadi.</p>
+      </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{editId ? 'Muddatni tahrirlash' : 'Yangi muddat'}</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl">×</button>
+      {loading ? <p className="text-gray-400">Yuklanmoqda...</p> : deadlines.length === 0 ? (
+        <p className="text-gray-500 dark:text-gray-400">Hozircha muddatlar yo'q</p>
+      ) : (
+        <div className="space-y-3">
+          {deadlines.map(d => (
+            <div key={d.id} className={`bg-white dark:bg-gray-800 rounded-2xl border p-4 flex items-center justify-between gap-4 ${d.active ? 'border-gray-200 dark:border-gray-700' : 'border-gray-100 dark:border-gray-800 opacity-60'}`}>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{d._label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {d.source_type === 'scholarship' ? 'Grant' : 'Universitet'}
+                  {d._deadline ? ` · Muddat: ${d._deadline}` : ''}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button onClick={() => toggleActive(d.id, d.active)}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition ${d.active ? 'border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400' : 'border-gray-300 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400'}`}>
+                  {d.active ? 'Aktiv' : 'Yashirin'}
+                </button>
+                <button onClick={() => remove(d.id)} className="text-xs text-red-500 hover:text-red-700 border border-red-200 dark:border-red-800 px-2 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+                  O'chirish
+                </button>
+              </div>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-3">
-              {error && <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</div>}
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Sarlavha *</label>
-                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇺🇿</span><input required value={form.title_uz} onChange={e => setForm({...form, title_uz: e.target.value})} className={`${inp} flex-1`} /></div>
-                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇷🇺</span><input value={form.title_ru} onChange={e => setForm({...form, title_ru: e.target.value})} className={`${inp} flex-1`} /></div>
-                <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-6">🇬🇧</span><input value={form.title_en} onChange={e => setForm({...form, title_en: e.target.value})} className={`${inp} flex-1`} /></div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 block mb-1">Muddat sanasi *</label>
-                <input required type="date" value={form.deadline_date} onChange={e => setForm({...form, deadline_date: e.target.value})} className={inp} />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 block mb-1">Havola (URL)</label>
-                <input type="url" value={form.link} onChange={e => setForm({...form, link: e.target.value})} className={inp} placeholder="https://..." />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="active" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="rounded" />
-                <label htmlFor="active" className="text-xs font-semibold text-gray-700 dark:text-gray-300">Faol</label>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button type="submit" disabled={saving} className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-lg disabled:opacity-60">{saving ? 'Saqlanmoqda...' : 'Saqlash'}</button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Bekor</button>
-              </div>
-            </form>
-          </div>
+          ))}
         </div>
       )}
     </div>
-  )
+  );
 }

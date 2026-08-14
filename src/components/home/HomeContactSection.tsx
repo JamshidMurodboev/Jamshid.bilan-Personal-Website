@@ -1,6 +1,8 @@
 'use client';
-import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import ContactForm from '@/components/shared/ContactForm';
+import BookingModal from '@/components/shared/BookingModal';
 
 const INCLUDED = [
   { emoji: '🎓', key: 'include1' },
@@ -13,11 +15,12 @@ const INCLUDED = [
 
 export default function HomeContactSection() {
   const t = useTranslations('contact');
+  const locale = useLocale();
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   return (
     <section className="py-24 px-4 bg-white dark:bg-[#0d1117]" id="contact">
       <div className="max-w-6xl mx-auto">
-        {/* Section header */}
         <div className="text-center mb-16">
           <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">Konsultatsiya</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">{t('title')}</h2>
@@ -32,7 +35,7 @@ export default function HomeContactSection() {
                 <span className="text-3xl">🎯</span>
                 <div>
                   <h3 className="text-xl font-bold">1-on-1 Konsultatsiya</h3>
-                  <p className="text-teal-100 text-sm">60 daqiqa • Shaxsiy strategiya</p>
+                  <p className="text-teal-100 text-sm">{t('duration')}</p>
                 </div>
               </div>
               <ul className="space-y-3">
@@ -47,6 +50,13 @@ export default function HomeContactSection() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-sm text-teal-100">{t('slots' as any)}</span>
               </div>
+              {/* Book CTA */}
+              <button
+                onClick={() => setBookingOpen(true)}
+                className="mt-4 w-full bg-white text-teal-800 font-bold py-3 rounded-2xl hover:bg-teal-50 transition text-sm"
+              >
+                📅 {t('bookCta')}
+              </button>
             </div>
 
             {/* Trust indicators */}
@@ -60,12 +70,14 @@ export default function HomeContactSection() {
             </div>
           </div>
 
-          {/* Right — form */}
+          {/* Right — contact form */}
           <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-3xl p-4 sm:p-8">
             <ContactForm />
           </div>
         </div>
       </div>
+
+      <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} locale={locale} />
     </section>
   );
 }

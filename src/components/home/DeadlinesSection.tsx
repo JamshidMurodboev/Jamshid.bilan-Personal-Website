@@ -2,15 +2,16 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 
-interface Deadline {
+interface DeadlineItem {
   id: string;
-  title_uz: string;
-  title_ru?: string;
-  title_en?: string;
-  deadline_date: string;
-  link?: string;
+  source_type: 'scholarship' | 'university';
+  source_id: string;
   active: boolean;
+  title: string;
+  deadline_date: string | null;
+  url: string | null;
 }
 
 const MONTHS = {
@@ -19,78 +20,91 @@ const MONTHS = {
   en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
 };
 
-function formatDeadlineDate(dateStr: string, locale: string): string {
+function formatDate(dateStr: string, locale: string): string {
   const d = new Date(dateStr + 'T00:00:00');
   if (isNaN(d.getTime())) return dateStr;
   const months = MONTHS[locale as keyof typeof MONTHS] || MONTHS.uz;
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function getDaysLeft(dateStr: string): number {
+function daysLeft(dateStr: string): number {
   const deadline = new Date(dateStr + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return Math.round((deadline.getTime() - today.getTime()) / 86400000);
 }
 
 export default function DeadlinesSection() {
   const locale = useLocale();
   const t = useTranslations('deadlines');
-  const [items, setItems] = useState<Deadline[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<DeadlineItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('scholarship_deadlines')
-      .select('*')
-      .eq('active', true)
-      .order('deadline_date', { ascending: true })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) setItems(data as Deadline[]);
-        setLoading(false);
-      });
-  }, []);
+    async function load() {
+      const sb = createClient();
+      const { data: dl, error } = await sb.from('scholarship_deadlines').select('*').eq('active', true);
+      if (error || !dl || dl.length === 0) { setLoaded(true); return; }
 
-  if (loading || items.length === 0) return null;
+      const schIds = dl.filter((d: any) => d.source_type === 'scholarship').map((d: any) => d.source_id);
+      const uniIds = dl.filter((d: any) => d.source_type === 'university').map((d: any) => d.source_id);
 
-  function getTitle(item: Deadline) {
-    return (item as any)[`title_${locale}`] || item.title_uz;
-  }
+      const [scRes, unRes] = await Promise.all([
+        schIds.length ? sb.from('scholarships').select('id,title,title_uz,title_ru,title_en,close_date,application_url').in('id', schIds) : Promise.resolve({ data: [] }),
+        uniIds.length ? sb.from('universities').select('id,name,name_ru,name_en,website_url').in('id', uniIds) : Promise.resolve({ data: [] }),
+      ]);
+
+      const scMap = Object.fromEntries((scRes.data || []).map((s: any) => [s.id, s]));
+      const unMap = Object.fromEntries((unRes.data || []).map((u: any) => [u.id, u]));
+
+      const enriched: DeadlineItem[] = dl.map((d: any) => {
+        if (d.source_type === 'scholarship') {
+          const s = scMap[d.source_id] || {};
+          const title = s[`title_${locale}`] || s.title_uz || s.title || d.source_id;
+          return { id: d.id, source_type: 'scholarship', source_id: d.source_id, active: true, title, deadline_date: s.close_date || null, url: s.application_url || null };
+        } else {
+          const u = unMap[d.source_id] || {};
+          const title = (locale !== 'uz' ? u[`name_${locale}`] : null) || u.name || d.source_id;
+          return { id: d.id, source_type: 'university', source_id: d.source_id, active: true, title, deadline_date: null, url: u.website_url || null };
+        }
+      }).filter((d: DeadlineItem) => d.deadline_date);
+
+      setItems(enriched);
+      setLoaded(true);
+    }
+    load();
+  }, [locale]);
+
+  if (!loaded || items.length === 0) return null;
 
   return (
-    <section className="py-12 px-4 bg-[#f0f9f8] dark:bg-[#0d1117]">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#0f172a] dark:text-[#e6edf3] mb-6">{t('title')}</h2>
-        <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
-          {items.map((item) => {
-            const daysLeft = getDaysLeft(item.deadline_date);
-            const ended = daysLeft < 0;
-            const urgent = !ended && daysLeft <= 7;
-
+    <section className="py-16 px-4 bg-[#f0f9f8] dark:bg-[#0d1117]">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          {items.map(item => {
+            const days = item.deadline_date ? daysLeft(item.deadline_date) : null;
+            const ended = days !== null && days < 0;
+            const urgent = days !== null && days >= 0 && days <= 7;
+            const today = days === 0;
             return (
-              <div
-                key={item.id}
-                className="flex-shrink-0 w-64 md:w-auto bg-white dark:bg-[#161b22] rounded-xl border border-[#e2e8f0] dark:border-[#21262d] p-4 flex flex-col gap-3"
-              >
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">{getTitle(item)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{formatDeadlineDate(item.deadline_date, locale)}</p>
-                {ended ? (
-                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500">{t('ended')}</span>
-                ) : daysLeft === 0 ? (
-                  <span className="text-xs font-bold text-red-600 dark:text-red-400">{t('today')}</span>
-                ) : (
-                  <span className={`text-xs font-bold ${urgent ? 'text-red-600 dark:text-red-400' : 'text-teal-700 dark:text-teal-400'}`}>
-                    {t('daysLeft', { days: daysLeft })}
+              <div key={item.id} className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 flex flex-col gap-3 shadow-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{item.title}</p>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 flex-shrink-0">
+                    {item.source_type === 'scholarship' ? '🎓' : '🏛️'}
                   </span>
+                </div>
+                {item.deadline_date && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(item.deadline_date, locale)}</p>
                 )}
-                {item.link && !ended && (
-                  <a
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-auto text-center text-xs font-medium bg-teal-700 hover:bg-teal-800 text-white px-3 py-1.5 rounded-lg transition"
-                  >
+                {days !== null && (
+                  <p className={`text-sm font-bold ${ended ? 'text-gray-400' : urgent ? 'text-red-500 dark:text-red-400' : 'text-teal-700 dark:text-teal-400'}`}>
+                    {ended ? t('ended') : today ? t('today') : t('daysLeft', { days })}
+                  </p>
+                )}
+                {item.url && !ended && (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer"
+                    className="mt-auto text-center text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-xl transition">
                     {t('apply')}
                   </a>
                 )}
