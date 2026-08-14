@@ -917,12 +917,14 @@ export default function ScholarshipsPage() {
                       <div className="space-y-1">
                         <p className="text-xs text-gray-500">Savol</p>
                         <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇺🇿</span><input required value={faqForm.question_uz} onChange={e => setFaqForm({...faqForm, question_uz: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <TranslateFieldButton value={faqForm.question_uz} onResult={(ru, en) => setFaqForm(f => ({ ...f, question_ru: ru, question_en: en }))} />
                         <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇷🇺</span><input value={faqForm.question_ru} onChange={e => setFaqForm({...faqForm, question_ru: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
                         <div className="flex items-center gap-1"><span className="text-xs text-gray-400 w-5">🇬🇧</span><input value={faqForm.question_en} onChange={e => setFaqForm({...faqForm, question_en: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
                       </div>
                       <div className="space-y-1">
                         <p className="text-xs text-gray-500">Javob</p>
                         <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇺🇿</span><textarea rows={2} value={faqForm.answer_uz} onChange={e => setFaqForm({...faqForm, answer_uz: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
+                        <TranslateFieldButton value={faqForm.answer_uz} onResult={(ru, en) => setFaqForm(f => ({ ...f, answer_ru: ru, answer_en: en }))} />
                         <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇷🇺</span><textarea rows={2} value={faqForm.answer_ru} onChange={e => setFaqForm({...faqForm, answer_ru: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
                         <div className="flex items-start gap-1"><span className="text-xs text-gray-400 w-5 pt-1">🇬🇧</span><textarea rows={2} value={faqForm.answer_en} onChange={e => setFaqForm({...faqForm, answer_en: e.target.value})} className={`${inp} flex-1 text-xs py-1`} /></div>
                       </div>
