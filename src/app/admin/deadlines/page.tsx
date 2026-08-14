@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 interface Source { id: string; label: string; deadline?: string; url?: string; type: 'scholarship' | 'university'; }
-interface Deadline { id: string; source_type: string; source_id: string; active: boolean; created_at: string; _label?: string; _deadline?: string; _url?: string; }
+interface Deadline { id: string; source_type: string; source_id: string; active: boolean; deadline_date: string | null; created_at: string; _label?: string; _url?: string; }
 
 export default function DeadlinesAdminPage() {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
   const [sourceType, setSourceType] = useState<'scholarship' | 'university'>('scholarship');
   const [sourceId, setSourceId] = useState('');
+  const [customDate, setCustomDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -25,10 +26,9 @@ export default function DeadlinesAdminPage() {
       ...(un || []).map((u: any) => ({ id: u.id, label: u.name, url: u.website_url, type: 'university' as const })),
     ];
     setSources(allSources);
-
     const enriched = (dl || []).map((d: any) => {
       const src = allSources.find(s => s.id === d.source_id);
-      return { ...d, _label: src?.label || d.source_id, _deadline: src?.deadline, _url: src?.url };
+      return { ...d, _label: src?.label || d.source_id, _url: src?.url };
     });
     setDeadlines(enriched);
     setLoading(false);
@@ -37,13 +37,23 @@ export default function DeadlinesAdminPage() {
   useEffect(() => { load(); }, []);
 
   const filteredSources = sources.filter(s => s.type === sourceType);
+  const selectedSource = sources.find(s => s.id === sourceId);
 
   async function addDeadline() {
     if (!sourceId) return;
     setSaving(true);
     const sb = createClient();
-    const { error } = await sb.from('scholarship_deadlines').insert({ source_type: sourceType, source_id: sourceId, active: true });
-    if (!error) { setSourceId(''); await load(); }
+    // For scholarships use close_date from source; for universities use customDate
+    const deadline = sourceType === 'scholarship'
+      ? (selectedSource?.deadline || customDate || null)
+      : (customDate || null);
+    const { error } = await sb.from('scholarship_deadlines').insert({
+      source_type: sourceType,
+      source_id: sourceId,
+      active: true,
+      deadline_date: deadline || null,
+    });
+    if (!error) { setSourceId(''); setCustomDate(''); await load(); }
     else alert(error.message);
     setSaving(false);
   }
@@ -68,7 +78,7 @@ export default function DeadlinesAdminPage() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
         <h2 className="font-semibold text-gray-800 dark:text-white mb-4">Yangi muddat qo'shish</h2>
         <div className="flex gap-3 flex-wrap">
-          <select value={sourceType} onChange={e => { setSourceType(e.target.value as any); setSourceId(''); }}
+          <select value={sourceType} onChange={e => { setSourceType(e.target.value as any); setSourceId(''); setCustomDate(''); }}
             className="border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
             <option value="scholarship">Grant</option>
             <option value="university">Universitet</option>
@@ -80,12 +90,26 @@ export default function DeadlinesAdminPage() {
               <option key={s.id} value={s.id}>{s.label}{s.deadline ? ` (${s.deadline})` : ''}</option>
             ))}
           </select>
-          <button onClick={addDeadline} disabled={!sourceId || saving}
-            className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50">
-            {saving ? '...' : "Qo'shish"}
-          </button>
         </div>
-        <p className="text-xs text-gray-400 mt-2">Muddat sanasi va havolasi avtomatik ravishda shu grant/universitetdan olinadi.</p>
+        {/* Show date input for universities, or scholarships without close_date */}
+        {sourceId && (sourceType === 'university' || !selectedSource?.deadline) && (
+          <div className="mt-3">
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Muddat sanasi *</label>
+            <input
+              type="date"
+              value={customDate}
+              onChange={e => setCustomDate(e.target.value)}
+              className="border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+            />
+          </div>
+        )}
+        {sourceId && sourceType === 'scholarship' && selectedSource?.deadline && (
+          <p className="text-xs text-gray-400 mt-2">Muddat sanasi: <strong>{selectedSource.deadline}</strong> (grantdan avtomatik)</p>
+        )}
+        <button onClick={addDeadline} disabled={!sourceId || saving || (sourceType === 'university' && !customDate)}
+          className="mt-3 bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50">
+          {saving ? '...' : "Qo'shish"}
+        </button>
       </div>
 
       {loading ? <p className="text-gray-400">Yuklanmoqda...</p> : deadlines.length === 0 ? (
@@ -98,7 +122,7 @@ export default function DeadlinesAdminPage() {
                 <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{d._label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {d.source_type === 'scholarship' ? 'Grant' : 'Universitet'}
-                  {d._deadline ? ` · Muddat: ${d._deadline}` : ''}
+                  {d.deadline_date ? ` · Muddat: ${d.deadline_date}` : ' · Muddat yo\'q'}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">

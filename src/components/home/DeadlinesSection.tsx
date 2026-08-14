@@ -9,7 +9,7 @@ interface DeadlineItem {
   source_id: string;
   active: boolean;
   title: string;
-  deadline_date: string | null;
+  deadline_date: string;
   url: string | null;
 }
 
@@ -56,17 +56,21 @@ export default function DeadlinesSection() {
       const unMap = Object.fromEntries((unRes.data || []).map((u: any) => [u.id, u]));
 
       const enriched = dl.map((d: any): DeadlineItem | null => {
+        // Use the stored deadline_date first, fallback to scholarship close_date
         if (d.source_type === 'scholarship') {
           const s = scMap[d.source_id] || {};
-          if (!s.close_date) return null;
+          const deadline = d.deadline_date || s.close_date;
+          if (!deadline) return null;
           const title = s[`title_${locale}`] || s.title_uz || s.title || d.source_id;
-          return { id: d.id, source_type: 'scholarship', source_id: d.source_id, active: true, title, deadline_date: s.close_date, url: s.application_url || null };
+          return { id: d.id, source_type: 'scholarship', source_id: d.source_id, active: true, title, deadline_date: deadline, url: s.application_url || null };
         } else {
           const u = unMap[d.source_id] || {};
+          const deadline = d.deadline_date;
+          if (!deadline) return null;
           const title = (locale !== 'uz' ? u[`name_${locale}`] : null) || u.name || d.source_id;
-          return { id: d.id, source_type: 'university', source_id: d.source_id, active: true, title, deadline_date: null, url: u.website_url || null };
+          return { id: d.id, source_type: 'university', source_id: d.source_id, active: true, title, deadline_date: deadline, url: u.website_url || null };
         }
-      }).filter((d): d is DeadlineItem => d !== null && d.deadline_date !== null);
+      }).filter((d): d is DeadlineItem => d !== null);
 
       setItems(enriched);
       setLoaded(true);
@@ -82,9 +86,9 @@ export default function DeadlinesSection() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {items.map(item => {
-            const days = item.deadline_date ? daysLeft(item.deadline_date) : null;
-            const ended = days !== null && days < 0;
-            const urgent = days !== null && days >= 0 && days <= 7;
+            const days = daysLeft(item.deadline_date);
+            const ended = days < 0;
+            const urgent = days >= 0 && days <= 7;
             const today = days === 0;
             return (
               <div key={item.id} className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 flex flex-col gap-3 shadow-sm">
@@ -94,14 +98,10 @@ export default function DeadlinesSection() {
                     {item.source_type === 'scholarship' ? '🎓' : '🏛️'}
                   </span>
                 </div>
-                {item.deadline_date && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(item.deadline_date, locale)}</p>
-                )}
-                {days !== null && (
-                  <p className={`text-sm font-bold ${ended ? 'text-gray-400' : urgent ? 'text-red-500 dark:text-red-400' : 'text-teal-700 dark:text-teal-400'}`}>
-                    {ended ? t('ended') : today ? t('today') : t('daysLeft', { days })}
-                  </p>
-                )}
+                <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(item.deadline_date, locale)}</p>
+                <p className={`text-sm font-bold ${ended ? 'text-gray-400' : urgent ? 'text-red-500 dark:text-red-400' : 'text-teal-700 dark:text-teal-400'}`}>
+                  {ended ? t('ended') : today ? t('today') : t('daysLeft', { days })}
+                </p>
                 {item.url && !ended && (
                   <a href={item.url} target="_blank" rel="noopener noreferrer"
                     className="mt-auto text-center text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-xl transition">
