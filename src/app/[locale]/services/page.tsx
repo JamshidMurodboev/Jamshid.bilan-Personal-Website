@@ -73,6 +73,7 @@ export default function ServicesPage() {
         ) : services.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
         ) : (
+          <>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {services.map(s => {
               const name = (s as any)[`name_${locale}`] || s.name_uz;
@@ -115,6 +116,7 @@ export default function ServicesPage() {
               ))}
             </div>
           </div>
+          </>
         )}
       </div>
     </div>

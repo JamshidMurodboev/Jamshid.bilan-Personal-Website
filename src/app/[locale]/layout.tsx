@@ -7,6 +7,7 @@ import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ScrollWidgets from '@/components/layout/ScrollWidgets';
+import FloatingSocialRail from '@/components/layout/FloatingSocialRail';
 import Toast from '@/components/shared/Toast';
 import PageViewTracker from '@/components/shared/PageViewTracker';
 import { AuthProvider } from '@/lib/auth';
@@ -84,6 +85,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Header />
+            <FloatingSocialRail />
             <main>{children}</main>
             <Footer />
             <ScrollWidgets />
