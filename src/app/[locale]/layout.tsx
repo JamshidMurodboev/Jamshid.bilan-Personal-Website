@@ -80,6 +80,13 @@ export default async function LocaleLayout({
             `,
           }}
         />
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFHNX4SWG" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TPFHNX4SWG');`,
+          }}
+        />
       </head>
       <body className={`${inter.className} bg-[#f0f9f8] dark:bg-[#0d1117] text-[#0f172a] dark:text-[#e6edf3] transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
