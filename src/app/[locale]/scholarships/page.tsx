@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import ScholarshipCard from '@/components/scholarships/ScholarshipCard';
+import AuthGuard from '@/components/auth/AuthGuard';
 import ScholarshipFilters from '@/components/scholarships/ScholarshipFilters';
 import PageNav from '@/components/shared/PageNav';
 import type { Scholarship } from '@/lib/supabase/types';
@@ -48,6 +49,7 @@ export default function ScholarshipsPage() {
   }), [scholarships, search, country, status, category]);
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}#scholarships`} />
@@ -85,5 +87,6 @@ export default function ScholarshipsPage() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

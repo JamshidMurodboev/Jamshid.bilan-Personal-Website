@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -35,6 +36,7 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
   const mediaLinks = post.media_links ?? [];
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/news`} />
@@ -71,5 +73,6 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
         <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
       </div>
     </div>
+    </AuthGuard>
   );
 }

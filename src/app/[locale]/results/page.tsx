@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
+import AuthGuard from '@/components/auth/AuthGuard'
 import StudentCard from '@/components/results/StudentCard'
 import PageNav from '@/components/shared/PageNav'
 import type { StudentResult } from '@/lib/supabase/types'
@@ -46,6 +47,7 @@ export default function ResultsPage() {
   ]
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Stats */}
@@ -101,5 +103,6 @@ export default function ResultsPage() {
         )}
       </div>
     </div>
+    </AuthGuard>
   )
 }
