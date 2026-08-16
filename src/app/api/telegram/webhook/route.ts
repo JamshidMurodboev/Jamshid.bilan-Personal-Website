@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   const chatId: number = message.chat?.id;
   const text: string = message.text || '';
 
-  // Step 1: /start {sessionId} — request contact verification
+  // /start {sessionId} — send OTP immediately, no phone contact sharing needed
   if (text.startsWith('/start ')) {
     const sessionId = text.slice(7).trim();
 
@@ -80,52 +80,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Update session to awaiting_contact and ask user to share phone
-    await supabase
-      .from('telegram_otp_sessions')
-      .update({ chat_id: chatId, status: 'awaiting_contact' })
-      .eq('id', sessionId);
-
-    await requestPhoneContact(chatId);
-    return NextResponse.json({ ok: true });
-  }
-
-  // Step 2: Contact message received — verify phone matches session
-  if (message.contact) {
-    const contactPhone = message.contact.phone_number.replace(/\D/g, '');
-
-    // Find the pending session for this chat
-    const { data: session } = await supabase
-      .from('telegram_otp_sessions')
-      .select('*')
-      .eq('chat_id', chatId)
-      .eq('status', 'awaiting_contact')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (!session) {
-      await sendMessage(chatId, "⚠️ Faol sessiya topilmadi. Saytdan qayta urinib ko'ring.");
-      return NextResponse.json({ ok: true });
-    }
-
-    // NOTE: phone is stored in the 'email' column of telegram_otp_sessions
-    const sessionPhone = (session.email || '').replace(/\D/g, '');
-
-    if (contactPhone !== sessionPhone) {
-      // Phone mismatch — ask again
-      await sendMessage(chatId, "❌ Raqam mos kelmadi. Ro'yxatdan o'tayotgan raqamingizni ulashing.", false);
-      await requestPhoneContact(chatId);
-      return NextResponse.json({ ok: true });
-    }
-
-    // Phone matched — generate OTP and mark as linked
+    // Generate OTP and send immediately — phone uniqueness is enforced at signup
     const otp = generateOTP();
 
     await supabase
       .from('telegram_otp_sessions')
-      .update({ otp, status: 'linked' })
-      .eq('id', session.id);
+      .update({ chat_id: chatId, otp, status: 'linked' })
+      .eq('id', sessionId);
 
     const purposeText = session.purpose === 'reset' ? 'parolni tiklash' : "ro'yxatdan o'tish";
     await sendMessage(
