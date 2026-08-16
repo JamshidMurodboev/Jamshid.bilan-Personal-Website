@@ -15,7 +15,7 @@ interface Props {
 }
 
 const TELEGRAM_URL = 'https://t.me/jamshid_bilan';
-const WHATSAPP_NUMBER = '905052250893';
+const WHATSAPP_NUMBER = '905074480893';
 
 export default function TelegramContactButton({ children, className, platform = 'telegram', scholarshipContext, universityContext, serviceContext }: Props) {
   const t = useTranslations('contact.form');
