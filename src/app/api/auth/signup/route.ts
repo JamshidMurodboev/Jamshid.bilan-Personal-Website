@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const userId = data.user?.id;
   if (!userId) return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
 
-  await supabaseAdmin.from('site_users').upsert({
+  const { error: upsertError } = await supabaseAdmin.from('site_users').upsert({
     id: userId,
     full_name: fullName,
     email,
@@ -43,6 +43,12 @@ export async function POST(req: NextRequest) {
     login_count: 1,
     status: 'active',
   }, { onConflict: 'id' });
+
+  if (upsertError) {
+    // Roll back: remove the auth user so they can retry registration
+    await supabaseAdmin.auth.admin.deleteUser(userId);
+    return NextResponse.json({ error: 'Profil yaratishda xatolik: ' + upsertError.message }, { status: 500 });
+  }
 
   // Sign in immediately to get tokens for the client
   const tokenRes = await fetch(
