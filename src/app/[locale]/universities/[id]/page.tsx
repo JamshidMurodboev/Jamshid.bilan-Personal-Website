@@ -317,6 +317,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
               serviceContext={u.name}
               applyLabel={t('applyLabel')}
               askLabel={t('askLabel')}
+              preselectedTarget={`Universitet: ${u.name} (${u.country})`}
             />
           </div>
 

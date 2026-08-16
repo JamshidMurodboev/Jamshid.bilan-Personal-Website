@@ -484,7 +484,10 @@
     "linkedUniversities": "Bog'liq universitetlar",
     "linkedResults": "Bog'liq natijalar",
     "contactUs": "Bog'lanish",
-    "askQuestion": "Savol berish"
+    "askQuestion": "Savol berish",
+    "comingSoonTitle": "Ko'proq xizmatlar tez kunda!",
+    "comingSoonSubtitle": "Yangi xizmatlar ustida ishlamoqdamiz. Yangiliklar uchun kuzatib boring.",
+    "comingSoonItems": ["CV va SOP yozish", "Intervyu tayyorgarligi", "Viza maslahat", "Online kurslar"]
   },
   "process": {
     "label": "Jarayon",

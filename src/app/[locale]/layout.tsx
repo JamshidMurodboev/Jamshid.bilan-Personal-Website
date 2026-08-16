@@ -7,6 +7,7 @@ import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ScrollWidgets from '@/components/layout/ScrollWidgets';
+import FloatingSocialRail from '@/components/layout/FloatingSocialRail';
 import Toast from '@/components/shared/Toast';
 import PageViewTracker from '@/components/shared/PageViewTracker';
 import { AuthProvider } from '@/lib/auth';
@@ -29,12 +30,12 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     title: titles[locale] ?? titles.uz,
     description: descriptions[locale] ?? descriptions.uz,
     alternates: {
-      canonical: `https://jamshidbilan.uz/${locale}`,
+      canonical: locale === 'uz' ? 'https://jamshidbilan.uz' : `https://jamshidbilan.uz/${locale}`,
       languages: {
         'uz': 'https://jamshidbilan.uz/uz',
         'ru': 'https://jamshidbilan.uz/ru',
         'en': 'https://jamshidbilan.uz/en',
-        'x-default': 'https://jamshidbilan.uz/uz',
+        'x-default': 'https://jamshidbilan.uz',
       },
     },
     openGraph: {
@@ -84,6 +85,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Header />
+            <FloatingSocialRail />
             <main>{children}</main>
             <Footer />
             <ScrollWidgets />

@@ -7,9 +7,10 @@ interface Props {
   serviceContext: string;
   applyLabel: string;
   askLabel: string;
+  preselectedTarget?: string;
 }
 
-export default function ServiceContactButtons({ serviceContext, applyLabel, askLabel }: Props) {
+export default function ServiceContactButtons({ serviceContext, applyLabel, askLabel, preselectedTarget }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-wrap gap-3 mb-8">
@@ -25,7 +26,7 @@ export default function ServiceContactButtons({ serviceContext, applyLabel, askL
       >
         {askLabel}
       </AskQuestionButton>
-      <ContactModal isOpen={open} onClose={() => setOpen(false)} />
+      <ContactModal isOpen={open} onClose={() => setOpen(false)} preselectedTarget={preselectedTarget} />
     </div>
   );
 }

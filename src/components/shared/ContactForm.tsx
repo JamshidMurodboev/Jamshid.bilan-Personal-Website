@@ -23,7 +23,11 @@ const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-
 
 type FieldErrors = Partial<Record<'name' | 'dob' | 'cert' | 'score' | 'target' | 'other', string>>;
 
-export default function ContactForm() {
+interface Props {
+  preselectedTarget?: string;
+}
+
+export default function ContactForm({ preselectedTarget }: Props = {}) {
   const { user } = useAuth();
   const t = useTranslations('contact.form');
   const locale = useLocale();
@@ -31,7 +35,7 @@ export default function ContactForm() {
   const [dob, setDob] = useState('');
   const [cert, setCert] = useState('');
   const [score, setScore] = useState('');
-  const [target, setTarget] = useState('');
+  const [target, setTarget] = useState(preselectedTarget ?? '');
   const [other, setOther] = useState('');
   const [errors, setErrors] = useState<FieldErrors>({});
   const [scholarships, setScholarships] = useState<{ id: string; title: string; country: string }[]>([]);
@@ -40,8 +44,12 @@ export default function ContactForm() {
 
   useEffect(() => {
     if (user) {
-      setName(user.fullName);
-      setDob(user.dob);
+      setName(user.fullName || '');
+      setDob(user.dob || '');
+      if (user.languageCertificate?.type) {
+        setCert(user.languageCertificate.type);
+        setScore(user.languageCertificate.score || '');
+      }
     }
   }, [user]);
 
@@ -119,39 +127,41 @@ export default function ContactForm() {
           {errors.score && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.score}</p>}
         </div>
       )}
-      <div>
-        <label className={labelCls}>{t('grantOrUniversity')} *</label>
-        <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
-          <option value="">{t('selectPlaceholder')}</option>
-          <option value="all">Barchasi</option>
-          {scholarships.length > 0 && (
-            <optgroup label={t('grantGroup')}>
-              {scholarships.map(s => (
-                <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
-              ))}
-            </optgroup>
-          )}
-          {universities.length > 0 && (
-            <optgroup label={t('universityGroup')}>
-              {universities.map(u => (
-                <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
-              ))}
-            </optgroup>
-          )}
-          {services.length > 0 && (
-            <optgroup label={t('servicesGroup')}>
-              {services.map(s => {
-                const svcName = (s as any)[`name_${locale}`] || s.name_uz;
-                return (
-                  <option key={s.id} value={`Xizmat: ${svcName}`}>{svcName}</option>
-                );
-              })}
-            </optgroup>
-          )}
-          <option value="other">{t('otherOption')}</option>
-        </select>
-        {errors.target && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.target}</p>}
-      </div>
+      {!preselectedTarget && (
+        <div>
+          <label className={labelCls}>{t('grantOrUniversity')} *</label>
+          <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
+            <option value="">{t('selectPlaceholder')}</option>
+            <option value="all">Barchasi</option>
+            {scholarships.length > 0 && (
+              <optgroup label={t('grantGroup')}>
+                {scholarships.map(s => (
+                  <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
+                ))}
+              </optgroup>
+            )}
+            {universities.length > 0 && (
+              <optgroup label={t('universityGroup')}>
+                {universities.map(u => (
+                  <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
+                ))}
+              </optgroup>
+            )}
+            {services.length > 0 && (
+              <optgroup label={t('servicesGroup')}>
+                {services.map(s => {
+                  const svcName = (s as any)[`name_${locale}`] || s.name_uz;
+                  return (
+                    <option key={s.id} value={`Xizmat: ${svcName}`}>{svcName}</option>
+                  );
+                })}
+              </optgroup>
+            )}
+            <option value="other">{t('otherOption')}</option>
+          </select>
+          {errors.target && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.target}</p>}
+        </div>
+      )}
       {target === 'other' && (
         <div>
           <label className={labelCls}>{t('other')}</label>

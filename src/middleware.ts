@@ -39,6 +39,10 @@ export async function middleware(request: NextRequest) {
 
   // Apply i18n middleware for non-admin, non-api routes
   if (!pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
+    // Issue a 308 permanent redirect for bare root so Google passes ranking credit
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/uz', request.url), 308);
+    }
     return intlMiddleware(request);
   }
 

@@ -17,7 +17,6 @@ const navLinks = [
   { href: '/admin/services', label: 'Xizmatlar' },
   { href: '/admin/process', label: 'Jarayon' },
   { href: '/admin/faq', label: 'Savollar' },
-  { href: '/admin/deadlines', label: 'Muddatlar' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
   { href: '/admin/consultations', label: 'Konsultatsiyalar' },
   { href: '/admin/settings', label: 'Sozlamalar' },

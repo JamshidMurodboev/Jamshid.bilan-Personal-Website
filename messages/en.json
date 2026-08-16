@@ -484,7 +484,10 @@
     "linkedUniversities": "Related Universities",
     "linkedResults": "Related Results",
     "contactUs": "Contact",
-    "askQuestion": "Ask a question"
+    "askQuestion": "Ask a question",
+    "comingSoonTitle": "More services coming soon!",
+    "comingSoonSubtitle": "We're working on new services. Stay tuned for updates.",
+    "comingSoonItems": ["CV & SOP Writing", "Interview Preparation", "Visa Consultation", "Online Courses"]
   },
   "process": {
     "label": "Process",
