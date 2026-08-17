@@ -157,7 +157,7 @@ export default function PhoneInput({ onChange, className, required }: Props) {
                 className="w-full text-sm px-3 py-1.5 rounded-lg border border-line bg-soft text-heading focus:outline-none focus:border-[var(--accent)] transition-colors"
               />
             </div>
-            <ul className="overflow-y-auto max-h-56">
+            <ul className="overflow-y-auto no-scrollbar max-h-56">
               {filtered.length === 0 && (
                 <li className="px-4 py-3 text-sm text-muted-e text-center">Topilmadi</li>
               )}

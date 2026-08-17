@@ -1,5 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
+import Select from '@/components/shared/Select';
 
 interface Props {
   search: string;
@@ -39,10 +40,12 @@ export default function UniversityFilters({ search, onSearch, country, onCountry
         </div>
         <div>
           <label className={labelCls}>{t('country')}</label>
-          <select value={country} onChange={e => onCountry(e.target.value)} className={inputCls}>
-            <option value="">{t('all')}</option>
-            {countries.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <Select
+            value={country}
+            onChange={onCountry}
+            aria-label={t('country')}
+            options={[{ value: '', label: t('all') }, ...countries.map(c => ({ value: c, label: c }))]}
+          />
         </div>
         <div>
           <span className={labelCls}>{t('type')}</span>

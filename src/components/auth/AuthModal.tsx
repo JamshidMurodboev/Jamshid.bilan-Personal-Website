@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
 import PhoneInput from '@/components/shared/PhoneInput';
+import Select from '@/components/shared/Select';
 import { showToast } from '@/components/shared/Toast';
 
 interface Props {
@@ -379,7 +380,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div className="bg-card border border-card rounded-3xl shadow-2xl shadow-black/20 w-full max-w-md p-6 sm:p-7 relative max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y">
+      <div className="bg-card border border-card rounded-3xl shadow-2xl shadow-black/20 w-full max-w-md p-6 sm:p-7 relative max-h-[90vh] overflow-y-auto no-scrollbar overscroll-contain touch-pan-y">
         <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full border border-line text-muted-e hover:border-accent hover:text-accent transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -430,12 +431,18 @@ export default function AuthModal({ isOpen, onClose, initialTab = 'signin' }: Pr
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-muted-e mb-1.5">{t('gender')} *</label>
-              <select required value={suGender} onChange={e => setSuGender(e.target.value)} className={inputCls}>
-                <option value="" disabled>{t('gender')}</option>
-                <option value="male">{t('genderMale')}</option>
-                <option value="female">{t('genderFemale')}</option>
-                <option value="other">{t('genderOther')}</option>
-              </select>
+              <Select
+                value={suGender}
+                onChange={setSuGender}
+                required
+                placeholder={t('gender')}
+                aria-label={t('gender')}
+                options={[
+                  { value: 'male', label: t('genderMale') },
+                  { value: 'female', label: t('genderFemale') },
+                  { value: 'other', label: t('genderOther') },
+                ]}
+              />
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-muted-e mb-1.5">{t('password')} *</label>

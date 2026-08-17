@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
+import Select from '@/components/shared/Select';
 
 const CERTS = ['IELTS', 'TOEFL', 'TYS', 'SAT', 'Other', 'None'];
 
@@ -120,7 +121,7 @@ export default function AskQuestionButton({ children, className, scholarshipCont
               </button>
             </div>
 
-            <form onSubmit={handleSend} className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
+            <form onSubmit={handleSend} className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto no-scrollbar">
               <div>
                 <label className={labelCls}>{t('name')} *</label>
                 <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(er => ({ ...er, name: '' })); }} placeholder={t('name')} className={inputCls('name')} />
@@ -135,10 +136,14 @@ export default function AskQuestionButton({ children, className, scholarshipCont
 
               <div>
                 <label className={labelCls}>{t('cert')} *</label>
-                <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); setErrors(er => ({ ...er, cert: '' })); }} className={inputCls('cert')}>
-                  <option value="">{t('selectPlaceholder')}</option>
-                  {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
-                </select>
+                <Select
+                  value={cert}
+                  onChange={v => { setCert(v); setScore(''); setErrors(er => ({ ...er, cert: '' })); }}
+                  placeholder={t('selectPlaceholder')}
+                  error={!!errors.cert}
+                  aria-label={t('cert')}
+                  options={CERTS.map(c => ({ value: c, label: c === 'None' ? t('certNone') : c }))}
+                />
                 {errors.cert && <p className="text-red-500 text-xs mt-1">{errors.cert}</p>}
               </div>
 

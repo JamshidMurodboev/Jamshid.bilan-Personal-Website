@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import DateInput from '@/components/shared/DateInput';
+import Select from '@/components/shared/Select';
 import { createClient } from '@/lib/supabase/client';
 
 const CERTS = ['IELTS', 'TOEFL', 'TYS', 'SAT', 'Other', 'None'];
@@ -114,10 +115,14 @@ export default function ContactForm({ preselectedTarget }: Props = {}) {
       </div>
       <div>
         <label className={labelCls}>{t('cert')} *</label>
-        <select value={cert} onChange={e => { setCert(e.target.value); setScore(''); }} className={inputCls('cert')}>
-          <option value="">{t('selectPlaceholder')}</option>
-          {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
-        </select>
+        <Select
+          value={cert}
+          onChange={v => { setCert(v); setScore(''); }}
+          placeholder={t('selectPlaceholder')}
+          error={!!errors.cert}
+          aria-label={t('cert')}
+          options={CERTS.map(c => ({ value: c, label: c === 'None' ? t('certNone') : c }))}
+        />
         {errors.cert && <p className="text-red-500 text-xs mt-1">{errors.cert}</p>}
       </div>
       {cert && cert !== 'None' && (
@@ -130,35 +135,32 @@ export default function ContactForm({ preselectedTarget }: Props = {}) {
       {!preselectedTarget && (
         <div>
           <label className={labelCls}>{t('grantOrUniversity')} *</label>
-          <select value={target} onChange={e => setTarget(e.target.value)} className={inputCls('target')}>
-            <option value="">{t('selectPlaceholder')}</option>
-            <option value="all">Barchasi</option>
-            {scholarships.length > 0 && (
-              <optgroup label={t('grantGroup')}>
-                {scholarships.map(s => (
-                  <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
-                ))}
-              </optgroup>
-            )}
-            {universities.length > 0 && (
-              <optgroup label={t('universityGroup')}>
-                {universities.map(u => (
-                  <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
-                ))}
-              </optgroup>
-            )}
-            {services.length > 0 && (
-              <optgroup label={t('servicesGroup')}>
-                {services.map(s => {
+          <Select
+            value={target}
+            onChange={setTarget}
+            placeholder={t('selectPlaceholder')}
+            error={!!errors.target}
+            aria-label={t('grantOrUniversity')}
+            groups={[
+              { label: '—', options: [{ value: 'all', label: 'Barchasi' }] },
+              ...(scholarships.length > 0 ? [{
+                label: t('grantGroup'),
+                options: scholarships.map(s => ({ value: `Grant: ${s.title} (${s.country})`, label: `${s.title} — ${s.country}` })),
+              }] : []),
+              ...(universities.length > 0 ? [{
+                label: t('universityGroup'),
+                options: universities.map(u => ({ value: `Universitet: ${u.name} (${u.country})`, label: `${u.name} — ${u.country}` })),
+              }] : []),
+              ...(services.length > 0 ? [{
+                label: t('servicesGroup'),
+                options: services.map(s => {
                   const svcName = (s as any)[`name_${locale}`] || s.name_uz;
-                  return (
-                    <option key={s.id} value={`Xizmat: ${svcName}`}>{svcName}</option>
-                  );
-                })}
-              </optgroup>
-            )}
-            <option value="other">{t('otherOption')}</option>
-          </select>
+                  return { value: `Xizmat: ${svcName}`, label: svcName as string };
+                }),
+              }] : []),
+              { label: '—', options: [{ value: 'other', label: t('otherOption') }] },
+            ]}
+          />
           {errors.target && <p className="text-red-500 text-xs mt-1">{errors.target}</p>}
         </div>
       )}

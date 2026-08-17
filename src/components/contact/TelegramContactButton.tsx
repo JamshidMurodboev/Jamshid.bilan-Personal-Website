@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import DateInput from '@/components/shared/DateInput';
+import Select from '@/components/shared/Select';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/auth';
 
@@ -162,7 +163,7 @@ export default function TelegramContactButton({ children, className, platform = 
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-6 py-6 space-y-5 max-h-[75vh] overflow-y-auto">
+            <form onSubmit={handleSubmit} className="px-6 py-6 space-y-5 max-h-[75vh] overflow-y-auto no-scrollbar">
                 <p className="text-xs text-muted-e">
                   {tRaw('fillDetails', `Quyidagi ma'lumotlarni to'ldiring — ular {platform} chatiga avtomatik yuboriladi.`).replace('{platform}', isWhatsApp ? 'WhatsApp' : 'Telegram')}
                 </p>
@@ -176,23 +177,23 @@ export default function TelegramContactButton({ children, className, platform = 
                 {!scholarshipContext && !universityContext && !serviceContext && (
                   <div>
                     <label className={labelClass}>{t('applicationFor')}</label>
-                    <select value={form.applying} onChange={e => set('applying', e.target.value)} className={inputClass}>
-                      <option value="">{t('selectPlaceholder')}</option>
-                      {scholarships.length > 0 && (
-                        <optgroup label="Grantlar">
-                          {scholarships.map(s => (
-                            <option key={s.id} value={`Grant: ${s.title} (${s.country})`}>{s.title} — {s.country}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                      {universities.length > 0 && (
-                        <optgroup label="Universitetlar">
-                          {universities.map(u => (
-                            <option key={u.id} value={`Universitet: ${u.name} (${u.country})`}>{u.name} — {u.country}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                    </select>
+                    <Select
+                      value={form.applying}
+                      onChange={v => set('applying', v)}
+                      placeholder={t('selectPlaceholder')}
+                      error={!!errors.applying}
+                      aria-label={t('applicationFor')}
+                      groups={[
+                        ...(scholarships.length > 0 ? [{
+                          label: 'Grantlar',
+                          options: scholarships.map(s => ({ value: `Grant: ${s.title} (${s.country})`, label: `${s.title} — ${s.country}` })),
+                        }] : []),
+                        ...(universities.length > 0 ? [{
+                          label: 'Universitetlar',
+                          options: universities.map(u => ({ value: `Universitet: ${u.name} (${u.country})`, label: `${u.name} — ${u.country}` })),
+                        }] : []),
+                      ]}
+                    />
                     {errors.applying && <p className={errorClass}>{errors.applying}</p>}
                   </div>
                 )}

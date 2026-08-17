@@ -64,7 +64,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div className="bg-card border border-card rounded-3xl shadow-2xl shadow-black/20 w-full max-w-md p-6 sm:p-7 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-card border border-card rounded-3xl shadow-2xl shadow-black/20 w-full max-w-md p-6 sm:p-7 relative max-h-[90vh] overflow-y-auto no-scrollbar">
         <button
           onClick={handleClose}
           aria-label="Close"

@@ -1,5 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
+import Select from '@/components/shared/Select';
 
 interface Props {
   search: string; onSearch: (v: string) => void;
@@ -27,28 +28,40 @@ export default function ScholarshipFilters({ search, onSearch, country, onCountr
         </div>
         <div>
           <label className={labelClass}>{t('country')}</label>
-          <select value={country} onChange={(e) => onCountry(e.target.value)} className={inputClass}>
-            <option value="">{t('all')}</option>
-            {countries.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <Select
+            value={country}
+            onChange={onCountry}
+            aria-label={t('country')}
+            options={[{ value: '', label: t('all') }, ...countries.map(c => ({ value: c, label: c }))]}
+          />
         </div>
         <div>
           <label className={labelClass}>{t('funding')}</label>
-          <select value={category} onChange={(e) => onCategory(e.target.value)} className={inputClass}>
-            <option value="">{t('all')}</option>
-            <option value="fully_funded">{t('fullyFunded')}</option>
-            <option value="partially_funded">{t('partiallyFunded')}</option>
-            <option value="self_funded">{t('selfFunded')}</option>
-          </select>
+          <Select
+            value={category}
+            onChange={onCategory}
+            aria-label={t('funding')}
+            options={[
+              { value: '', label: t('all') },
+              { value: 'fully_funded', label: t('fullyFunded') },
+              { value: 'partially_funded', label: t('partiallyFunded') },
+              { value: 'self_funded', label: t('selfFunded') },
+            ]}
+          />
         </div>
         <div>
           <label className={labelClass}>{t('status')}</label>
-          <select value={status} onChange={(e) => onStatus(e.target.value)} className={inputClass}>
-            <option value="">{t('all')}</option>
-            <option value="open">{tc('open')}</option>
-            <option value="closed">{tc('closed')}</option>
-            <option value="upcoming">{tc('upcoming')}</option>
-          </select>
+          <Select
+            value={status}
+            onChange={onStatus}
+            aria-label={t('status')}
+            options={[
+              { value: '', label: t('all') },
+              { value: 'open', label: tc('open') },
+              { value: 'closed', label: tc('closed') },
+              { value: 'upcoming', label: tc('upcoming') },
+            ]}
+          />
         </div>
         {hasFilter && (
           <button

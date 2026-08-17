@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import DateInput from '@/components/shared/DateInput';
+import Select from '@/components/shared/Select';
 import PageNav from '@/components/shared/PageNav';
 import { createClient } from '@/lib/supabase/client';
 
@@ -149,12 +150,18 @@ export default function ProfileContent() {
           </div>
           <div>
             <label className={labelCls}>{t('gender')}</label>
-            <select required value={gender} onChange={e => setGender(e.target.value)} className={inputCls}>
-              <option value="" disabled>{t('gender')}</option>
-              <option value="male">{t('genderMale')}</option>
-              <option value="female">{t('genderFemale')}</option>
-              <option value="other">{t('genderOther')}</option>
-            </select>
+            <Select
+              value={gender}
+              onChange={setGender}
+              required
+              placeholder={t('gender')}
+              aria-label={t('gender')}
+              options={[
+                { value: 'male', label: t('genderMale') },
+                { value: 'female', label: t('genderFemale') },
+                { value: 'other', label: t('genderOther') },
+              ]}
+            />
           </div>
           <div>
             <label className={labelCls}>{t('phone')}</label>
@@ -164,10 +171,14 @@ export default function ProfileContent() {
           <div>
             <label className={labelCls}>{tp('certLabel')}</label>
             <div className="flex flex-col sm:flex-row gap-2">
-              <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
-                <option value="">{tp('selectCert')}</option>
-                {CERT_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <Select
+                value={certType}
+                onChange={v => { setCertType(v); if (!v) setCertScore(''); }}
+                placeholder={tp('selectCert')}
+                aria-label={tp('certLabel')}
+                className="flex-1"
+                options={[{ value: '', label: tp('selectCert') }, ...CERT_TYPES.map(c => ({ value: c, label: c }))]}
+              />
               {certType && certType !== 'N/A' && (
                 <input
                   type="text"
