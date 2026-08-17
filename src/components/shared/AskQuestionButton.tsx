@@ -14,10 +14,10 @@ interface Props {
   serviceContext?: string;
 }
 
-const baseInputCls = 'w-full border rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
-const okBorder = 'border-gray-300 dark:border-gray-600';
-const errBorder = 'border-red-400 dark:border-red-500 focus:ring-red-500';
-const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1';
+const baseInputCls = 'w-full px-4 py-3 rounded-xl border bg-card text-heading text-sm focus:outline-none transition-colors';
+const okBorder = 'border-line focus:border-[var(--accent)]';
+const errBorder = 'border-red-400 focus:border-red-500';
+const labelCls = 'block text-xs font-bold uppercase tracking-widest text-muted-e mb-1.5';
 
 export default function AskQuestionButton({ children, className, scholarshipContext, universityContext, serviceContext }: Props) {
   const { user } = useAuth();
@@ -112,26 +112,25 @@ export default function AskQuestionButton({ children, className, scholarshipCont
           style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
           onClick={e => { if (e.target === e.currentTarget) handleClose(); }}
         >
-          <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">💬</span>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t('askQuestion')}</h2>
-              </div>
-              <button type="button" onClick={handleClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">×</button>
+          <div className="bg-card border border-card rounded-3xl w-full max-w-md shadow-2xl shadow-black/20 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+              <h2 className="font-display text-xl text-heading">{t('askQuestion')}</h2>
+              <button type="button" onClick={handleClose} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-full border border-line text-muted-e hover:border-accent hover:text-accent transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
 
             <form onSubmit={handleSend} className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
                 <label className={labelCls}>{t('name')} *</label>
                 <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(er => ({ ...er, name: '' })); }} placeholder={t('name')} className={inputCls('name')} />
-                {errors.name && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
 
               <div>
                 <label className={labelCls}>{t('dob')} *</label>
                 <DateInput value={dob} onChange={v => { setDob(v); setErrors(er => ({ ...er, dob: '' })); }} className={inputCls('dob')} />
-                {errors.dob && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.dob}</p>}
+                {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
               </div>
 
               <div>
@@ -140,14 +139,14 @@ export default function AskQuestionButton({ children, className, scholarshipCont
                   <option value="">{t('selectPlaceholder')}</option>
                   {CERTS.map(c => <option key={c} value={c}>{c === 'None' ? t('certNone') : c}</option>)}
                 </select>
-                {errors.cert && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.cert}</p>}
+                {errors.cert && <p className="text-red-500 text-xs mt-1">{errors.cert}</p>}
               </div>
 
               {cert && cert !== 'None' && (
                 <div>
                   <label className={labelCls}>{t('score')} *</label>
                   <input type="text" value={score} onChange={e => { setScore(e.target.value); setErrors(er => ({ ...er, score: '' })); }} placeholder="Masalan: 6.5" className={inputCls('score')} />
-                  {errors.score && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.score}</p>}
+                  {errors.score && <p className="text-red-500 text-xs mt-1">{errors.score}</p>}
                 </div>
               )}
 
@@ -160,10 +159,10 @@ export default function AskQuestionButton({ children, className, scholarshipCont
                   rows={4}
                   className={`${inputCls('question')} resize-none`}
                 />
-                {errors.question && <p className="text-red-500 dark:text-red-400 text-xs mt-1">{errors.question}</p>}
+                {errors.question && <p className="text-red-500 text-xs mt-1">{errors.question}</p>}
               </div>
 
-              <button type="submit" className="w-full bg-[#0088cc] hover:bg-[#0077b5] text-white py-3 rounded-xl font-semibold transition shadow flex items-center justify-center gap-2">
+              <button type="submit" className="btn-ink w-full !py-3 text-sm">
                 {telegramIcon}
                 {t('sendBtn')}
               </button>

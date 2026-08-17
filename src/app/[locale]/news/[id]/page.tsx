@@ -35,40 +35,54 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
   const mediaLinks = post.media_links ?? [];
 
   return (
-    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav backHref={`/${locale}/news`} />
-        <ActivityTracker entityType="news" entityId={post.id} entityName={title} />
-        {post.cover_url && (
-          <div className="relative w-full h-64 rounded-2xl mt-4 mb-6 overflow-hidden">
-            <Image src={post.cover_url} alt={title} fill className="object-cover" />
-          </div>
-        )}
-        <div className="flex items-start gap-3 mt-4 mb-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex-1">{title}</h1>
-          <FavouriteButton entityType="news" entityId={post.id} />
-          <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/news/${post.slug ?? post.id}`} title={title} entityType="news" entityId={post.id} entityName={title} />
-        </div>
-        {post.published_at && (
-          <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">{formatDate(post.published_at)}</p>
-        )}
-        <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8">{body}</div>
+    <div className="min-h-screen bg-page">
+      <div className="container-page pt-10 sm:pt-14 pb-20 sm:pb-24">
+        <article className="max-w-3xl mx-auto">
+          <PageNav backHref={`/${locale}/news`} />
+          <ActivityTracker entityType="news" entityId={post.id} entityName={title} />
 
-        {/* Photo gallery */}
-        {photos.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('photos')}</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {photos.map((url, i) => (
-                <div key={i} className="relative aspect-[4/3] w-full rounded-xl overflow-hidden">
-                  <Image src={url} alt={`${title} ${i + 1}`} fill className="object-cover" />
-                </div>
-              ))}
+          {/* Dateline */}
+          {post.published_at && (
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-e mt-8 mb-4">
+              {formatDate(post.published_at)}
+            </p>
+          )}
+
+          {/* Headline */}
+          <div className="flex items-start gap-3 mb-8">
+            <h1 className="display text-4xl sm:text-5xl flex-1">{title}</h1>
+            <div className="flex items-center gap-2 pt-2">
+              <FavouriteButton entityType="news" entityId={post.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/news/${post.slug ?? post.id}`} title={title} entityType="news" entityId={post.id} entityName={title} />
             </div>
           </div>
-        )}
 
-        <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+          {/* Cover */}
+          {post.cover_url && (
+            <div className="relative w-full aspect-[16/9] rounded-2xl border border-line overflow-hidden bg-soft mb-10">
+              <Image src={post.cover_url} alt={title} fill className="object-cover" />
+            </div>
+          )}
+
+          {/* Body */}
+          <div className="text-lg leading-relaxed text-body whitespace-pre-line mb-14">{body}</div>
+
+          {/* Photo gallery */}
+          {photos.length > 0 && (
+            <div className="rule pt-10 mb-14">
+              <h2 className="font-display text-2xl text-heading mb-6">{t('photos')}</h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {photos.map((url, i) => (
+                  <div key={i} className="relative aspect-[4/3] w-full rounded-2xl border border-line overflow-hidden bg-soft">
+                    <Image src={url} alt={`${title} ${i + 1}`} fill className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
+        </article>
       </div>
     </div>
   );

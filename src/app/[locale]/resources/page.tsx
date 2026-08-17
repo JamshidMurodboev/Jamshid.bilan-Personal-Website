@@ -59,34 +59,36 @@ export default async function ResourcesPage({ params: { locale } }: { params: { 
   }
 
   return (
-    <main className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-16 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
-          <p className="text-gray-600 dark:text-gray-400">{t('pageSubtitle')}</p>
+    <main className="min-h-screen bg-page">
+      <section className="pt-16 sm:pt-24 pb-10 sm:pb-14 border-b border-line">
+        <div className="container-page">
+          <h1 className="display text-5xl sm:text-6xl mb-4">{t('pageTitle')}</h1>
+          <p className="text-lg text-body max-w-2xl">{t('pageSubtitle')}</p>
         </div>
+      </section>
 
+      <section className="container-page pt-4 pb-20 sm:pb-28">
         {resources.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-12">{t('noResources')}</p>
+          <p className="text-muted-e text-center py-16">{t('noResources')}</p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div>
             {resources.map((resource) => {
               const title = getField(resource, 'title');
               const description = getField(resource, 'description');
               return (
-                <div key={resource.id} className="bg-white dark:bg-[#161b22] rounded-xl border border-[#e2e8f0] dark:border-[#21262d] p-5 flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-                    {resource.category && (
-                      <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
-                        {resource.category}
-                      </span>
+                <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 py-7 sm:py-8 border-b border-line">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap mb-1.5">
+                      <h3 className="font-display text-lg sm:text-xl text-heading leading-snug">{title}</h3>
+                      {resource.category && (
+                        <span className="chip flex-shrink-0">{resource.category}</span>
+                      )}
+                    </div>
+                    {description && (
+                      <p className="text-sm text-muted-e">{description}</p>
                     )}
                   </div>
-                  {description && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
-                  )}
-                  <div className="mt-auto pt-1">
+                  <div className="flex-shrink-0">
                     <DownloadButton fileUrl={resource.file_url} />
                   </div>
                 </div>
@@ -94,7 +96,7 @@ export default async function ResourcesPage({ params: { locale } }: { params: { 
             })}
           </div>
         )}
-      </div>
+      </section>
     </main>
   );
 }

@@ -23,9 +23,9 @@ export default function Toast() {
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4">
-      <div className="flex items-center gap-2 bg-teal-700 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-out]">
+      <div className="flex items-center gap-2 bg-ink text-[var(--bg)] px-5 py-2.5 rounded-full text-sm font-semibold animate-[fadeIn_0.2s_ease-out]">
         <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 13l4 4L19 7" />
         </svg>
         {message}
       </div>

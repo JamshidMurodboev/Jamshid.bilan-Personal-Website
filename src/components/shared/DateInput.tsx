@@ -56,7 +56,7 @@ export default function DateInput({ value, onChange, className = '', max, requir
     emit(day, month, y);
   }
 
-  const base = className || 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
+  const base = className || 'w-full px-4 py-3 rounded-xl border border-line bg-card text-heading text-sm focus:outline-none focus:border-[var(--accent)] transition-colors';
 
   return (
     <div className="flex gap-2">

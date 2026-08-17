@@ -16,17 +16,24 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
   } catch {}
 
   return (
-    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav backHref={`/${locale}#universities`} />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
-        <UniversityList universities={universities} locale={locale} />
-        <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 px-5 py-4 text-sm text-teal-700 dark:text-teal-300">
-          <span className="text-lg">🚀</span>
-          {t('moreComing')}
+    <div className="min-h-screen bg-page">
+      {/* Page hero */}
+      <section className="pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-line">
+        <div className="container-page">
+          <PageNav backHref={`/${locale}#universities`} />
+          <h1 className="display text-4xl sm:text-6xl mt-8 mb-4">{t('pageTitle')}</h1>
+          <p className="text-lg text-body max-w-2xl">{t('pageSubtitle')}</p>
         </div>
-      </div>
+      </section>
+
+      <section className="py-12 sm:py-16">
+        <div className="container-page">
+          <UniversityList universities={universities} locale={locale} />
+          <div className="mt-14 rounded-2xl border border-line bg-card px-6 py-5">
+            <p className="text-sm text-body">{t('moreComing')}</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

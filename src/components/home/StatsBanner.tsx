@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 const STATS = [
-  { key: 'fullRide', target: 10, icon: '🏆', suffix: '+' },
-  { key: 'admissions', target: 100, icon: '🎓', suffix: '+' },
-  { key: 'countries', target: 25, icon: '🌍', suffix: '+' },
-  { key: 'years', target: 4, icon: '⭐', suffix: '' },
+  { key: 'fullRide', target: 10, suffix: '+' },
+  { key: 'admissions', target: 100, suffix: '+' },
+  { key: 'countries', target: 25, suffix: '+' },
+  { key: 'years', target: 4, suffix: '' },
 ];
 
 const DURATION = 1800;
@@ -31,15 +31,15 @@ function useCountUp(target: number, start: boolean) {
   return value;
 }
 
-function StatCard({ target, label, icon, suffix, started }: { target: number; label: string; icon: string; suffix: string; started: boolean }) {
+function StatCard({ target, label, suffix, started, index }: { target: number; label: string; suffix: string; started: boolean; index: number }) {
   const value = useCountUp(target, started);
   return (
-    <div className="flex flex-col items-center gap-2 p-6">
-      <span className="text-3xl">{icon}</span>
-      <div className="text-4xl font-extrabold text-white tabular-nums tracking-tight">
-        {value}{suffix}
+    <div className="flex flex-col gap-3 py-10 px-6 sm:px-10 border-line [&:not(:first-child)]:border-t sm:[&:not(:first-child)]:border-t-0 sm:[&:not(:first-child)]:border-l">
+      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-e">0{index + 1}</span>
+      <div className="font-display text-5xl sm:text-6xl text-heading tabular-nums leading-none">
+        {value}<span className="text-accent">{suffix}</span>
       </div>
-      <div className="text-sm font-medium text-teal-100 dark:text-teal-200 text-center leading-snug uppercase tracking-wide">{label}</div>
+      <div className="text-sm text-body leading-snug">{label}</div>
     </div>
   );
 }
@@ -61,12 +61,11 @@ export default function StatsBanner() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-gradient-to-r from-teal-800 via-teal-700 to-teal-800 dark:from-teal-900 dark:via-teal-800 dark:to-teal-900 py-16 px-4 overflow-hidden">
-      <div className="absolute inset-0 opacity-10" aria-hidden="true" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px'}} />
-      <div className="relative max-w-5xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y divide-teal-600/40 md:divide-y-0 border border-teal-600/40 rounded-3xl overflow-hidden bg-white/5 dark:bg-black/10 backdrop-blur-sm">
-          {STATS.map((s) => (
-            <StatCard key={s.key} target={s.target} label={t(s.key as any)} icon={s.icon} suffix={s.suffix} started={started} />
+    <section ref={sectionRef} className="py-16 sm:py-20">
+      <div className="container-page">
+        <div className="grid sm:grid-cols-4 border border-line rounded-3xl overflow-hidden bg-card">
+          {STATS.map((s, i) => (
+            <StatCard key={s.key} index={i} target={s.target} label={t(s.key as any)} suffix={s.suffix} started={started} />
           ))}
         </div>
       </div>

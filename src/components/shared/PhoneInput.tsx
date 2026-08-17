@@ -136,43 +136,43 @@ export default function PhoneInput({ onChange, className, required }: Props) {
         <button
           type="button"
           onClick={() => setOpen(o => !o)}
-          className="h-full flex items-center gap-1 px-2.5 border border-gray-300 dark:border-gray-600 border-r-0 rounded-l-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm"
+          className="h-full flex items-center gap-1 px-2.5 border border-line border-r-0 rounded-l-xl bg-card hover:bg-soft transition-colors text-sm"
         >
           <span>{country.flag}</span>
-          <span className="text-gray-700 dark:text-gray-300 font-medium text-xs whitespace-nowrap">+{country.dial}</span>
-          <svg className="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <span className="text-body font-medium text-xs whitespace-nowrap">+{country.dial}</span>
+          <svg className="w-3 h-3 text-muted-e flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
         {open && (
-          <div className="absolute z-50 top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
-            <div className="p-2 border-b border-gray-100 dark:border-gray-700">
+          <div className="absolute z-50 top-full left-0 mt-2 w-64 bg-card border border-card rounded-2xl shadow-xl shadow-black/10 overflow-hidden">
+            <div className="p-2 border-b border-line">
               <input
                 ref={searchRef}
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Qidirish..."
-                className="w-full text-sm px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full text-sm px-3 py-1.5 rounded-lg border border-line bg-soft text-heading focus:outline-none focus:border-[var(--accent)] transition-colors"
               />
             </div>
             <ul className="overflow-y-auto max-h-56">
               {filtered.length === 0 && (
-                <li className="px-4 py-3 text-sm text-gray-400 text-center">Topilmadi</li>
+                <li className="px-4 py-3 text-sm text-muted-e text-center">Topilmadi</li>
               )}
               {filtered.map(c => (
                 <li key={c.code}>
                   <button
                     type="button"
                     onClick={() => selectCountry(c)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors ${
-                      country.code === c.code ? 'bg-teal-50 dark:bg-teal-900/20' : ''
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-soft text-left transition-colors ${
+                      country.code === c.code ? 'bg-soft' : ''
                     }`}
                   >
                     <span className="text-base w-6 text-center">{c.flag}</span>
-                    <span className="flex-1 text-gray-800 dark:text-gray-200 truncate">{c.name}</span>
-                    <span className="text-gray-400 dark:text-gray-500 text-xs">+{c.dial}</span>
+                    <span className="flex-1 text-body truncate">{c.name}</span>
+                    <span className="text-muted-e text-xs">+{c.dial}</span>
                   </button>
                 </li>
               ))}
@@ -189,13 +189,13 @@ export default function PhoneInput({ onChange, className, required }: Props) {
           value={digits}
           onChange={handleInput}
           placeholder={'0'.repeat(country.digits)}
-          className={`w-full border border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2.5 pr-14 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:z-10 ${className || ''}`}
+          className={`w-full border border-line rounded-r-xl px-3 py-2.5 pr-14 text-sm text-heading bg-card focus:outline-none focus:border-[var(--accent)] focus:z-10 transition-colors ${className || ''}`}
         />
         <span className="absolute right-3 text-xs font-medium pointer-events-none select-none">
           {isComplete ? (
-            <span className="text-teal-600 dark:text-teal-400">✓</span>
+            <span className="text-accent">✓</span>
           ) : (
-            <span className="text-gray-400">{digits.length}/{country.digits}</span>
+            <span className="text-muted-e">{digits.length}/{country.digits}</span>
           )}
         </span>
       </div>

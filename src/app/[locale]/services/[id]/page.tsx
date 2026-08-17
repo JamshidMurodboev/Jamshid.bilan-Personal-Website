@@ -73,89 +73,93 @@ export default async function ServiceDetailPage({ params: { locale, id } }: { pa
   ]);
 
   return (
-    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-page py-12 sm:py-16">
+      <article className="max-w-3xl mx-auto px-5 sm:px-8">
         <PageNav backHref={`/${locale}/services`} />
         <ActivityTracker entityType="service" entityId={svc.id} entityName={name} />
 
+        <header className="mt-8 mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="display text-4xl sm:text-5xl">{name}</h1>
+            <div className="flex items-center gap-2 flex-shrink-0 pt-1.5">
+              <FavouriteButton entityType="service" entityId={svc.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/services/${(svc as any).slug ?? svc.id}`} title={name} entityType="service" entityId={svc.id} entityName={svc.name_uz} />
+            </div>
+          </div>
+        </header>
+
         {svc.photo_url && (
-          <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-6 mt-4">
+          <div className="relative w-full aspect-[16/9] rounded-3xl overflow-hidden border border-line bg-soft mb-10">
             <Image src={svc.photo_url} alt={name} fill className="object-cover" />
           </div>
         )}
 
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{name}</h1>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <FavouriteButton entityType="service" entityId={svc.id} />
-            <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/services/${(svc as any).slug ?? svc.id}`} title={name} entityType="service" entityId={svc.id} entityName={svc.name_uz} />
-          </div>
-        </div>
-
         {description && (
-          <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-8 leading-relaxed text-base">{description}</div>
+          <div className="text-body whitespace-pre-line mb-12 leading-relaxed text-base sm:text-lg">{description}</div>
         )}
 
         {(scholarships?.length ?? 0) > 0 && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedScholarships')}</h2>
+          <section className="rule pt-8 mb-12">
+            <p className="eyebrow mb-5">{t('linkedScholarships')}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {(scholarships ?? []).map((sch: any) => (
                 <Link key={sch.id} href={`/${locale}/scholarships/${sch.slug ?? sch.id}`}
-                  className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
-                  <div className="p-3">
-                    <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{sch.title}</p>
-                    {sch.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sch.country}</p>}
-                    {sch.status && <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">{sch.status}</span>}
+                  className="card-e overflow-hidden group flex flex-col">
+                  <div className="p-4">
+                    <p className="font-display text-sm text-heading leading-snug line-clamp-2 group-hover:text-accent transition-colors">{sch.title}</p>
+                    {sch.country && <p className="text-xs text-muted-e mt-1">{sch.country}</p>}
+                    {sch.status && <span className="chip mt-2">{sch.status}</span>}
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {(universities?.length ?? 0) > 0 && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedUniversities')}</h2>
+          <section className="rule pt-8 mb-12">
+            <p className="eyebrow mb-5">{t('linkedUniversities')}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {(universities ?? []).map((u: any) => (
                 <Link key={u.id} href={`/${locale}/universities/${u.slug ?? u.id}`}
-                  className="bg-white dark:bg-[#161b22] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition flex flex-col">
-                  <div className="p-3">
-                    <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">{u.name}</p>
-                    {u.country && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{u.country}</p>}
+                  className="card-e overflow-hidden group flex flex-col">
+                  <div className="p-4">
+                    <p className="font-display text-sm text-heading leading-snug line-clamp-2 group-hover:text-accent transition-colors">{u.name}</p>
+                    {u.country && <p className="text-xs text-muted-e mt-1">{u.city ? `${u.city}, ` : ''}{u.country}</p>}
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {(results?.length ?? 0) > 0 && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('linkedResults')}</h2>
+          <section className="rule pt-8 mb-12">
+            <p className="eyebrow mb-5">{t('linkedResults')}</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {(results ?? []).map((r: any) => (
                 <StudentCard key={r.id} result={r} locale={locale} hidePhoto={true} />
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {price && (
-          <div className="inline-flex items-center gap-2 mb-2 bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 px-4 py-2 rounded-xl font-semibold text-lg">
-            <span className="font-normal text-base opacity-70">{t('price')}:</span>
-            {price}
-          </div>
-        )}
-        {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{note}</p> : null; })()}
-        <ServiceContactButtons
-          serviceContext={svc.name_uz}
-          applyLabel={t('applyNow')}
-          askLabel={t('askQuestion')}
-          preselectedTarget={`Xizmat: ${(svc as any)[`name_${locale}`] || svc.name_uz}`}
-        />
-      </div>
+        <footer className="rule pt-8">
+          {price && (
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-e">{t('price')}</span>
+              <span className="font-display text-3xl text-heading">{price}</span>
+            </div>
+          )}
+          {(() => { const note = (svc as any)[`price_note_${locale}`] || (svc as any).price_note_uz; return note ? <p className="text-sm text-muted-e mb-6">{note}</p> : null; })()}
+          <ServiceContactButtons
+            serviceContext={svc.name_uz}
+            applyLabel={t('applyNow')}
+            askLabel={t('askQuestion')}
+            preselectedTarget={`Xizmat: ${(svc as any)[`name_${locale}`] || svc.name_uz}`}
+          />
+        </footer>
+      </article>
     </div>
   );
 }

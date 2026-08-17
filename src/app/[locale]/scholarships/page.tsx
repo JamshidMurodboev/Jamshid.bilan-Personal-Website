@@ -48,42 +48,49 @@ export default function ScholarshipsPage() {
   }), [scholarships, search, country, status, category]);
 
   return (
-    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageNav backHref={`/${locale}#scholarships`} />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
-        <div className="flex flex-col lg:flex-row gap-6">
-          <aside className="lg:w-60 flex-shrink-0">
-            <ScholarshipFilters
-              search={search} onSearch={setSearch}
-              country={country} onCountry={setCountry}
-              status={status} onStatus={setStatus}
-              category={category} onCategory={setCategory}
-              countries={countries}
-            />
-          </aside>
-          <div className="flex-1">
-            {loading ? (
-              <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
-            ) : fetchError ? (
-              <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
-            ) : filtered.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
-            ) : (
-              <>
-                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}
-                </div>
-                <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 px-5 py-4 text-sm text-teal-700 dark:text-teal-300">
-                  <span className="text-lg">🚀</span>
-                  {t('moreComing')}
-                </div>
-              </>
-            )}
+    <div className="min-h-screen bg-page">
+      {/* Page hero */}
+      <section className="pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-line">
+        <div className="container-page">
+          <PageNav backHref={`/${locale}#scholarships`} />
+          <h1 className="display text-5xl sm:text-6xl mt-6 mb-4 anim-fade-up">{t('pageTitle')}</h1>
+          <p className="text-lg text-body max-w-2xl anim-fade-up anim-delay-1">{t('pageSubtitle')}</p>
+        </div>
+      </section>
+
+      <section className="py-10 sm:py-14">
+        <div className="container-page">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <aside className="lg:w-64 flex-shrink-0">
+              <ScholarshipFilters
+                search={search} onSearch={setSearch}
+                country={country} onCountry={setCountry}
+                status={status} onStatus={setStatus}
+                category={category} onCategory={setCategory}
+                countries={countries}
+              />
+            </aside>
+            <div className="flex-1">
+              {loading ? (
+                <div className="text-muted-e animate-pulse">{tc('loading')}</div>
+              ) : fetchError ? (
+                <p className="text-accent">{tc('error')}</p>
+              ) : filtered.length === 0 ? (
+                <p className="text-muted-e">{tc('noResults')}</p>
+              ) : (
+                <>
+                  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {filtered.map((s) => <ScholarshipCard key={s.id} scholarship={s} locale={locale} />)}
+                  </div>
+                  <p className="mt-12 pt-6 rule text-sm text-muted-e">
+                    {t('moreComing')}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

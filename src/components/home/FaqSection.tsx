@@ -69,30 +69,44 @@ export default function FaqSection() {
   }
 
   return (
-    <section className="py-16 px-4 bg-white dark:bg-[#0d1117]">
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-6">{t('title')}</h2>
-        <div className="space-y-2">
-          {items.map((item) => {
-            const isOpen = openId === item.id;
-            return (
-              <div key={item.id} className="bg-gray-50 dark:bg-[#161b22] border border-[#e2e8f0] dark:border-[#21262d] rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setOpenId(isOpen ? null : item.id)}
-                  className="w-full flex items-center justify-between text-left px-5 py-4 text-[#0f172a] dark:text-[#e6edf3] font-medium"
-                >
-                  <span>{field(item, 'question')}</span>
-                  <span className={`transition-transform duration-200 text-[#64748b] dark:text-[#8b949e] ${isOpen ? 'rotate-180' : ''}`}>⌄</span>
-                </button>
-                <div
-                  className="px-5 overflow-hidden transition-all duration-300 ease-in-out text-[#64748b] dark:text-[#8b949e] text-sm"
-                  style={{ maxHeight: isOpen ? '20rem' : '0px', paddingBottom: isOpen ? '1rem' : '0px' }}
-                >
-                  {field(item, 'answer')}
+    <section className="section-pad bg-soft border-t border-line">
+      <div className="container-page">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-12">
+            <p className="eyebrow mb-4">FAQ</p>
+            <h2 className="display text-4xl sm:text-5xl">{t('title')}</h2>
+          </div>
+
+          <div className="border-t border-line">
+            {items.map((item) => {
+              const isOpen = openId === item.id;
+              return (
+                <div key={item.id} className="border-b border-line">
+                  <button
+                    onClick={() => setOpenId(isOpen ? null : item.id)}
+                    aria-expanded={isOpen}
+                    className="w-full flex items-center justify-between gap-6 text-left py-5 group"
+                  >
+                    <span className="font-display text-lg sm:text-xl text-heading leading-snug group-hover:text-accent transition-colors">
+                      {field(item, 'question')}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 flex-shrink-0 text-muted-e transition-transform duration-300 ${isOpen ? 'rotate-45 text-accent' : ''}`}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+                    </svg>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-in-out text-sm text-body leading-relaxed"
+                    style={{ maxHeight: isOpen ? '20rem' : '0px', paddingBottom: isOpen ? '1.25rem' : '0px' }}
+                  >
+                    <p className="max-w-xl">{field(item, 'answer')}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

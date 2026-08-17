@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import PhoneInput from '@/components/shared/PhoneInput';
 
-const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500';
+const inp = 'w-full px-4 py-3 rounded-xl border border-line bg-card text-heading text-sm focus:outline-none focus:border-[var(--accent)] transition-colors';
+const lbl = 'block text-xs font-bold uppercase tracking-widest text-muted-e mb-1.5';
 
 export default function BookingPage() {
   const t = useTranslations('booking');
@@ -49,30 +50,34 @@ export default function BookingPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] flex items-center justify-center px-4">
-        <div className="bg-white dark:bg-[#161b22] rounded-2xl border border-[#e2e8f0] dark:border-[#21262d] p-10 text-center max-w-md w-full">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('successTitle')}</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">{t('successDesc')}</p>
+      <main className="min-h-screen bg-page flex items-center justify-center px-5">
+        <div className="card-e p-10 sm:p-12 text-center max-w-md w-full anim-fade-up">
+          <div className="w-14 h-14 mx-auto mb-6 rounded-full border border-line flex items-center justify-center text-accent" aria-hidden="true">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="font-display text-2xl text-heading mb-3">{t('successTitle')}</h2>
+          <p className="text-muted-e text-sm">{t('successDesc')}</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-16 px-4">
+    <main className="min-h-screen bg-page py-16 sm:py-24 px-5">
       <div className="max-w-xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">{t('pageSubtitle')}</p>
+        <div className="mb-10">
+          <h1 className="display text-4xl sm:text-5xl mb-4">{t('pageTitle')}</h1>
+          <p className="text-body text-sm sm:text-base">{t('pageSubtitle')}</p>
         </div>
 
-        <div className="bg-white dark:bg-[#161b22] rounded-2xl border border-[#e2e8f0] dark:border-[#21262d] p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 rounded-xl px-4 py-3">{error}</div>}
+        <div className="bg-card border border-card rounded-3xl p-6 sm:p-10">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <div className="text-red-600 dark:text-red-400 text-sm border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 rounded-xl px-4 py-3">{error}</div>}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('name')} *</label>
+              <label className={lbl}>{t('name')} *</label>
               <input
                 required
                 value={form.name}
@@ -83,7 +88,7 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('phone')} *</label>
+              <label className={lbl}>{t('phone')} *</label>
               <PhoneInput
                 required
                 onChange={(phone, valid) => setForm({...form, phone, phoneValid: valid})}
@@ -91,7 +96,7 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('topic')}</label>
+              <label className={lbl}>{t('topic')}</label>
               <textarea
                 rows={3}
                 value={form.topic}
@@ -101,9 +106,9 @@ export default function BookingPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('preferredDate')}</label>
+                <label className={lbl}>{t('preferredDate')}</label>
                 <input
                   type="date"
                   min={today}
@@ -113,7 +118,7 @@ export default function BookingPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('preferredTime')}</label>
+                <label className={lbl}>{t('preferredTime')}</label>
                 <input
                   type="text"
                   value={form.preferred_time}
@@ -127,7 +132,7 @@ export default function BookingPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-xl disabled:opacity-60 transition mt-2"
+              className="btn-accent w-full disabled:opacity-60 mt-2"
             >
               {submitting ? '...' : t('submit')}
             </button>

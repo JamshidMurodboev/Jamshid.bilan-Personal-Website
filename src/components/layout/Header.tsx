@@ -29,15 +29,15 @@ function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label="Toggle dark mode"
-      className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+      className="w-9 h-9 flex items-center justify-center rounded-full text-muted-e hover:text-accent transition-colors"
     >
       {dark ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
         </svg>
       ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
       )}
     </button>
@@ -94,22 +94,23 @@ function LanguageDropdown() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="Switch language"
-        className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        className="h-9 px-2.5 flex items-center gap-1 rounded-full text-xs font-bold uppercase tracking-widest text-muted-e hover:text-accent transition-colors"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        {locale}
+        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+        <div className="absolute right-0 mt-3 w-36 bg-card border border-card rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50">
           {LOCALES.map((l) => (
             <button
               key={l.code}
               onClick={() => switchLocale(l.code)}
-              className={`w-full text-left px-4 py-2.5 text-sm transition ${
+              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                 locale === l.code
-                  ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'text-accent font-bold'
+                  : 'text-body hover:text-heading'
               }`}
             >
               {l.label}
@@ -145,24 +146,24 @@ function AvatarMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 rounded-full overflow-hidden border-2 border-teal-500 hover:opacity-80 transition flex items-center justify-center bg-teal-100 dark:bg-teal-900"
+        className="w-9 h-9 rounded-full overflow-hidden border border-line hover:border-accent transition-colors flex items-center justify-center bg-soft"
       >
         {user.photoDataUrl
           ? <img src={user.photoDataUrl} alt={user.fullName} className="w-full h-full object-cover" />
-          : <span className="text-xs font-bold text-teal-700 dark:text-teal-300">{initials}</span>
+          : <span className="text-xs font-bold text-heading">{initials}</span>
         }
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-          <p className="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700 truncate">{user.fullName}</p>
+        <div className="absolute right-0 mt-3 w-44 bg-card border border-card rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50">
+          <p className="px-4 py-2.5 text-xs text-muted-e border-b border-card truncate">{user.fullName}</p>
           <Link
             href={`/${locale}/profile`}
             onClick={() => setOpen(false)}
-            className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            className="block px-4 py-2.5 text-sm text-body hover:text-heading transition-colors"
           >{t('profile')}</Link>
           <button
             onClick={async () => { await logout(); setOpen(false); router.push(`/${locale}`); }}
-            className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+            className="w-full text-left px-4 py-2.5 text-sm text-accent hover:opacity-70 transition-opacity"
           >{t('logout')}</button>
         </div>
       )}
@@ -219,101 +220,88 @@ function HeaderInner() {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-800'
+            ? 'bg-page/90 backdrop-blur-md border-b border-line'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link href={`/${locale}`} className="font-bold text-[#0d9488] dark:text-[#2dd4bf] text-lg">
-            Jamshid.bilan
+        <div className="container-page flex items-center justify-between h-[72px]">
+          <Link href={`/${locale}`} className="font-display text-[22px] text-heading tracking-tight">
+            Jamshid<span className="text-accent">.</span>bilan
           </Link>
 
-          <nav className="hidden md:flex items-center gap-5">
+          <nav className="hidden lg:flex items-center gap-7">
             {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-teal-700 dark:hover:text-teal-400 transition"
+                className="link-underline text-[13px] font-semibold tracking-wide"
               >
                 {l.label}
               </Link>
             ))}
-            <div className="flex items-center gap-1 ml-2">
+            <div className="flex items-center gap-2 ml-3 pl-5 border-l border-line">
               <LanguageDropdown />
               <ThemeToggle />
-              <button
-                onClick={() => setContactOpen(true)}
-                className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition ml-1"
-              >
-                {t('contact')}
-              </button>
               {user ? (
                 <AvatarMenu />
               ) : (
-                <div className="flex items-center gap-1 ml-1">
-                  <button
-                    onClick={() => setAuthModal({ open: true, tab: 'signin' })}
-                    className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-teal-700 dark:hover:text-teal-400 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                  >{tAuth('signIn')}</button>
-                  <button
-                    onClick={() => setAuthModal({ open: true, tab: 'signup' })}
-                    className="text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white px-3 py-1.5 rounded-lg transition"
-                  >{tAuth('signUp')}</button>
-                </div>
+                <button
+                  onClick={() => setAuthModal({ open: true, tab: 'signin' })}
+                  className="text-[13px] font-semibold text-body hover:text-heading px-2 transition-colors"
+                >{tAuth('signIn')}</button>
               )}
+              <button
+                onClick={() => setContactOpen(true)}
+                className="btn-ink !px-5 !py-2.5 text-[13px]"
+              >
+                {t('contact')}
+              </button>
             </div>
           </nav>
 
-          <div className="md:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-1">
             <LanguageDropdown />
             <ThemeToggle />
-            {user ? <AvatarMenu /> : (
-              <button
-                onClick={() => setAuthModal({ open: true, tab: 'signin' })}
-                className="text-sm font-medium text-teal-700 dark:text-teal-400 px-3 py-2.5 min-h-[44px] flex items-center"
-              >{tAuth('signIn')}</button>
-            )}
+            {user && <AvatarMenu />}
             <button
-              className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+              aria-label="Menu"
+              className="w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full"
               onClick={() => setOpen(!open)}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <span className={`block w-5 h-[1.5px] bg-current text-heading transition-transform duration-300 ${open ? 'rotate-45 translate-y-[6.5px]' : ''}`} />
+              <span className={`block w-5 h-[1.5px] bg-current text-heading transition-opacity duration-300 ${open ? 'opacity-0' : ''}`} />
+              <span className={`block w-5 h-[1.5px] bg-current text-heading transition-transform duration-300 ${open ? '-rotate-45 -translate-y-[6.5px]' : ''}`} />
             </button>
           </div>
         </div>
 
         {open && (
-          <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-4 py-3 flex flex-col gap-2">
-            {links.map((l) => (
+          <div className="lg:hidden bg-page border-t border-line px-6 py-6 flex flex-col gap-1">
+            {links.map((l, i) => (
               <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-sm font-medium text-gray-700 dark:text-gray-200 py-2 hover:text-teal-700 dark:hover:text-teal-400 transition"
+                className="font-display text-2xl text-heading py-2 hover:text-accent transition-colors anim-fade-up"
+                style={{ animationDelay: `${i * 0.05}s` }}
               >
                 {l.label}
               </Link>
             ))}
-            <button
-              onClick={() => { setOpen(false); setContactOpen(true); }}
-              className="text-left text-sm font-semibold text-teal-700 dark:text-teal-400 py-2"
-            >
-              {t('contact')}
-            </button>
-            {!user && (
-              <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex gap-3 pt-5 mt-3 border-t border-line">
+              <button
+                onClick={() => { setOpen(false); setContactOpen(true); }}
+                className="btn-ink flex-1"
+              >
+                {t('contact')}
+              </button>
+              {!user && (
                 <button
                   onClick={() => { setOpen(false); setAuthModal({ open: true, tab: 'signin' }); }}
-                  className="flex-1 text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  className="btn-ghost flex-1"
                 >{tAuth('signIn')}</button>
-                <button
-                  onClick={() => { setOpen(false); setAuthModal({ open: true, tab: 'signup' }); }}
-                  className="flex-1 text-sm font-semibold bg-teal-700 text-white py-2 rounded-lg hover:bg-teal-800 transition"
-                >{tAuth('signUp')}</button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </header>

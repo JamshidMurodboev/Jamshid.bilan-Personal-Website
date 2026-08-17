@@ -23,8 +23,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f0f9f8] dark:bg-[#0d1117] px-4">
-        <p className="text-gray-500 dark:text-gray-400 text-sm">{t('loginRequiredDesc')}</p>
+      <div className="min-h-screen flex items-center justify-center bg-page px-4">
+        <p className="text-muted-e text-sm">{t('loginRequiredDesc')}</p>
       </div>
     );
   }

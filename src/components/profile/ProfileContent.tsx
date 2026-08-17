@@ -120,34 +120,35 @@ export default function ProfileContent() {
 
   const initials = user.fullName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
 
-  const inputCls = 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500';
+  const inputCls = 'w-full px-4 py-3 rounded-xl border border-line bg-card text-heading text-sm focus:outline-none focus:border-[var(--accent)] transition-colors';
+  const labelCls = 'block text-xs font-bold uppercase tracking-widest text-muted-e mb-1.5';
 
   return (
-    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12 px-4">
+    <div className="min-h-screen bg-page py-12 sm:py-16 px-5">
       <div className="max-w-lg mx-auto">
         <PageNav />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('profile')}</h1>
+        <h1 className="display text-3xl sm:text-4xl mt-6 mb-8">{t('profile')}</h1>
 
-        <form onSubmit={save} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-5 mb-6">
+        <form onSubmit={save} className="card-e p-6 sm:p-8 space-y-6 mb-6">
           <div className="flex justify-center">
-            <button type="button" onClick={() => fileRef.current?.click()} className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-dashed border-teal-400 hover:opacity-80 transition">
+            <button type="button" onClick={() => fileRef.current?.click()} className="relative w-24 h-24 rounded-full overflow-hidden border border-line hover:border-[var(--accent)] transition-colors">
               {photo
                 ? <img src={photo} alt="avatar" className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-300 text-2xl font-bold">{initials}</div>
+                : <div className="w-full h-full bg-soft flex items-center justify-center text-heading font-display text-2xl">{initials}</div>
               }
             </button>
             <input ref={fileRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={handlePhoto} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('fullName')}</label>
+            <label className={labelCls}>{t('fullName')}</label>
             <input type="text" required value={name} onChange={e => setName(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('dob')}</label>
+            <label className={labelCls}>{t('dob')}</label>
             <DateInput value={dob} onChange={setDob} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('gender')}</label>
+            <label className={labelCls}>{t('gender')}</label>
             <select required value={gender} onChange={e => setGender(e.target.value)} className={inputCls}>
               <option value="" disabled>{t('gender')}</option>
               <option value="male">{t('genderMale')}</option>
@@ -156,12 +157,12 @@ export default function ProfileContent() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('phone')}</label>
+            <label className={labelCls}>{t('phone')}</label>
             <input type="tel" required value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('certLabel')}</label>
+            <label className={labelCls}>{tp('certLabel')}</label>
             <div className="flex flex-col sm:flex-row gap-2">
               <select value={certType} onChange={e => { setCertType(e.target.value); if (!e.target.value) setCertScore(''); }} className={inputCls}>
                 <option value="">{tp('selectCert')}</option>
@@ -173,43 +174,43 @@ export default function ProfileContent() {
                   placeholder={tp('scorePlaceholder')}
                   value={certScore}
                   onChange={e => setCertScore(e.target.value)}
-                  className={`${inputCls} w-28`}
+                  className={`${inputCls} sm:w-28`}
                 />
               )}
             </div>
           </div>
 
-          <p className="text-sm text-gray-500 dark:text-gray-400">Email: {user.email}</p>
+          <p className="text-sm text-muted-e">Email: {user.email}</p>
           <div className="flex gap-3">
-            <button type="submit" className="flex-1 bg-teal-700 hover:bg-teal-800 text-white py-3 rounded-xl font-semibold text-sm transition">
+            <button type="submit" className="btn-ink flex-1">
               {saved ? `${t('saved')} ✓` : t('save')}
             </button>
             <button type="button" onClick={async () => { await logout(); router.push(`/${locale}`); }}
-              className="px-5 py-3 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+              className="px-6 py-3 rounded-full text-sm font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
               {t('logout')}
             </button>
           </div>
         </form>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-4">{t('savedItems')}</h2>
+        <div className="card-e p-6 sm:p-8 mb-6">
+          <h2 className="font-display text-xl text-heading mb-5">{t('savedItems')}</h2>
           {savedLoading ? (
-            <p className="text-sm text-gray-400 animate-pulse">{tc('loading')}</p>
+            <p className="text-sm text-muted-e animate-pulse">{tc('loading')}</p>
           ) : savedItems.length === 0 ? (
-            <p className="text-sm text-gray-400">Saqlangan elementlar yo&apos;q</p>
+            <p className="text-sm text-muted-e">Saqlangan elementlar yo&apos;q</p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {savedItems.map(item => (
                 <li key={`${item.entity_type}:${item.entity_id}`}>
                   {item.href ? (
-                    <Link href={item.href} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 capitalize flex-shrink-0">{item.entity_type}</span>
-                      <span className="text-sm text-gray-800 dark:text-gray-200 line-clamp-1">{item.label}</span>
+                    <Link href={item.href} className="flex items-center gap-3 p-3 rounded-xl hover:bg-soft transition-colors">
+                      <span className="chip capitalize flex-shrink-0">{item.entity_type}</span>
+                      <span className="text-sm text-body line-clamp-1">{item.label}</span>
                     </Link>
                   ) : (
                     <div className="flex items-center gap-3 p-3">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 capitalize">{item.entity_type}</span>
-                      <span className="text-sm text-gray-800 dark:text-gray-200">{item.label || item.entity_id}</span>
+                      <span className="chip capitalize flex-shrink-0">{item.entity_type}</span>
+                      <span className="text-sm text-body">{item.label || item.entity_id}</span>
                     </div>
                   )}
                 </li>
@@ -218,23 +219,23 @@ export default function ProfileContent() {
           )}
         </div>
 
-        <form onSubmit={handlePasswordChange} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">{tp('changePassword')}</h2>
+        <form onSubmit={handlePasswordChange} className="card-e p-6 sm:p-8 space-y-5">
+          <h2 className="font-display text-xl text-heading">{tp('changePassword')}</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('currentPassword')}</label>
+            <label className={labelCls}>{tp('currentPassword')}</label>
             <input type="password" required value={currentPw} onChange={e => setCurrentPw(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('newPassword')}</label>
+            <label className={labelCls}>{tp('newPassword')}</label>
             <input type="password" required value={newPw} onChange={e => setNewPw(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tp('confirmPassword')}</label>
+            <label className={labelCls}>{tp('confirmPassword')}</label>
             <input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)} className={inputCls} />
           </div>
           {pwError && <p className="text-sm text-red-600 dark:text-red-400">{pwError}</p>}
-          <button type="submit" className="w-full bg-gray-800 hover:bg-gray-900 dark:bg-gray-600 dark:hover:bg-gray-500 text-white py-3 rounded-xl font-semibold text-sm transition">
-              {pwSaved ? `${tp('passwordSaved')} ✓` : tp('savePassword')}
+          <button type="submit" className="btn-ghost w-full">
+            {pwSaved ? `${tp('passwordSaved')} ✓` : tp('savePassword')}
           </button>
         </form>
       </div>
