@@ -11,7 +11,6 @@ const SAMPLE_NEWS: NewsPost[] = [
 export default async function NewsPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'nav' });
-  const hs = await getTranslations({ locale, namespace: 'homeSections.news' });
 
   let news: NewsPost[] = SAMPLE_NEWS;
   try {
@@ -21,25 +20,14 @@ export default async function NewsPage({ params: { locale } }: { params: { local
   } catch {}
 
   return (
-    <div className="min-h-screen bg-page">
-      {/* Page hero */}
-      <section className="pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-line">
-        <div className="container-page">
-          <PageNav backHref={`/${locale}#news`} />
-          <p className="eyebrow mb-4 mt-4">{hs('title')}</p>
-          <h1 className="display text-5xl sm:text-6xl mb-4">{t('news')}</h1>
-          <p className="text-lg text-body max-w-2xl">{hs('subtitle')}</p>
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageNav backHref={`/${locale}#news`} />
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('news')}</h1>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {news.map((n) => <NewsCard key={n.id} post={n} locale={locale} />)}
         </div>
-      </section>
-
-      {/* Articles */}
-      <section className="py-12 sm:py-16">
-        <div className="container-page">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((n) => <NewsCard key={n.id} post={n} locale={locale} />)}
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

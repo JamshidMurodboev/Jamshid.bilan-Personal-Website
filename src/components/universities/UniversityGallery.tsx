@@ -8,7 +8,7 @@ export default function UniversityGallery({ photos, name }: { photos: string[]; 
 
   return (
     <div className="mt-4 mb-6">
-      <div className="relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-line bg-soft">
+      <div className="relative w-full h-72 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800">
         <Image src={photos[active]} alt={name} fill className="object-cover transition-opacity duration-200" />
       </div>
       {photos.length > 1 && (
@@ -18,11 +18,10 @@ export default function UniversityGallery({ photos, name }: { photos: string[]; 
               key={i}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`${name} ${i + 1}`}
-              className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border transition ${
+              className={`relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition ${
                 active === i
-                  ? 'border-[var(--accent)]'
-                  : 'border-line opacity-70 hover:opacity-100 hover:border-[var(--accent)]'
+                  ? 'border-teal-500 ring-2 ring-teal-500/30'
+                  : 'border-transparent opacity-70 hover:opacity-100 hover:border-teal-300'
               }`}
             >
               <Image src={url} alt={`${name} ${i + 1}`} fill className="object-cover" />

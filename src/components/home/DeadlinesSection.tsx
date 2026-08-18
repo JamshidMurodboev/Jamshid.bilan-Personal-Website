@@ -81,39 +81,31 @@ export default function DeadlinesSection() {
   if (!loaded || items.length === 0) return null;
 
   return (
-    <section className="section-pad">
-      <div className="container-page">
-        <div className="mb-12">
-          <p className="eyebrow mb-4">04</p>
-          <h2 className="display text-4xl sm:text-5xl">{t('title')}</h2>
-        </div>
-
-        {/* Editorial deadline ledger */}
-        <div className="border-t border-line">
+    <section className="py-16 px-4 bg-[#f0f9f8] dark:bg-[#0d1117]">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('title')}</h2>
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {items.map(item => {
             const days = daysLeft(item.deadline_date);
             const ended = days < 0;
             const urgent = days >= 0 && days <= 7;
             const today = days === 0;
             return (
-              <div key={item.id} className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-8 py-5 border-b border-line">
-                <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-e sm:w-44 flex-shrink-0">
-                  {formatDate(item.deadline_date, locale)}
-                </span>
-                <p className={`font-display text-lg leading-snug flex-1 ${ended ? 'text-muted-e' : 'text-heading'}`}>
-                  {item.title}
-                </p>
-                <span className={`text-sm font-semibold whitespace-nowrap ${ended ? 'text-muted-e' : urgent ? 'text-accent' : 'text-body'}`}>
+              <div key={item.id} className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 flex flex-col gap-3 shadow-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{item.title}</p>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 flex-shrink-0">
+                    {item.source_type === 'scholarship' ? '🎓' : '🏛️'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(item.deadline_date, locale)}</p>
+                <p className={`text-sm font-bold ${ended ? 'text-gray-400' : urgent ? 'text-red-500 dark:text-red-400' : 'text-teal-700 dark:text-teal-400'}`}>
                   {ended ? t('ended') : today ? t('today') : t('daysLeft', { days })}
-                </span>
+                </p>
                 {item.url && !ended && (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="arrow-link text-xs uppercase tracking-widest whitespace-nowrap"
-                  >
-                    {t('apply')}<span className="arr">→</span>
+                  <a href={item.url} target="_blank" rel="noopener noreferrer"
+                    className="mt-auto text-center text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white py-2 rounded-xl transition">
+                    {t('apply')}
                   </a>
                 )}
               </div>

@@ -1,6 +1,5 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import Select from '@/components/shared/Select';
 
 interface Props {
   search: string; onSearch: (v: string) => void;
@@ -10,63 +9,48 @@ interface Props {
   countries: string[];
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-xl border border-line bg-card text-heading text-sm focus:outline-none focus:border-[var(--accent)] transition-colors';
-const labelClass = 'text-xs font-bold uppercase tracking-widest text-muted-e block mb-1.5';
-
 export default function ScholarshipFilters({ search, onSearch, country, onCountry, status, onStatus, category, onCategory, countries }: Props) {
   const t = useTranslations('filters');
   const tc = useTranslations('common');
   const hasFilter = !!(search || country || status || category);
 
   return (
-    <div className="bg-card border border-card rounded-[1.25rem] p-5">
-      <h3 className="font-display text-lg text-heading mb-4">{t('title')}</h3>
-      <div className="space-y-4">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <h3 className="font-semibold text-gray-800 dark:text-white mb-3 text-sm">{t('title')}</h3>
+      <div className="space-y-3">
         <div>
-          <label className={labelClass}>{t('search')}</label>
-          <input type="text" value={search} onChange={(e) => onSearch(e.target.value)} placeholder={t('grantPlaceholder')} className={inputClass} />
+          <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">{t('search')}</label>
+          <input type="text" value={search} onChange={(e) => onSearch(e.target.value)} placeholder={t('grantPlaceholder')} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700" />
         </div>
         <div>
-          <label className={labelClass}>{t('country')}</label>
-          <Select
-            value={country}
-            onChange={onCountry}
-            aria-label={t('country')}
-            options={[{ value: '', label: t('all') }, ...countries.map(c => ({ value: c, label: c }))]}
-          />
+          <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">{t('country')}</label>
+          <select value={country} onChange={(e) => onCountry(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700">
+            <option value="">{t('all')}</option>
+            {countries.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
         <div>
-          <label className={labelClass}>{t('funding')}</label>
-          <Select
-            value={category}
-            onChange={onCategory}
-            aria-label={t('funding')}
-            options={[
-              { value: '', label: t('all') },
-              { value: 'fully_funded', label: t('fullyFunded') },
-              { value: 'partially_funded', label: t('partiallyFunded') },
-              { value: 'self_funded', label: t('selfFunded') },
-            ]}
-          />
+          <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">{t('funding')}</label>
+          <select value={category} onChange={(e) => onCategory(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700">
+            <option value="">{t('all')}</option>
+            <option value="fully_funded">{t('fullyFunded')}</option>
+            <option value="partially_funded">{t('partiallyFunded')}</option>
+            <option value="self_funded">{t('selfFunded')}</option>
+          </select>
         </div>
         <div>
-          <label className={labelClass}>{t('status')}</label>
-          <Select
-            value={status}
-            onChange={onStatus}
-            aria-label={t('status')}
-            options={[
-              { value: '', label: t('all') },
-              { value: 'open', label: tc('open') },
-              { value: 'closed', label: tc('closed') },
-              { value: 'upcoming', label: tc('upcoming') },
-            ]}
-          />
+          <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">{t('status')}</label>
+          <select value={status} onChange={(e) => onStatus(e.target.value)} className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700">
+            <option value="">{t('all')}</option>
+            <option value="open">{tc('open')}</option>
+            <option value="closed">{tc('closed')}</option>
+            <option value="upcoming">{tc('upcoming')}</option>
+          </select>
         </div>
         {hasFilter && (
           <button
             onClick={() => { onSearch(''); onCountry(''); onStatus(''); onCategory(''); }}
-            className="w-full text-xs font-semibold text-accent hover:underline pt-1"
+            className="w-full text-xs text-teal-700 dark:text-teal-400 hover:underline pt-1"
           >
             {t('clearFilters')}
           </button>

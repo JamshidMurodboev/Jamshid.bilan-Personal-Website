@@ -19,7 +19,6 @@ export default function ResultsPage() {
   const params = useParams()
   const locale = (params?.locale as string) ?? 'uz'
   const t = useTranslations('results')
-  const hs = useTranslations('homeSections.results')
 
   const [results, setResults] = useState<StudentResult[]>(SAMPLE_RESULTS)
   const [activeFilter, setActiveFilter] = useState<CategoryFilter>('all')
@@ -46,74 +45,61 @@ export default function ResultsPage() {
     { key: 'tuition_based', label: t('categories.tuition_based') },
   ]
 
-  const stats = [
-    { label: t('stats.student'), value: studentsHelped, suffix: '+' },
-    { label: t('stats.country'), value: countriesCount, suffix: '+' },
-    { label: t('stats.year'), value: yearsActive, suffix: '+' },
-  ]
-
   return (
-    <div className="min-h-screen bg-page">
-      {/* Page hero */}
-      <section className="pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-line">
-        <div className="container-page">
-          <PageNav backHref={`/${locale}#results`} />
-          <p className="eyebrow mb-4 mt-4">{hs('title')}</p>
-          <h1 className="display text-5xl sm:text-6xl mb-4">{t('successStories')}</h1>
-          <p className="text-lg text-body max-w-2xl">{hs('subtitle')}</p>
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Stats */}
+        <PageNav backHref={`/${locale}#results`} />
+        <div className="grid grid-cols-3 gap-4 mb-12">
+          {[
+            { label: t('stats.student'), value: studentsHelped, suffix: '+' },
+            { label: t('stats.country'), value: countriesCount, suffix: '+' },
+            { label: t('stats.year'), value: yearsActive, suffix: '+' },
+          ].map((s) => (
+            <div key={s.label} className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="text-5xl font-extrabold text-teal-700 dark:text-teal-400 leading-none">{s.value}{s.suffix}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium uppercase tracking-wide">{s.label}</div>
+            </div>
+          ))}
         </div>
-      </section>
 
-      <section className="py-12 sm:py-16">
-        <div className="container-page">
-          {/* Stats */}
-          <div className="grid grid-cols-3 border border-line rounded-3xl overflow-hidden bg-card mb-14">
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex flex-col gap-2 py-8 px-4 sm:px-8 border-line [&:not(:first-child)]:border-l">
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-e">0{i + 1}</span>
-                <div className="font-display text-4xl sm:text-5xl text-heading tabular-nums leading-none">
-                  {s.value}<span className="text-accent">{s.suffix}</span>
-                </div>
-                <div className="text-sm text-body leading-snug">{s.label}</div>
-              </div>
-            ))}
-          </div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('successStories')}</h2>
 
-          {/* Category filter */}
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {filters.map(f => (
-              <button
-                key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className={
-                  activeFilter === f.key
-                    ? 'bg-ink text-[var(--bg)] rounded-full px-4 py-2 text-sm font-semibold'
-                    : 'border border-line text-body rounded-full px-4 py-2 text-sm hover:border-accent hover:text-accent transition-colors'
-                }
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Honor roll */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((r) => <StudentCard key={r.id} result={r} locale={locale} />)}
-          </div>
-
-          {(activeFilter === 'all' || activeFilter === 'scholarship_winner') && (
-            <p className="mt-10 rounded-2xl border border-line bg-soft px-5 py-4 text-sm text-body">
-              {t('moreScholarshipResults')}
-            </p>
-          )}
-
-          {(activeFilter === 'all' || activeFilter === 'tuition_based') && (
-            <p className="mt-4 rounded-2xl border border-line bg-soft px-5 py-4 text-sm text-body">
-              {t('tuitionNote')}
-            </p>
-          )}
+        {/* Category filter */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          {filters.map(f => (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeFilter === f.key
+                  ? 'bg-teal-700 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
-      </section>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((r) => <StudentCard key={r.id} result={r} locale={locale} />)}
+        </div>
+
+        {(activeFilter === 'all' || activeFilter === 'scholarship_winner') && (
+          <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 px-5 py-4 text-sm text-teal-700 dark:text-teal-300">
+            <span className="text-lg">🚀</span>
+            {t('moreScholarshipResults')}
+          </div>
+        )}
+
+        {(activeFilter === 'all' || activeFilter === 'tuition_based') && (
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-5 py-4 text-sm text-amber-700 dark:text-amber-300">
+            <span className="text-lg">📄</span>
+            {t('tuitionNote')}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

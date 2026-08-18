@@ -1,14 +1,13 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import type { NewsPost } from '@/lib/supabase/types';
 import { formatDate } from '@/lib/format';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function NewsCard({ post, locale: localeProp }: { post: NewsPost; locale?: string }) {
   const localeHook = useLocale();
-  const t = useTranslations('common');
   const locale = localeProp || localeHook;
   const title = (post as any)[`title_${locale}`] || post.title_uz;
   const body = (post as any)[`body_${locale}`] || post.body_uz;
@@ -16,23 +15,18 @@ export default function NewsCard({ post, locale: localeProp }: { post: NewsPost;
   return (
     <Link
       href={`/${locale}/news/${(post as any).slug ?? post.id}`}
-      className="card-e overflow-hidden group relative flex flex-col"
+      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 overflow-hidden"
     >
-      <FavouriteButton entityType="news" entityId={post.id} className="absolute top-3 right-3 z-10" />
+      <FavouriteButton entityType="news" entityId={post.id} className="absolute top-2 right-2 z-10" />
       {coverImage && (
-        <div className="relative aspect-[16/10] overflow-hidden bg-soft">
-          <Image src={coverImage} alt={title} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+        <div className="relative w-full aspect-[16/9]">
+          <Image src={coverImage} alt={title} fill className="object-cover rounded-t-2xl" />
         </div>
       )}
-      <div className="p-6 flex flex-col flex-1">
-        {post.published_at && (
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-e mb-3">{formatDate(post.published_at)}</p>
-        )}
-        <h3 className="font-display text-xl text-heading mb-2 leading-snug group-hover:text-accent transition-colors">{title}</h3>
-        <p className="text-sm text-body line-clamp-3 mb-5">{body}</p>
-        <span className="arrow-link text-xs uppercase tracking-widest mt-auto">
-          {t('readMore')}<span className="arr">→</span>
-        </span>
+      <div className="p-5 flex flex-col gap-2 rounded-b-2xl">
+        <h3 className="font-semibold text-gray-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 transition">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3">{body}</p>
+        {post.published_at && <span className="text-xs text-gray-400 dark:text-gray-500">{formatDate(post.published_at)}</span>}
       </div>
     </Link>
   );

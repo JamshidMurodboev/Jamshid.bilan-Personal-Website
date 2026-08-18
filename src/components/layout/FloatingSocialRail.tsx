@@ -14,18 +14,18 @@ export default function FloatingSocialRail() {
             rel="noopener noreferrer"
             aria-label={s.label}
             title={s.label}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-line bg-page/80 backdrop-blur-sm text-heading hover:border-accent hover:text-accent hover:-translate-y-0.5 transition-all duration-300"
+            className={`w-10 h-10 flex items-center justify-center rounded-full ${s.bg} shadow-md transition-transform duration-200 hover:scale-110 hover:shadow-lg opacity-90 hover:opacity-100`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
               {s.icon}
             </svg>
           </a>
         ))}
-        <div className="w-px h-10 bg-[var(--line)] mt-1" aria-hidden="true" />
+        <div className="w-px h-10 bg-gray-300 dark:bg-gray-600 mt-1 opacity-50" />
       </div>
 
       {/* Mobile: fixed bottom row */}
-      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-page/85 backdrop-blur-md border border-line rounded-full px-3 py-2">
+      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 shadow-lg">
         {SOCIALS.map(s => (
           <a
             key={s.label}
@@ -33,9 +33,9 @@ export default function FloatingSocialRail() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={s.label}
-            className="w-9 h-9 flex items-center justify-center rounded-full border border-line text-heading hover:border-accent hover:text-accent transition-colors duration-300"
+            className={`w-9 h-9 flex items-center justify-center rounded-full ${s.bg} transition-transform duration-200 hover:scale-110`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4">
               {s.icon}
             </svg>
           </a>

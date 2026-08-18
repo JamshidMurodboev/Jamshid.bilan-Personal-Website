@@ -49,10 +49,10 @@ export default function ServicesPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-page flex items-center justify-center py-12 px-5">
-        <div className="text-center anim-fade-up">
-          <p className="text-body mb-6">{t('loginRequired')}</p>
-          <Link href={`/${locale}?auth=signin`} className="btn-ink">
+      <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] flex items-center justify-center py-12 px-4">
+        <div className="text-center">
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{t('loginRequired')}</p>
+          <Link href={`/${locale}?auth=signin`} className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-3 rounded-xl font-semibold transition">
             {tAuth('signIn')}
           </Link>
         </div>
@@ -61,82 +61,56 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-page">
-      <section className="pt-10 sm:pt-14 pb-10 sm:pb-14 border-b border-line">
-        <div className="container-page">
-          <PageNav backHref={`/${locale}#services`} />
-          <h1 className="display text-5xl sm:text-6xl mt-6 mb-4">{t('pageTitle')}</h1>
-          <p className="text-lg text-body max-w-2xl">{t('pageSubtitle')}</p>
-        </div>
-      </section>
-
-      <section className="container-page pt-4 pb-20 sm:pb-28">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageNav backHref={`/${locale}#services`} />
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         {loading ? (
-          <div className="py-12 text-muted-e animate-pulse">{tc('loading')}</div>
+          <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
         ) : fetchError ? (
-          <p className="py-12 text-red-600 dark:text-red-400">{tc('error')}</p>
+          <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
         ) : services.length === 0 ? (
-          <p className="py-12 text-muted-e">{tc('noResults')}</p>
+          <p className="text-gray-500 dark:text-gray-400">{tc('noResults')}</p>
         ) : (
           <>
-          <div>
-            {services.map((s, i) => {
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map(s => {
               const name = (s as any)[`name_${locale}`] || s.name_uz;
               const description = (s as any)[`description_${locale}`] || s.description_uz || '';
               const price = priceDisplay(s, t);
-              const num = String(i + 1).padStart(2, '0');
               return (
-                <Link
-                  key={s.id}
-                  href={`/${locale}/services/${s.slug ?? s.id}`}
-                  className="group relative flex items-start sm:items-center gap-5 sm:gap-10 py-8 sm:py-10 border-b border-line"
-                >
-                  <span
-                    className="font-display text-3xl sm:text-5xl leading-none text-muted-e transition-colors duration-300 group-hover:text-accent select-none flex-shrink-0 w-10 sm:w-16"
-                    aria-hidden="true"
-                  >
-                    {num}
-                  </span>
-
-                  {s.photo_url && (
-                    <div className="relative hidden md:block w-28 h-20 rounded-2xl overflow-hidden bg-soft flex-shrink-0">
-                      <Image src={s.photo_url} alt={name} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+                <Link key={s.id} href={`/${locale}/services/${s.slug ?? s.id}`} className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 dark:border-gray-700 flex flex-col">
+                  <FavouriteButton entityType="service" entityId={s.id} className="absolute top-2 right-2 z-10" />
+                  {s.photo_url ? (
+                    <div className="relative w-full aspect-[4/3]">
+                      <Image src={s.photo_url} alt={name} fill className="object-cover" />
                     </div>
+                  ) : (
+                    <div className="w-full aspect-[4/3] bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-5xl">🎯</div>
                   )}
-
-                  <div className="flex-1 min-w-0 pr-10 sm:pr-0">
-                    <h3 className="font-display text-xl sm:text-2xl text-heading leading-snug mb-1.5 group-hover:text-accent transition-colors duration-300">
-                      {name}
-                    </h3>
-                    {description && (
-                      <p className="text-sm text-body line-clamp-2 max-w-xl">{description}</p>
-                    )}
+                  <div className="p-5 flex flex-col gap-2 flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{name}</h3>
                     {price && (
-                      <span className="sm:hidden inline-block mt-3 font-display text-lg text-heading">{price}</span>
+                      <span className="text-sm font-medium text-teal-700 dark:text-teal-400">{price}</span>
+                    )}
+                    {description && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{description}</p>
                     )}
                   </div>
-
-                  <div className="hidden sm:flex flex-col items-end gap-2 flex-shrink-0">
-                    {price && <span className="font-display text-xl text-heading whitespace-nowrap">{price}</span>}
-                    <span className="arrow-link" aria-hidden="true">
-                      <span className="arr">→</span>
-                    </span>
-                  </div>
-
-                  <FavouriteButton entityType="service" entityId={s.id} className="absolute top-8 right-0 z-10" />
                 </Link>
               );
             })}
           </div>
-
           {/* Coming soon teaser */}
-          <div className="mt-16 sm:mt-20 rounded-3xl border border-line bg-soft p-8 sm:p-12 text-center">
-            <h2 className="font-display text-2xl sm:text-3xl text-heading mb-3">{t('comingSoonTitle')}</h2>
-            <p className="text-sm text-muted-e mb-8 max-w-lg mx-auto">{t('comingSoonSubtitle')}</p>
+          <div className="mt-12 rounded-2xl border-2 border-dashed border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-900/10 p-8 text-center">
+            <div className="text-3xl mb-3">🚀</div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('comingSoonTitle')}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">{t('comingSoonSubtitle')}</p>
             <div className="flex flex-wrap justify-center gap-3">
               {(t.raw('comingSoonItems') as string[]).map((item: string, i: number) => (
-                <span key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-line bg-card text-sm text-body font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] inline-block" aria-hidden="true" />
+                <span key={i} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-teal-200 dark:border-teal-700 text-sm text-gray-700 dark:text-gray-300 font-medium shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-teal-400 dark:bg-teal-500 inline-block" />
                   {item}
                 </span>
               ))}
@@ -144,7 +118,7 @@ export default function ServicesPage() {
           </div>
           </>
         )}
-      </section>
+      </div>
     </div>
   );
 }

@@ -4,115 +4,123 @@ import { useState } from 'react';
 import Image from 'next/image';
 import ContactModal from '@/components/shared/ContactModal';
 
-const MARQUEE_ITEMS = [
-  'Türkiye Burslari',
-  '2× Erasmus+',
-  '100+ Admissions',
-  '10+ Grant Winners',
-  '25+ Countries',
-  '4+ Years Mentoring',
-];
-
-function Marquee() {
-  const row = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
-  return (
-    <div className="relative border-y border-line bg-soft overflow-hidden py-4 select-none">
-      <div className="flex whitespace-nowrap anim-marquee w-max">
-        {[0, 1].map((half) => (
-          <div key={half} className="flex items-center" aria-hidden={half === 1}>
-            {row.map((item, i) => (
-              <span key={`${half}-${i}`} className="flex items-center text-[13px] font-bold uppercase tracking-[0.2em] text-muted-e">
-                <span className="px-6">{item}</span>
-                <span className="text-accent">✦</span>
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Stamp() {
-  return (
-    <div className="absolute -bottom-8 -left-8 sm:-left-12 w-28 h-28 sm:w-32 sm:h-32 anim-spin-slow" aria-hidden="true">
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <defs>
-          <path id="stamp-circle" d="M 50,50 m -36,0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0" />
-        </defs>
-        <circle cx="50" cy="50" r="49" fill="var(--card-bg)" stroke="var(--line)" strokeWidth="1" />
-        <text fontSize="9.5" fontWeight="700" letterSpacing="2.5" fill="var(--heading)">
-          <textPath href="#stamp-circle">SCHOLARSHIP MENTOR ✦ SINCE 2023 ✦</textPath>
-        </text>
-        <text x="50" y="56" textAnchor="middle" fontSize="17" fill="var(--accent)">✦</text>
-      </svg>
-    </div>
-  );
-}
-
 export default function HeroSection() {
   const t = useTranslations('hero');
   const [open, setOpen] = useState(false);
 
-  const headline = t('headline');
-  const words = headline.split(' ');
-  const lastWord = words.pop();
-  const headStart = words.join(' ');
+  const badges = [
+    { emoji: '🏆', text: 'Türkiye Burslari', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
+    { emoji: '🎓', text: '2× Erasmus+', color: 'bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700' },
+    { emoji: '✅', text: '100+ Admissions', color: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' },
+    { emoji: '🌍', text: '10+ Winners', color: 'bg-sky-50 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-700' },
+  ];
 
   return (
-    <section id="hero" className="relative overflow-hidden">
-      <div className="container-page">
-        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-14 lg:gap-10 items-center pt-14 sm:pt-20 pb-20 sm:pb-28">
+    <section id="hero" className="relative bg-gradient-to-br from-[#e8f5f4] via-white to-[#e0f2f1] dark:from-[#071212] dark:via-[#0d1117] dark:to-[#091a1a] overflow-hidden pt-24 pb-0">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-500/8 dark:bg-teal-500/5 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/4" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 dark:bg-teal-600/5 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/4" />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]" style={{backgroundImage: 'linear-gradient(rgba(13,148,136,1) 1px, transparent 1px), linear-gradient(90deg, rgba(13,148,136,1) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
+      </div>
 
-          {/* Left — editorial headline */}
-          <div className="anim-fade-up">
-            <p className="eyebrow mb-8">{t('badge')}</p>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:min-h-[calc(100vh-4rem)] pb-16">
 
-            <h1 className="display text-[2.9rem] sm:text-6xl lg:text-[4.6rem] mb-8">
-              {headStart}{' '}
-              <em>{lastWord}</em>
+          {/* Left column */}
+          <div className="text-center lg:text-left pt-8 lg:pt-0">
+            {/* Eyebrow badge */}
+            <div className="inline-flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 text-teal-700 dark:text-teal-400 text-xs font-semibold px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+              {t('badge')}
+            </div>
+
+            {/* Main headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
+              {t('headline')}
             </h1>
 
-            <p className="text-lg sm:text-xl leading-relaxed max-w-xl mb-10 text-body">
+            {/* Subheadline */}
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
               {t('subheadline')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <button onClick={() => setOpen(true)} className="btn-ink">
-                {t('cta')}
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
+              <button
+                onClick={() => setOpen(true)}
+                className="group relative inline-flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-8 py-4 rounded-2xl font-bold text-base shadow-lg shadow-teal-900/20 hover:shadow-teal-900/30 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
+                {t('cta')}
               </button>
-              <button onClick={() => setOpen(true)} className="btn-ghost">
+              <button
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center justify-center gap-2 border-2 border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 hover:bg-teal-700 hover:text-white dark:hover:bg-teal-700 dark:hover:text-white px-8 py-4 rounded-2xl font-bold text-base transition-all duration-200 hover:-translate-y-0.5"
+              >
                 {t('ctaWhatsApp')}
               </button>
             </div>
+
+            {/* Achievement badges row */}
+            <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+              {badges.map((b) => (
+                <span key={b.text} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${b.color}`}>
+                  <span>{b.emoji}</span>
+                  {b.text}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Right — arch portrait */}
-          <div className="relative flex justify-center lg:justify-end anim-fade-up anim-delay-2">
+          {/* Right column — photo */}
+          <div className="flex justify-center lg:justify-end relative">
             <div className="relative">
-              {/* Offset frame line */}
-              <div className="absolute -top-4 -right-4 w-full h-full rounded-t-full border border-line" aria-hidden="true" />
-
-              <div className="relative w-[280px] h-[380px] sm:w-[330px] sm:h-[450px] rounded-t-full overflow-hidden bg-soft">
+              {/* Main photo container */}
+              <div className="relative w-72 h-[360px] sm:w-80 sm:h-[460px] lg:w-[360px] lg:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/60 border-4 border-white dark:border-gray-800">
                 <Image src="/hero.png" alt="Jamshid Murodboev" fill className="object-cover" priority />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                {/* Bottom label */}
+                <div className="absolute bottom-10 left-4 right-4">
+                  <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-xl px-4 py-2.5">
+                    <p className="font-bold text-gray-900 dark:text-white text-sm">Jamshid Murodboev</p>
+                    <p className="text-teal-700 dark:text-teal-400 text-xs font-medium">Scholarship Mentor &amp; Consultant</p>
+                  </div>
+                </div>
               </div>
 
-              {/* Caption under the arch */}
-              <div className="mt-5 flex items-baseline justify-between gap-3">
-                <p className="font-display text-lg text-heading">Jamshid Murodboev</p>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent whitespace-nowrap">Mentor</p>
+              {/* Floating badge — top right */}
+              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
+                <span className="text-xl">🏆</span>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Grant G&apos;olibi</p>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">Türkiye Burslari</p>
+                </div>
               </div>
 
-              <Stamp />
+              {/* Floating badge — bottom left */}
+              <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
+                <span className="text-xl">🎓</span>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Mentorship</p>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">100+ Students</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <Marquee />
+      {/* Wave divider */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+          <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" className="fill-white dark:fill-[#0d1117]" />
+        </svg>
+      </div>
 
       <ContactModal isOpen={open} onClose={() => setOpen(false)} />
     </section>

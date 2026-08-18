@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Manrope, Playfair_Display } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Analytics } from '@vercel/analytics/react';
@@ -12,17 +12,7 @@ import Toast from '@/components/shared/Toast';
 import PageViewTracker from '@/components/shared/PageViewTracker';
 import { AuthProvider } from '@/lib/auth';
 
-const manrope = Manrope({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-sans',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-display',
-  display: 'swap',
-});
+const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const titles: Record<string, string> = {
@@ -91,7 +81,7 @@ export default async function LocaleLayout({
           }}
         />
       </head>
-      <body className={`${manrope.variable} ${playfair.variable} font-sans bg-page text-body transition-colors duration-200`}>
+      <body className={`${inter.className} bg-[#f0f9f8] dark:bg-[#0d1117] text-[#0f172a] dark:text-[#e6edf3] transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Header />

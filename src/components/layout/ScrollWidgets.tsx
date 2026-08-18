@@ -56,7 +56,7 @@ export default function ScrollWidgets() {
       {showCta && (
         <button
           onClick={scrollToContact}
-          className="btn-ink fixed bottom-6 right-6 z-40 !px-5 !py-3 text-sm"
+          className="fixed bottom-6 right-6 z-40 bg-[#0d9488] hover:bg-[#0f766e] text-white px-5 py-3 rounded-full font-semibold text-sm shadow-lg transition"
         >
           {t('title')} →
         </button>
@@ -65,12 +65,12 @@ export default function ScrollWidgets() {
       <button
         onClick={scrollToTop}
         aria-label="Scroll to top"
-        className={`fixed right-6 z-40 rounded-full border border-line bg-page/80 backdrop-blur-sm text-heading hover:border-accent hover:text-accent flex items-center justify-center transition-all duration-300 w-11 h-11 md:w-10 md:h-10 ${
+        className={`fixed right-6 z-40 rounded-full bg-[#1E1E2E] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 w-11 h-11 md:w-10 md:h-10 ${
           showCta ? 'bottom-24' : 'bottom-6'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 15l7-7 7 7" />
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
         </svg>
       </button>
     </>

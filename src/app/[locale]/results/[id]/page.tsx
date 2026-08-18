@@ -51,97 +51,101 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
   const uniName = (r as any)[`university_name_${locale}`] || r.university_name || '';
   const major = (r as any)[`major_${locale}`] || r.major || '';
 
-  const metaRows = [
-    { label: tc('university'), value: uniName },
-    { label: tc('major'), value: major },
-    { label: tc('educationLanguage'), value: r.language ? translateLanguage(r.language, locale) : '' },
-    { label: tc('ranking'), value: r.university_ranking ? `#${r.university_ranking}` : '' },
-  ].filter((row) => row.value);
-
   return (
-    <div className="min-h-screen bg-page">
-      <div className="container-page pt-10 sm:pt-14 pb-20 sm:pb-24">
+    <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/results`} />
         <ActivityTracker entityType="result" entityId={r.id} entityName={r.student_name} />
 
         {/* Main: photos left half, info right half */}
-        <div className="mt-8 flex flex-col lg:flex-row gap-10 items-start">
+        <div className="mt-6 flex flex-col lg:flex-row gap-6 items-start">
 
           {/* Left: photos */}
           <div className="w-full lg:w-1/2 flex-shrink-0">
             {photos.length > 0 ? (
               <ResultPhotoGallery photos={photos} name={r.student_name} />
             ) : (
-              <div className="w-full aspect-[4/3] rounded-2xl border border-line bg-soft flex items-center justify-center" aria-hidden="true">
-                <span className="font-display text-7xl text-muted-e">{r.student_name[0]}</span>
+              <div className="w-full aspect-[4/3] rounded-2xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold text-6xl">
+                {r.student_name[0]}
               </div>
             )}
           </div>
 
           {/* Right: info */}
           <div className="w-full lg:w-1/2 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-e mb-3">
-              {r.year} · {translateCountry(r.country, locale)}
-            </p>
-
-            <div className="flex items-start gap-3 mb-5">
-              <h1 className="display text-3xl sm:text-4xl flex-1">{r.student_name}</h1>
-              <div className="flex items-center gap-2 pt-1">
-                <FavouriteButton entityType="result" entityId={r.id} />
-                <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/results/${r.slug ?? r.id}`} title={r.student_name} entityType="result" entityId={r.id} entityName={r.student_name} />
-              </div>
+            <div className="flex items-start gap-2 mb-3">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{r.student_name}</h1>
+              <FavouriteButton entityType="result" entityId={r.id} />
+              <ShareButton url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://jamshidbilan.uz'}/${locale}/results/${r.slug ?? r.id}`} title={r.student_name} entityType="result" entityId={r.id} entityName={r.student_name} />
             </div>
 
-            {(r.degree_level || r.category) && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {r.degree_level && <span className="chip">{degreeLabel[r.degree_level] ?? r.degree_level}</span>}
-                {r.category && <span className="chip">{categoryLabel[r.category] ?? r.category}</span>}
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {r.degree_level && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                  {degreeLabel[r.degree_level] ?? r.degree_level}
+                </span>
+              )}
+              {r.category && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  {categoryLabel[r.category] ?? r.category}
+                </span>
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">{r.year} · {translateCountry(r.country, locale)}</span>
+            </div>
 
             {/* Metadata */}
-            {metaRows.length > 0 && (
-              <dl className="rule mb-8">
-                {metaRows.map((row) => (
-                  <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 border-b border-line">
-                    <dt className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-e flex-shrink-0">{row.label}</dt>
-                    <dd className="text-sm font-medium text-heading text-right">{row.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
+            <div className="space-y-2 mb-4">
+              {uniName && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('university')}:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{uniName}</span>
+                </div>
+              )}
+              {major && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('major')}:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{major}</span>
+                </div>
+              )}
+              {r.language && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('educationLanguage')}:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{translateLanguage(r.language!, locale)}</span>
+                </div>
+              )}
+              {r.university_ranking && (
+                <div className="flex gap-2 text-sm">
+                  <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">{tc('ranking')}:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">#{r.university_ranking}</span>
+                </div>
+              )}
+            </div>
 
             {testimonial && (
-              <blockquote className="border-l-2 border-[var(--accent)] pl-5 mb-8">
-                <p className="font-display italic text-lg text-heading leading-relaxed">&ldquo;{testimonial}&rdquo;</p>
-              </blockquote>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 mb-4">
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">&ldquo;{testimonial}&rdquo;</p>
+              </div>
             )}
 
             {(scholarship || university) && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {scholarship && (
-                  <Link
-                    href={`/${locale}/scholarships/${(scholarship as any).slug ?? scholarship.id}`}
-                    className="card-e group p-4 flex items-center justify-between gap-3"
-                  >
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-e mb-1">Grant</div>
-                      <div className="font-display text-heading group-hover:text-accent transition-colors truncate">{scholarship.title}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Grant</div>
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate">{scholarship.title}</div>
                     </div>
-                    <span className="arrow-link flex-shrink-0" aria-hidden="true"><span className="arr">→</span></span>
-                  </Link>
+                    <Link href={`/${locale}/scholarships/${(scholarship as any).slug ?? scholarship.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline flex-shrink-0">→</Link>
+                  </div>
                 )}
                 {university && (
-                  <Link
-                    href={`/${locale}/universities/${(university as any).slug ?? university.id}`}
-                    className="card-e group p-4 flex items-center justify-between gap-3"
-                  >
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-e mb-1">{tc('university')}</div>
-                      <div className="font-display text-heading group-hover:text-accent transition-colors truncate">{university.name}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{tc('university')}</div>
+                      <div className="font-medium text-gray-900 dark:text-white text-sm truncate">{university.name}</div>
                     </div>
-                    <span className="arrow-link flex-shrink-0" aria-hidden="true"><span className="arr">→</span></span>
-                  </Link>
+                    <Link href={`/${locale}/universities/${(university as any).slug ?? university.id}`} className="text-sm text-teal-700 dark:text-teal-400 hover:underline flex-shrink-0">→</Link>
+                  </div>
                 )}
               </div>
             )}
@@ -150,7 +154,7 @@ export default async function ResultDetailPage({ params: { locale, id } }: { par
 
         {/* Media links */}
         {mediaLinks.length > 0 && (
-          <div className="mt-14 rule pt-10">
+          <div className="mt-8">
             <MediaLinksSection links={mediaLinks} locale={locale} heading={t('mediaLinks')} />
           </div>
         )}

@@ -33,8 +33,8 @@ export default function UniversityList({ universities, locale }: Props) {
   }, [universities, search, country, type, status]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
-      <aside className="lg:w-64 flex-shrink-0">
+    <div className="flex flex-col lg:flex-row gap-6">
+      <aside className="lg:w-60 flex-shrink-0">
         <UniversityFilters
           search={search} onSearch={setSearch}
           country={country} onCountry={setCountry}
@@ -45,7 +45,7 @@ export default function UniversityList({ universities, locale }: Props) {
       </aside>
       <div className="flex-1">
         {filtered.length === 0 ? (
-          <p className="text-muted-e py-12 text-center">{t('noResults')}</p>
+          <p className="text-gray-500 dark:text-gray-400 py-12 text-center">{t('noResults')}</p>
         ) : (
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map(u => <UniversityCard key={u.id} university={u} locale={locale} />)}

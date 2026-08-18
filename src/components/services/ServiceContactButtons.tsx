@@ -13,14 +13,17 @@ interface Props {
 export default function ServiceContactButtons({ serviceContext, applyLabel, askLabel, preselectedTarget }: Props) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-wrap gap-3 mt-6 mb-8">
-      <button onClick={() => setOpen(true)} className="btn-accent">
+    <div className="flex flex-wrap gap-3 mb-8">
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-xl font-semibold transition"
+      >
         {applyLabel}
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-        </svg>
       </button>
-      <AskQuestionButton serviceContext={serviceContext} className="btn-ghost">
+      <AskQuestionButton
+        serviceContext={serviceContext}
+        className="inline-flex items-center gap-2 border-2 border-teal-700 text-teal-700 dark:border-teal-400 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 px-6 py-3 rounded-xl font-semibold text-sm transition"
+      >
         {askLabel}
       </AskQuestionButton>
       <ContactModal isOpen={open} onClose={() => setOpen(false)} preselectedTarget={preselectedTarget} />

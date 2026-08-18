@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 
 const SECTIONS = [
-  { href: '/scholarships', key: 'scholarships' },
-  { href: '/universities', key: 'universities' },
-  { href: '/results', key: 'results' },
-  { href: '/news', key: 'news' },
+  { href: '/scholarships', key: 'scholarships', emoji: '🎓' },
+  { href: '/universities', key: 'universities', emoji: '🏫' },
+  { href: '/results', key: 'results', emoji: '🏆' },
+  { href: '/news', key: 'news', emoji: '📰' },
 ];
 
 export default function TeaserSection() {
@@ -13,22 +13,26 @@ export default function TeaserSection() {
   const t = useTranslations('homeSections');
 
   return (
-    <section id="services" className="section-pad bg-soft border-y border-line">
-      <div className="container-page">
-        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {SECTIONS.map((s) => (
-            <div key={s.href} className="card-e p-8 flex flex-col">
-              <h2 className="font-display text-2xl text-heading mb-2 leading-snug">{t(`${s.key}.title`)}</h2>
-              <p className="text-sm text-body leading-relaxed mb-6">{t(`${s.key}.subtitle`)}</p>
-              <Link
-                href={`/${locale}${s.href}`}
-                className="arrow-link text-xs uppercase tracking-widest mt-auto"
-              >
-                {t(`${s.key}.title`)}<span className="arr">→</span>
-              </Link>
+    <section id="services" className="py-16 px-4 bg-[#e6fffa] dark:bg-[#102a43]">
+      <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6">
+        {SECTIONS.map((s) => (
+          <div
+            key={s.href}
+            className="bg-white dark:bg-[#161b22] rounded-2xl p-6 shadow-sm border border-[#e2e8f0] dark:border-[#21262d] flex flex-col items-center text-center"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-[#ccfbf1] dark:bg-[#0d2d2a] text-[#0f766e] dark:text-[#2dd4bf] flex items-center justify-center text-3xl mb-4">
+              {s.emoji}
             </div>
-          ))}
-        </div>
+            <h2 className="text-[1.25rem] font-semibold text-[#0f172a] dark:text-[#e6edf3] mb-1">{t(`${s.key}.title`)}</h2>
+            <p className="text-sm text-[#64748b] dark:text-[#8b949e] mb-5">{t(`${s.key}.subtitle`)}</p>
+            <Link
+              href={`/${locale}${s.href}`}
+              className="mt-auto inline-block bg-[#0d9488] hover:bg-[#0f766e] text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition"
+            >
+              {t(`${s.key}.title`)}
+            </Link>
+          </div>
+        ))}
       </div>
     </section>
   );

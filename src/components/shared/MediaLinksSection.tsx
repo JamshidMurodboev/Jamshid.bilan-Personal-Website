@@ -41,7 +41,7 @@ export default function MediaLinksSection({
 
   return (
     <div className="mb-8">
-      <h2 className="font-display text-2xl text-heading mb-4">{heading}</h2>
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{heading}</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((link, i) => {
           const thumb = link.thumbnail || getYoutubeThumbnail(link.url);
@@ -52,20 +52,20 @@ export default function MediaLinksSection({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="card-e overflow-hidden group flex flex-col"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition flex flex-col"
             >
               {thumb ? (
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-soft">
-                  <Image src={thumb} alt={desc || 'media'} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" unoptimized />
+                <div className="relative aspect-[16/9] w-full">
+                  <Image src={thumb} alt={desc || 'media'} fill className="object-cover" unoptimized />
                 </div>
               ) : (
-                <div className="aspect-[16/9] w-full bg-soft flex items-center justify-center text-muted-e">
+                <div className="aspect-[16/9] w-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-4xl">
                   {getPlatformIcon(link.url)}
                 </div>
               )}
               <div className="p-3 flex items-start gap-2">
-                <span className="text-muted-e mt-0.5 flex-shrink-0">{getPlatformIcon(link.url)}</span>
-                {desc && <p className="text-sm text-body line-clamp-2">{desc}</p>}
+                <span className="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0">{getPlatformIcon(link.url)}</span>
+                {desc && <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{desc}</p>}
               </div>
             </a>
           );

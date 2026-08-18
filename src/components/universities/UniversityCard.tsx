@@ -6,6 +6,17 @@ import type { University } from '@/lib/supabase/types';
 import { translateCountry } from '@/lib/translateCountry';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
+const TYPE_COLORS = {
+  public: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
+  private: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
+};
+
+const STATUS_COLORS = {
+  open: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
+  closed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
+  upcoming: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
+};
+
 export default function UniversityCard({ university: u, locale = 'uz' }: { university: University; locale?: string }) {
   const t = useTranslations();
   const TYPE_LABELS = { public: t('filters.publicType'), private: t('filters.privateType') };
@@ -13,66 +24,72 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
   const photos: string[] = (u as any).photo_urls?.length ? (u as any).photo_urls : [];
   const coverPhoto = photos[0] || null;
   return (
-    <article className="card-e overflow-hidden group relative flex flex-col h-full">
-      {/* Cover image or serif-initial placeholder */}
-      <div className="relative w-full aspect-[16/10] flex-shrink-0 overflow-hidden bg-soft flex items-center justify-center">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
+      {/* Cover image or gradient placeholder */}
+      <div className="relative w-full h-36 flex-shrink-0 bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center">
         {coverPhoto
-          ? <Image src={coverPhoto} alt={u.name} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-          : <span className="font-display text-5xl text-muted-e select-none">{u.name?.charAt(0)?.toUpperCase()}</span>
+          ? <Image src={coverPhoto} alt={u.name} fill className="object-cover" />
+          : <span className="text-4xl font-bold text-white/60 select-none">{u.name?.charAt(0)?.toUpperCase()}</span>
         }
-        <FavouriteButton entityType="university" entityId={u.id} className="absolute top-3 left-3" />
+        <FavouriteButton entityType="university" entityId={u.id} className="absolute top-2 left-2" />
       </div>
-      <div className="p-6 flex flex-col justify-between gap-4 flex-1">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="chip">{TYPE_LABELS[u.type]}</span>
+      <div className="p-5 flex flex-col justify-between gap-3 flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-2">
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white leading-snug">{u.name}</h3>
+            {u.ranking != null && (
+              <span className="inline-block mt-0.5 mb-0.5 text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400">
+                #{u.ranking}
+              </span>
+            )}
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
+          </div>
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLORS[u.type]}`}>
+              {TYPE_LABELS[u.type]}
+            </span>
             {u.status && (
-              <span className={`text-[11px] font-bold uppercase tracking-widest ${u.status === 'open' ? 'text-accent' : 'text-muted-e'}`}>
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[u.status]}`}>
                 {STATUS_LABELS[u.status]}
               </span>
             )}
-            {u.ranking != null && (
-              <span className="text-xs font-semibold text-muted-e ml-auto">#{u.ranking}</span>
-            )}
           </div>
-          <div>
-            <h3 className="font-display text-xl text-heading leading-snug transition-colors group-hover:text-accent">{u.name}</h3>
-            <p className="text-sm text-muted-e mt-1">{u.city ? `${u.city}, ` : ''}{translateCountry(u.country, locale)}</p>
+        </div>
+        {u.tuition_usd != null && (
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-medium">{t('universities.tuitionLabel')}</span> ${u.tuition_usd.toLocaleString()}/yil
           </div>
-          {u.tuition_usd != null && (
-            <div className="text-sm text-body">
-              <span className="font-semibold text-heading">{t('universities.tuitionLabel')}</span> ${u.tuition_usd.toLocaleString()}/yil
-            </div>
-          )}
-          {u.programs.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {u.programs.slice(0, 3).map((p) => (
-                <span key={p} className="text-xs text-muted-e border border-line px-2.5 py-0.5 rounded-full">{p}</span>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2 pt-1">
-          {locale && (
-            <Link
-              href={`/${locale}/universities/${u.slug ?? u.id}`}
-              className="flex-1 text-center py-2.5 rounded-full text-sm font-semibold bg-ink text-[var(--bg)] hover:bg-[var(--accent)] hover:text-[#fffdf8] transition-colors"
-            >
-              {t('universities.detailsBtn')}
-            </Link>
-          )}
-          {u.website_url && (
-            <a
-              href={u.website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 text-center py-2.5 rounded-full text-sm font-semibold border border-line text-body hover:border-[var(--accent)] hover:text-accent transition-colors"
-            >
-              {t('universities.officialSite')}
-            </a>
-          )}
-        </div>
+        )}
+        {u.programs.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {u.programs.slice(0, 3).map((p) => (
+              <span key={p} className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full">{p}</span>
+            ))}
+          </div>
+        )}
       </div>
-    </article>
+      <div className="flex gap-2 pt-2">
+        {locale && (
+          <Link
+            href={`/${locale}/universities/${u.slug ?? u.id}`}
+            className="flex-1 border border-teal-700 dark:border-teal-500 text-teal-700 dark:text-teal-400 text-center py-2 rounded-xl text-sm font-semibold hover:bg-teal-50 dark:hover:bg-teal-900/20 transition"
+          >
+            {t('universities.detailsBtn')}
+          </Link>
+        )}
+        {u.website_url && (
+          <a
+            href={u.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 text-center py-2 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
+            {t('universities.officialSite')}
+          </a>
+        )}
+      </div>
+      </div>
+    </div>
   );
 }
