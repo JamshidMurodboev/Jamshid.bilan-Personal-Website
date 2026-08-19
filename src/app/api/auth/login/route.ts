@@ -36,11 +36,31 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = tokenData.user?.id;
-  const { data: profile } = await supabaseAdmin
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from('site_users')
     .select('*')
     .eq('id', userId)
     .single();
+
+  // Ghost user: auth exists but profile row is missing — create it now
+  if (profileError || !profile) {
+    await supabaseAdmin.from('site_users').upsert({
+      id: userId,
+      full_name: '',
+      email: tokenData.user?.email || '',
+      phone: '',
+      created_at: new Date().toISOString(),
+      last_active_at: new Date().toISOString(),
+      login_count: 1,
+      status: 'active',
+    }, { onConflict: 'id' });
+  } else {
+    // Update last_active_at and login_count on each login
+    await supabaseAdmin
+      .from('site_users')
+      .update({ last_active_at: new Date().toISOString(), login_count: (profile.login_count || 0) + 1 })
+      .eq('id', userId);
+  }
 
   return NextResponse.json({
     success: true,

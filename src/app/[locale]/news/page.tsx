@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import NewsCard from '@/components/news/NewsCard';
 import PageNav from '@/components/shared/PageNav';
 import type { NewsPost } from '@/lib/supabase/types';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 const SAMPLE_NEWS: NewsPost[] = [
   { id: '1', title_uz: 'Turkiye Burslari 2025 arizalari boshlandi', body_uz: "Turkiye Burslari 2025-yil arizalarini qabul qilishni boshladi. Muddatlarni o'tkazib yubormang.", published: true, published_at: '2024-12-01T00:00:00Z', created_at: '2024-12-01T00:00:00Z', updated_at: '2024-12-01T00:00:00Z' },
@@ -20,6 +21,7 @@ export default async function NewsPage({ params: { locale } }: { params: { local
   } catch {}
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}#news`} />
@@ -29,5 +31,6 @@ export default async function NewsPage({ params: { locale } }: { params: { local
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

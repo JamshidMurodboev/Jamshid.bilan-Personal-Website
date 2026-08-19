@@ -23,7 +23,7 @@ STRICT rules — follow exactly:
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'qwen-qwq-32b',
         max_tokens: 4096,
         temperature: 0.05,
         messages: [

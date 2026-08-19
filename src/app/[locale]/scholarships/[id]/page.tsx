@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -152,6 +153,7 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
   const degreesAvailable: string[] = (s as any).degrees_available ?? [];
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/scholarships`} />
@@ -416,5 +418,6 @@ export default async function ScholarshipDetailPage({ params: { locale, id } }: 
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

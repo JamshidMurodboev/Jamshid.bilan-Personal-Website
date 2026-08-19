@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import UniversityList from '@/components/universities/UniversityList';
 import PageNav from '@/components/shared/PageNav';
 import type { University } from '@/lib/supabase/types';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 export default async function UniversitiesPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
@@ -16,6 +17,7 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
   } catch {}
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}#universities`} />
@@ -28,5 +30,6 @@ export default async function UniversitiesPage({ params: { locale } }: { params:
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

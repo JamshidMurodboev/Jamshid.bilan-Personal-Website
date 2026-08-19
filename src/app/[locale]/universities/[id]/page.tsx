@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -96,6 +97,7 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
   };
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-[#f0f9f8] dark:bg-[#0d1117] py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageNav backHref={`/${locale}/universities`} />
@@ -394,5 +396,6 @@ export default async function UniversityDetailPage({ params: { locale, id } }: {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

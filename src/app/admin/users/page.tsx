@@ -354,7 +354,7 @@ export default function UsersPage() {
                           />
                         ) : (
                           <div className="w-7 h-7 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-teal-700 dark:text-teal-300 text-xs font-bold flex-shrink-0">
-                            {(user.full_name ?? user.email ?? '?')[0].toUpperCase()}
+                            {((user.full_name || user.email || '?')[0] ?? '?').toUpperCase()}
                           </div>
                         )}
                         <span className="font-medium text-gray-900 dark:text-gray-100 max-w-[140px] truncate">
