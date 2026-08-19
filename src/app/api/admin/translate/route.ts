@@ -23,7 +23,7 @@ STRICT rules — follow exactly:
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: 'qwen/qwen3.6-27b',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 4096,
         temperature: 0.05,
         messages: [
