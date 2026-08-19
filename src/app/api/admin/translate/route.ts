@@ -33,7 +33,7 @@ STRICT rules — follow exactly:
       }),
     })
     const json = await res.json()
-    if (!res.ok) throw new Error(json.error?.message || 'Groq error')
+    if (!res.ok) throw new Error(JSON.stringify(json.error || json))
     let raw = json.choices[0].message.content.trim()
 
     raw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim()
