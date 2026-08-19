@@ -23,7 +23,7 @@ STRICT rules — follow exactly:
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: 'qwen-qwq-32b',
+        model: 'qwen/qwen3.6-27b',
         max_tokens: 4096,
         temperature: 0.05,
         messages: [
