@@ -36,6 +36,7 @@ STRICT rules — follow exactly:
     if (!res.ok) throw new Error(JSON.stringify(json.error || json))
     let raw = json.choices[0].message.content.trim()
 
+    raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
     raw = raw.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim()
 
     const match = raw.match(/\{[\s\S]*\}/)
