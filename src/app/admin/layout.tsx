@@ -19,10 +19,11 @@ const navLinks = [
   { href: '/admin/faq', label: 'Savollar' },
   { href: '/admin/inquiries', label: 'Murojaatlar' },
   { href: '/admin/consultations', label: 'Konsultatsiyalar' },
-  { href: '/admin/settings', label: 'Sozlamalar' },
   { href: '/admin/users', label: 'Foydalanuvchilar' },
   { href: '/admin/ai-assistant', label: '✦ AI Yordamchi' },
-  { href: '/admin/about', label: 'Men haqimda' },
+  { href: '/admin/about', label: 'Men haqimda', children: [
+    { href: '/admin/settings', label: 'Sozlamalar' },
+  ]},
 ]
 
 function LangToggle() {
@@ -178,20 +179,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         {navLinks.map((link) => {
-          const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href)
+          const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href) || (link.children ?? []).some(c => pathname.startsWith(c.href))
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive
-                  ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {link.label}
-            </Link>
+            <div key={link.href}>
+              <Link
+                href={link.href}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive
+                    ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {link.label}
+              </Link>
+              {link.children && isActive && (
+                <div className="ml-4 mt-0.5 space-y-0.5">
+                  {link.children.map((child) => {
+                    const childActive = pathname.startsWith(child.href)
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                          childActive
+                            ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {child.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         })}
       </nav>

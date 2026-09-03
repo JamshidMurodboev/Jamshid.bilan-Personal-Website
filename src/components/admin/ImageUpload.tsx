@@ -4,40 +4,54 @@ import type { UploadBucket } from '@/lib/upload'
 import { uploadFiles, deleteFile } from '@/lib/upload'
 import ImageCropModal from './ImageCropModal'
 
+const ASPECT_OPTIONS = [
+  { label: '16:9', value: 16 / 9 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '1:1', value: 1 },
+]
+
 interface Props {
   bucket: UploadBucket
   urls: string[]
   onChange: (urls: string[]) => void
   multiple?: boolean
   label?: string
-  aspectRatio?: number // 4/3 for cards, 1 for square, 16/9 for wide
+  aspectRatio?: number
 }
 
-export default function ImageUpload({ bucket, urls, onChange, multiple = false, label = "Rasm yuklash", aspectRatio = 4/3 }: Props) {
+export default function ImageUpload({ bucket, urls, onChange, multiple = false, label = "Rasm yuklash", aspectRatio = 4 / 3 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [selectedAspect, setSelectedAspect] = useState(aspectRatio)
   const pendingFile = useRef<File | null>(null)
+  const recropUrl = useRef<string | null>(null)
+  const recropIndex = useRef<number | null>(null)
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
     if (inputRef.current) inputRef.current.value = ''
-
-    if (multiple) {
-      // For multiple uploads, crop one at a time
-      pendingFile.current = files[0]
-      const url = URL.createObjectURL(files[0])
-      setCropSrc(url)
-    } else {
-      pendingFile.current = files[0]
-      const url = URL.createObjectURL(files[0])
-      setCropSrc(url)
-    }
+    pendingFile.current = files[0]
+    const url = URL.createObjectURL(files[0])
+    setCropSrc(url)
   }
 
   async function handleCropConfirm(blob: Blob) {
     if (cropSrc) URL.revokeObjectURL(cropSrc)
     setCropSrc(null)
+
+    // Re-crop existing photo
+    if (recropUrl.current !== null && recropIndex.current !== null) {
+      const file = new File([blob], 'image.jpg', { type: 'image/jpeg' })
+      const newUrls = await uploadFiles(bucket, [file])
+      const updated = [...urls]
+      updated[recropIndex.current] = newUrls[0]
+      onChange(updated)
+      recropUrl.current = null
+      recropIndex.current = null
+      return
+    }
+
     const file = new File([blob], pendingFile.current?.name ?? 'image.jpg', { type: 'image/jpeg' })
     const newUrls = await uploadFiles(bucket, [file])
     onChange(multiple ? [...urls, ...newUrls] : newUrls.slice(0, 1))
@@ -48,6 +62,14 @@ export default function ImageUpload({ bucket, urls, onChange, multiple = false, 
     if (cropSrc) URL.revokeObjectURL(cropSrc)
     setCropSrc(null)
     pendingFile.current = null
+    recropUrl.current = null
+    recropIndex.current = null
+  }
+
+  function startRecrop(url: string, index: number) {
+    recropUrl.current = url
+    recropIndex.current = index
+    setCropSrc(url)
   }
 
   async function remove(url: string) {
@@ -68,12 +90,31 @@ export default function ImageUpload({ bucket, urls, onChange, multiple = false, 
       {cropSrc && (
         <ImageCropModal
           src={cropSrc}
-          aspectRatio={aspectRatio}
+          aspectRatio={selectedAspect}
           onConfirm={handleCropConfirm}
           onCancel={handleCropCancel}
         />
       )}
       <div className="space-y-2">
+        {/* Aspect ratio selector */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-gray-500 dark:text-gray-400 mr-1">Nisbat:</span>
+          {ASPECT_OPTIONS.map(opt => (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => setSelectedAspect(opt.value)}
+              className={`px-2.5 py-1 text-xs rounded-lg border transition-colors font-medium ${
+                Math.abs(selectedAspect - opt.value) < 0.01
+                  ? 'bg-teal-600 border-teal-600 text-white'
+                  : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         {urls.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {urls.map((url, index) => (
@@ -84,6 +125,9 @@ export default function ImageUpload({ bucket, urls, onChange, multiple = false, 
                     <button type="button" onClick={() => moveUrl(index, -1)} disabled={index === 0} className="text-white disabled:opacity-30 text-xs leading-none px-1 hover:text-teal-300">▲</button>
                     <button type="button" onClick={() => moveUrl(index, 1)} disabled={index === urls.length - 1} className="text-white disabled:opacity-30 text-xs leading-none px-1 hover:text-teal-300">▼</button>
                   </div>
+                  <button type="button" onClick={() => startRecrop(url, index)} className="text-white text-xs hover:text-teal-300">
+                    Kesish
+                  </button>
                   <button type="button" onClick={() => remove(url)} className="text-white text-xs flex items-center justify-center">
                     O&apos;chir
                   </button>
