@@ -21,9 +21,7 @@ const navLinks = [
   { href: '/admin/consultations', label: 'Konsultatsiyalar' },
   { href: '/admin/users', label: 'Foydalanuvchilar' },
   { href: '/admin/ai-assistant', label: '✦ AI Yordamchi' },
-  { href: '/admin/about', label: 'Men haqimda', children: [
-    { href: '/admin/settings', label: 'Sozlamalar' },
-  ]},
+  { href: '/admin/about', label: 'Men haqimda' },
 ]
 
 function LangToggle() {

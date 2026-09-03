@@ -5,6 +5,46 @@ import { uploadFiles } from '@/lib/upload';
 import { autoTranslate } from '@/lib/translate';
 import LanguageTabs, { type LangTab } from '@/components/admin/LanguageTabs';
 
+function CommunityLinkSection() {
+  const [link, setLink] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    createClient().from('site_settings').select('value').eq('key', 'community_telegram_link').single()
+      .then(({ data }: { data: any }) => { if (data) setLink(data.value ?? ''); setLoading(false); }, () => setLoading(false));
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true); setSaved(false);
+    await createClient().from('site_settings').upsert({ key: 'community_telegram_link', value: link }, { onConflict: 'key' });
+    setSaved(true); setSaving(false);
+  }
+
+  if (loading) return null;
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mt-4">
+      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Community Link</h2>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Telegram guruh havolasi. Bo&apos;sh bo&apos;lsa, bosh sahifada jamoat bo&apos;limi ko&apos;rinmaydi.</p>
+      <form onSubmit={handleSave} className="flex gap-2 items-center">
+        <input
+          type="url"
+          value={link}
+          onChange={e => { setLink(e.target.value); setSaved(false); }}
+          placeholder="https://t.me/your_group"
+          className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        />
+        <button type="submit" disabled={saving} className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-60">
+          {saving ? '...' : saved ? 'Saqlandi ✓' : 'Saqlash'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 interface AboutContent {
   id?: string;
   body_uz: string;
@@ -185,6 +225,7 @@ export default function AdminAboutPage() {
           {saving ? 'Saqlanmoqda...' : 'Saqlash'}
         </button>
       </div>
+      <CommunityLinkSection />
     </div>
   );
 }
