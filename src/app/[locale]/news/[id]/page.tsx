@@ -60,10 +60,10 @@ export default async function NewsPostPage({ params: { locale, id } }: { params:
         {photos.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('photos')}</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className={`grid gap-3 ${photos.length === 1 ? 'grid-cols-1' : 'sm:grid-cols-2'}`}>
               {photos.map((url, i) => (
-                <div key={i} className="relative aspect-[4/3] w-full rounded-xl overflow-hidden">
-                  <Image src={url} alt={`${title} ${i + 1}`} fill className="object-cover" />
+                <div key={i} className="relative w-full rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800" style={{ paddingBottom: '75%' }}>
+                  <Image src={url} alt={`${title} ${i + 1}`} fill className="object-contain" />
                 </div>
               ))}
             </div>
