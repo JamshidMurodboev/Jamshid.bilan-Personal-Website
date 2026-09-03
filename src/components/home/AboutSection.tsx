@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { SOCIALS } from '@/lib/socials';
 import { createClient } from '@/lib/supabase/client';
+import AnimateIn from '@/components/shared/AnimateIn';
 
 interface DbAbout {
   body: string | null;
@@ -46,14 +47,14 @@ export default function AboutSection() {
     <section id="about" className="py-24 md:py-32 px-4 bg-white dark:bg-[#0d1117]">
       <div className="max-w-6xl mx-auto">
         {/* Section label */}
-        <div className="text-center mb-16">
+        <AnimateIn direction="up" className="text-center mb-16">
           <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">About</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t('title')}</h2>
-        </div>
+        </AnimateIn>
 
         <div className="grid md:grid-cols-2 gap-14 items-center">
           {/* Photo */}
-          <div className="flex justify-center">
+          <AnimateIn direction="right" delay={100} className="flex justify-center">
             <div className="relative">
               <div className="relative w-72 h-80 md:w-80 md:h-[420px] rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/40 border-4 border-white dark:border-gray-800">
                 <Image src={photo} alt="Jamshid Murodboev" fill className="object-cover" />
@@ -61,10 +62,10 @@ export default function AboutSection() {
               {/* Decorative ring */}
               <div className="absolute -inset-3 rounded-[2.2rem] border-2 border-dashed border-teal-200 dark:border-teal-800 -z-10" />
             </div>
-          </div>
+          </AnimateIn>
 
           {/* Content */}
-          <div>
+          <AnimateIn direction="left" delay={200}>
             <p className="text-lg leading-[1.8] text-gray-600 dark:text-gray-300 mb-6">{body}</p>
 
             {/* Follow my journey strip */}
@@ -115,7 +116,7 @@ export default function AboutSection() {
                 ))}
               </ul>
             )}
-          </div>
+          </AnimateIn>
         </div>
       </div>
     </section>

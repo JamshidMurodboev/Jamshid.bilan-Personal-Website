@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import type { Faq } from '@/lib/supabase/types';
+import AnimateIn from '@/components/shared/AnimateIn';
 
 const FALLBACK: Faq[] = [
   {
@@ -71,7 +72,9 @@ export default function FaqSection() {
   return (
     <section className="py-16 px-4 bg-white dark:bg-[#0d1117]">
       <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-[#0f172a] dark:text-[#e6edf3] text-center mb-6">{t('title')}</h2>
+        <AnimateIn direction="up" className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-[#0f172a] dark:text-[#e6edf3]">{t('title')}</h2>
+        </AnimateIn>
         <div className="space-y-2">
           {items.map((item) => {
             const isOpen = openId === item.id;

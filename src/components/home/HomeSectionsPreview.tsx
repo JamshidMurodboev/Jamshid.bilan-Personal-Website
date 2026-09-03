@@ -73,7 +73,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                 const degrees: string[] = (s as any).degrees_available ?? [];
                 const href = `/${locale}/scholarships/${(s as any).slug ?? s.id}`;
                 return (
-                  <Link key={s.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                  <Link key={s.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] card-hover hover:shadow-md transition flex flex-col">
                     {photos.length > 0 ? (
                       <div className="relative w-full aspect-[4/3]">
                         <Image src={photos[0]} alt={s.title} fill className="object-cover" />
@@ -121,7 +121,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                 const photos: string[] = (u as any).photo_urls?.length ? (u as any).photo_urls : [];
                 const href = `/${locale}/universities/${(u as any).slug ?? u.id}`;
                 return (
-                  <Link key={u.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                  <Link key={u.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] card-hover hover:shadow-md transition flex flex-col">
                     {photos.length > 0 ? (
                       <div className="relative w-full aspect-[4/3]">
                         <Image src={photos[0]} alt={u.name} fill className="object-cover" />
@@ -165,7 +165,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                 const major = (r as any)[`major_${locale}`] || (r as any).major || '';
                 const lang = (r as any).language;
                 return (
-                  <Link key={r.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                  <Link key={r.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] card-hover hover:shadow-md transition flex flex-col">
                     {photos.length > 0 ? (
                       <div className="relative w-full aspect-[4/3]">
                         <Image src={photos[0]} alt={r.student_name} fill className="object-cover" />
@@ -227,7 +227,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                 const thumb = post.cover_url || post.photo_urls?.[0];
                 const href = `/${locale}/news/${(post as any).slug ?? post.id}`;
                 return (
-                  <Link key={post.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                  <Link key={post.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] card-hover hover:shadow-md transition flex flex-col">
                     {thumb ? (
                       <div className="relative w-full aspect-[16/9]">
                         <Image src={thumb} alt={title} fill className="object-cover" />
@@ -264,7 +264,7 @@ export default async function HomeSectionsPreview({ locale }: { locale: string }
                   priceLabel = `${svc.price.toLocaleString()} ${cur}`;
                 }
                 return (
-                  <Link key={svc.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] hover:shadow-md transition flex flex-col">
+                  <Link key={svc.id} href={href} className="bg-[#f0f9f8] dark:bg-[#161b22] rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#21262d] card-hover hover:shadow-md transition flex flex-col">
                     {svc.photo_url ? (
                       <div className="relative w-full aspect-[4/3]">
                         <Image src={svc.photo_url} alt={svcName} fill className="object-cover" />

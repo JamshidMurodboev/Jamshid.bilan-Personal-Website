@@ -3,6 +3,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect } from 'react';
 import ContactModal from '@/components/shared/ContactModal';
 import { createClient } from '@/lib/supabase/client';
+import AnimateIn from '@/components/shared/AnimateIn';
 
 const COLOR_MAP: Record<string, { card: string; num: string }> = {
   teal:   { card: 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800',     num: 'text-teal-600 dark:text-teal-400' },
@@ -70,15 +71,17 @@ export default function ProcessSection() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {steps.map(step => {
+          {steps.map((step, i) => {
             const colors = COLOR_MAP[step.colorKey] || COLOR_MAP.teal;
             return (
-              <div key={step.number} className={`border-2 ${colors.card} rounded-2xl p-6 h-full`}>
-                <div className={`text-3xl font-black ${colors.num} mb-3 font-mono`}>{step.number}</div>
-                <div className="text-3xl mb-3">{step.icon}</div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
-              </div>
+              <AnimateIn key={step.number} delay={i * 120} direction="up">
+                <div className={`border-2 ${colors.card} rounded-2xl p-6 h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}>
+                  <div className={`text-3xl font-black ${colors.num} mb-3 font-mono`}>{step.number}</div>
+                  <div className="text-3xl mb-3">{step.icon}</div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
+                </div>
+              </AnimateIn>
             );
           })}
         </div>

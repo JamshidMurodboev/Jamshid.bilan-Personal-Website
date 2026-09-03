@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
+import AnimateIn from '@/components/shared/AnimateIn';
 
 interface DeadlineItem {
   id: string;

@@ -26,7 +26,7 @@ export default function ScholarshipCard({ scholarship: s, locale }: { scholarshi
   const coverPhoto = photos[0] || null;
 
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm card-hover hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
       {/* Cover image or gradient placeholder */}
       <div className="relative w-full h-36 flex-shrink-0 bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
         {coverPhoto

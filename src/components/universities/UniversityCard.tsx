@@ -24,7 +24,7 @@ export default function UniversityCard({ university: u, locale = 'uz' }: { unive
   const photos: string[] = (u as any).photo_urls?.length ? (u as any).photo_urls : [];
   const coverPhoto = photos[0] || null;
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm card-hover hover:shadow-md transition flex flex-col border border-gray-100 dark:border-gray-700 h-full overflow-hidden">
       {/* Cover image or gradient placeholder */}
       <div className="relative w-full h-36 flex-shrink-0 bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center">
         {coverPhoto

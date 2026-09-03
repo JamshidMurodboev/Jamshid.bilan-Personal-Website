@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
+import AnimateIn from '@/components/shared/AnimateIn';
 
 interface Props {
   locale: string;

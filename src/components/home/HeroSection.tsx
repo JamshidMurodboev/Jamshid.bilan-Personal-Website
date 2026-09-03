@@ -1,12 +1,14 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ContactModal from '@/components/shared/ContactModal';
 
 export default function HeroSection() {
   const t = useTranslations('hero');
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const timer = setTimeout(() => setMounted(true), 50); return () => clearTimeout(timer); }, []);
 
   const badges = [
     { emoji: '🏆', text: 'Türkiye Burslari', color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700' },
@@ -19,8 +21,9 @@ export default function HeroSection() {
     <section id="hero" className="relative bg-gradient-to-br from-[#e8f5f4] via-white to-[#e0f2f1] dark:from-[#071212] dark:via-[#0d1117] dark:to-[#091a1a] overflow-hidden pt-24 pb-0">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-500/8 dark:bg-teal-500/5 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 dark:bg-teal-600/5 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/4" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-500/8 dark:bg-teal-500/5 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/4 animate-blob" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 dark:bg-teal-600/5 rounded-full blur-3xl transform -translate-x-1/3 translate-y-1/4 animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-emerald-400/5 dark:bg-emerald-600/5 rounded-full blur-3xl animate-blob animation-delay-4000" />
         {/* Subtle grid */}
         <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]" style={{backgroundImage: 'linear-gradient(rgba(13,148,136,1) 1px, transparent 1px), linear-gradient(90deg, rgba(13,148,136,1) 1px, transparent 1px)', backgroundSize: '60px 60px'}} />
       </div>
@@ -29,7 +32,7 @@ export default function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:min-h-[calc(100vh-4rem)] pb-16">
 
           {/* Left column */}
-          <div className="text-center lg:text-left pt-8 lg:pt-0">
+          <div className="text-center lg:text-left pt-8 lg:pt-0" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(32px)', transition: 'opacity 700ms ease, transform 700ms ease' }}>
             {/* Eyebrow badge */}
             <div className="inline-flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 text-teal-700 dark:text-teal-400 text-xs font-semibold px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
@@ -77,7 +80,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right column — photo */}
-          <div className="flex justify-center lg:justify-end relative">
+          <div className="flex justify-center lg:justify-end relative" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateX(32px)', transition: 'opacity 800ms ease 200ms, transform 800ms ease 200ms' }}>
             <div className="relative">
               {/* Main photo container */}
               <div className="relative w-72 h-[360px] sm:w-80 sm:h-[460px] lg:w-[360px] lg:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/60 border-4 border-white dark:border-gray-800">
@@ -94,7 +97,7 @@ export default function HeroSection() {
               </div>
 
               {/* Floating badge — top right */}
-              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
+              <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2 animate-float">
                 <span className="text-xl">🏆</span>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Grant G&apos;olibi</p>
@@ -103,7 +106,7 @@ export default function HeroSection() {
               </div>
 
               {/* Floating badge — bottom left */}
-              <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2">
+              <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-2 animate-float animation-delay-2000">
                 <span className="text-xl">🎓</span>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide">Mentorship</p>

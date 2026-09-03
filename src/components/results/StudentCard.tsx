@@ -15,7 +15,7 @@ export default function StudentCard({ result: r, locale, hidePhoto }: { result: 
   const uniName = (r as any)[`university_name_${locale ?? 'uz'}`] || r.university_name || '';
 
   const card = (
-    <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition flex flex-col">
+    <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 card-hover hover:shadow-md transition flex flex-col">
       <FavouriteButton entityType="result" entityId={r.id} className="absolute top-2 right-2 z-10" />
 
       {/* Photo */}

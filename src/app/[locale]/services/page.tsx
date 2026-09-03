@@ -69,7 +69,19 @@ export default function ServicesPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('pageTitle')}</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-8">{t('pageSubtitle')}</p>
         {loading ? (
-          <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <div className="skeleton w-full aspect-[4/3]" />
+                <div className="p-5 space-y-3">
+                  <div className="skeleton h-4 w-3/4" />
+                  <div className="skeleton h-3 w-1/3" />
+                  <div className="skeleton h-3 w-full" />
+                  <div className="skeleton h-3 w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : fetchError ? (
           <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
         ) : services.length === 0 ? (

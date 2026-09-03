@@ -67,7 +67,17 @@ export default function ScholarshipsPage() {
           </aside>
           <div className="flex-1">
             {loading ? (
-              <div className="text-teal-700 dark:text-teal-400 animate-pulse">{tc('loading')}</div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                    <div className="skeleton w-full aspect-[16/9]" />
+                    <div className="p-4 space-y-2">
+                      <div className="skeleton h-4 w-3/4" />
+                      <div className="skeleton h-3 w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : fetchError ? (
               <p className="text-red-500 dark:text-red-400">{tc('error')}</p>
             ) : filtered.length === 0 ? (
