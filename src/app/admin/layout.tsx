@@ -8,7 +8,9 @@ import Link from 'next/link'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const navLinks = [
+type NavLink = { href: string; label: string; exact?: boolean; children?: { href: string; label: string }[] }
+
+const navLinks: NavLink[] = [
   { href: '/admin', label: 'Dashboard', exact: true },
   { href: '/admin/scholarships', label: 'Grantlar' },
   { href: '/admin/universities', label: 'Universitetlar' },
