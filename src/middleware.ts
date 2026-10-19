@@ -30,8 +30,9 @@ export async function middleware(request: NextRequest) {
     );
 
     const { data: { user } } = await supabase.auth.getUser();
+    const adminCookie = request.cookies.get('admin_logged_in')?.value;
 
-    if (!user) {
+    if (!user || !adminCookie) {
       const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }

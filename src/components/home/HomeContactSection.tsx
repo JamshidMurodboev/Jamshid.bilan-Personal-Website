@@ -23,7 +23,7 @@ export default function HomeContactSection() {
     <section className="py-24 px-4 bg-white dark:bg-[#0d1117]" id="contact">
       <div className="max-w-6xl mx-auto">
         <AnimateIn direction="up" className="text-center mb-16">
-          <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">Konsultatsiya</span>
+          <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">{t('sectionLabel' as any)}</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">{t('title')}</h2>
           <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">{t('autoNote')}</p>
         </AnimateIn>

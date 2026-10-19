@@ -9,6 +9,10 @@ const supabaseAdmin = createClient(
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
 const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 async function sendTg(chatId: string | number, text: string) {
   if (!BOT_TOKEN || !chatId) return;
   const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -29,6 +33,9 @@ export async function POST(req: NextRequest) {
 
     if (!name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     if (!phone?.trim()) return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
+    if (name.trim().length > 200) return NextResponse.json({ error: 'Name too long' }, { status: 400 });
+    if (phone.trim().length > 50) return NextResponse.json({ error: 'Phone too long' }, { status: 400 });
+    if (topic && topic.trim().length > 500) return NextResponse.json({ error: 'Topic too long' }, { status: 400 });
 
     const cleanTg = tg_username?.trim().replace(/^@/, '') || null;
 
@@ -49,16 +56,20 @@ export async function POST(req: NextRequest) {
 
     // Admin notification
     if (ADMIN_CHAT_ID) {
+      const safeName = escapeHtml(name.trim());
+      const safePhone = escapeHtml(phone.trim());
+      const safeTg = cleanTg ? escapeHtml(cleanTg) : null;
+      const safeTopic = topic?.trim() ? escapeHtml(topic.trim()) : null;
       const lines = [
         "📅 <b>Yangi konsultatsiya so'rovi!</b>",
-        `👤 <b>Ism:</b> ${name.trim()}`,
-        `📞 <b>Telefon:</b> ${phone.trim()}`,
+        `👤 <b>Ism:</b> ${safeName}`,
+        `📞 <b>Telefon:</b> ${safePhone}`,
       ];
-      if (cleanTg) lines.push(`💬 <b>Telegram:</b> <a href="https://t.me/${cleanTg}">@${cleanTg}</a>`);
-      if (topic?.trim()) lines.push(`📝 <b>Mavzu:</b> ${topic.trim()}`);
-      if (preferred_date) lines.push(`📆 <b>Sana:</b> ${preferred_date}`);
-      if (preferred_time?.trim()) lines.push(`🕐 <b>Vaqt:</b> ${preferred_time.trim()}`);
-      if (locale) lines.push(`🌐 <b>Til:</b> ${locale}`);
+      if (safeTg) lines.push(`💬 <b>Telegram:</b> <a href="https://t.me/${safeTg}">@${safeTg}</a>`);
+      if (safeTopic) lines.push(`📝 <b>Mavzu:</b> ${safeTopic}`);
+      if (preferred_date) lines.push(`📆 <b>Sana:</b> ${escapeHtml(String(preferred_date))}`);
+      if (preferred_time?.trim()) lines.push(`🕐 <b>Vaqt:</b> ${escapeHtml(preferred_time.trim())}`);
+      if (locale) lines.push(`🌐 <b>Til:</b> ${escapeHtml(String(locale))}`);
       await sendTg(ADMIN_CHAT_ID, lines.join('\n'));
     }
 

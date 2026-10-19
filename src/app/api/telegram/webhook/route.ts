@@ -42,10 +42,12 @@ function generateOTP() {
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-telegram-bot-api-secret-token');
-  if (WEBHOOK_SECRET) {
-    if (secret !== WEBHOOK_SECRET) return NextResponse.json({ ok: false }, { status: 403 });
-  } else {
-    console.warn('[telegram/webhook] TELEGRAM_WEBHOOK_SECRET is not set — set it to secure the webhook');
+  if (!WEBHOOK_SECRET && process.env.NODE_ENV === 'production') {
+    console.error('[telegram/webhook] TELEGRAM_WEBHOOK_SECRET is not set — rejecting all requests');
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+  if (WEBHOOK_SECRET && secret !== WEBHOOK_SECRET) {
+    return NextResponse.json({ ok: false }, { status: 403 });
   }
 
   const body = await req.json();

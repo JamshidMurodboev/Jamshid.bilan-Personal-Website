@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const pagePath: string | undefined = body?.page_path;
 
-    if (!pagePath || typeof pagePath !== 'string') {
+    if (!pagePath || typeof pagePath !== 'string' || pagePath.length > 500) {
       return NextResponse.json({ ok: false }, { status: 200 });
     }
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       response.cookies.set(VISITOR_COOKIE, visitorId, {
         maxAge: ONE_YEAR_SECONDS,
         path: '/',
-        httpOnly: false,
+        httpOnly: true,
       });
     }
 

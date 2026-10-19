@@ -8,12 +8,12 @@ const supabaseAdmin = createClient(
 );
 
 const schema = z.object({
-  name: z.string().min(1),
-  dob: z.string().optional(),
-  certificate: z.string().optional(),
-  score: z.string().optional(),
-  target: z.string().min(1),
-  locale: z.string().optional(),
+  name: z.string().min(1).max(200),
+  dob: z.string().max(20).optional(),
+  certificate: z.string().max(100).optional(),
+  score: z.string().max(50).optional(),
+  target: z.string().min(1).max(500),
+  locale: z.string().max(10).optional(),
 });
 
 export async function POST(req: NextRequest) {

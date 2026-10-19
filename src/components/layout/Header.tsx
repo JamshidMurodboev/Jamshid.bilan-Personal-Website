@@ -200,7 +200,7 @@ function HeaderInner() {
 
   function handleAuthClose() {
     setAuthModal(prev => ({ ...prev, open: false }));
-    if (user && callbackUrl) {
+    if (user && callbackUrl && callbackUrl.startsWith('/')) {
       router.push(callbackUrl);
     }
   }

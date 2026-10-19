@@ -25,7 +25,8 @@
       "10dan ortiq to'liq grant g'olibi mentori",
       "100+ talabaga universitetga kirish bo'yicha ko'maklashdim"
     ],
-    "followJourney": "Meni kuzating!"
+    "followJourney": "Meni kuzating!",
+    "sectionLabel": "Men haqimda"
   },
   "stats": {
     "fullRide": "To'liq grant g'oliblari",
@@ -287,7 +288,8 @@
     "tgUsernamePlaceholder": "@username",
     "bookingSuccess": "Arizangiz qabul qilindi!",
     "bookingSuccessDesc": "Tez orada siz bilan bog'lanishadi",
-    "submitBtn": "Ariza yuborish"
+    "submitBtn": "Ariza yuborish",
+    "sectionLabel": "Konsultatsiya"
   },
   "footer": {
     "rights": "Barcha huquqlar himoyalangan.",
@@ -487,7 +489,12 @@
     "askQuestion": "Savol berish",
     "comingSoonTitle": "Ko'proq xizmatlar tez kunda!",
     "comingSoonSubtitle": "Yangi xizmatlar ustida ishlamoqdamiz. Yangiliklar uchun kuzatib boring.",
-    "comingSoonItems": ["CV va SOP yozish", "Intervyu tayyorgarligi", "Viza maslahat", "Online kurslar"]
+    "comingSoonItems": [
+      "CV va SOP yozish",
+      "Intervyu tayyorgarligi",
+      "Viza maslahat",
+      "Online kurslar"
+    ]
   },
   "process": {
     "label": "Jarayon",

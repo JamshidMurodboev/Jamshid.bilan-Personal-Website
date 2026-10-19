@@ -48,7 +48,7 @@ export default function AboutSection() {
       <div className="max-w-6xl mx-auto">
         {/* Section label */}
         <AnimateIn direction="up" className="text-center mb-16">
-          <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">About</span>
+          <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-teal-600 dark:text-teal-400 mb-3">{t('sectionLabel' as any)}</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t('title')}</h2>
         </AnimateIn>
 

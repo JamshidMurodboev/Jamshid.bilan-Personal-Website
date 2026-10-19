@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import DownloadButton from '@/components/resources/DownloadButton';
 
@@ -42,6 +43,12 @@ const SAMPLE_RESOURCES: Resource[] = [
 export default async function ResourcesPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'resources' });
+
+  const supabaseAuth = await createClient();
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+  if (!user) {
+    redirect(`/${locale}?auth=signin&callbackUrl=/${locale}/resources`);
+  }
 
   let resources: Resource[] = SAMPLE_RESOURCES;
   try {

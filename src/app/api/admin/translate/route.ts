@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
+  const adminCookie = req.cookies.get('admin_logged_in')?.value;
+  if (!adminCookie) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { text } = await req.json()
   if (!text?.trim()) return NextResponse.json({ ru: '', en: '' })
 
