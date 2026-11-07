@@ -193,11 +193,10 @@ export default function UsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const now = Date.now()
-  const week = 7 * 24 * 60 * 60 * 1000
-  const month = 30 * 24 * 60 * 60 * 1000
-
   const stats = useMemo(() => {
+    const now = Date.now()
+    const week = 7 * 24 * 60 * 60 * 1000
+    const month = 30 * 24 * 60 * 60 * 1000
     const total = users.length
     const newWeek = users.filter(
       (u) => u.created_at && now - new Date(u.created_at).getTime() < week

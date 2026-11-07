@@ -1,6 +1,21 @@
+import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import ContactForm from '@/components/shared/ContactForm';
 import PageNav from '@/components/shared/PageNav';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const titles: Record<string, string> = {
+    uz: "Bog'lanish — Jamshid Murodboev",
+    ru: "Контакт — Jamshid Murodboev",
+    en: "Contact — Jamshid Murodboev",
+  };
+  const descriptions: Record<string, string> = {
+    uz: "Jamshid Murodboev bilan bog'laning va grant bo'yicha konsultatsiya oling.",
+    ru: "Свяжитесь с Jamshid Murodboev и получите консультацию по грантам.",
+    en: "Contact Jamshid Murodboev and get a consultation about scholarships.",
+  };
+  return { title: titles[locale] ?? titles.uz, description: descriptions[locale] ?? descriptions.uz };
+}
 
 export default async function ContactPage({ params: { locale } }: { params: { locale: string } }) {
   setRequestLocale(locale);

@@ -14,7 +14,7 @@ export function useFavourites() {
       .then(({ data }) => {
         if (data) setFavourites(new Set(data.map((f: { entity_type: string; entity_id: string }) => `${f.entity_type}:${f.entity_id}`)));
       });
-  }, [user?.id]);
+  }, [user]);
 
   const toggle = useCallback(async (entityType: string, entityId: string): Promise<'added' | 'removed'> => {
     if (!user) return 'removed';

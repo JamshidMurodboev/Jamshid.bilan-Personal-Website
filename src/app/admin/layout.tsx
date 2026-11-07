@@ -138,7 +138,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
       })
       .catch(() => router.replace('/admin/login'))
-  }, [pathname, router])
+  }, [pathname, router, userEmail])
 
   async function handleSignOut() {
     await fetch('/api/admin/logout', { method: 'POST' })

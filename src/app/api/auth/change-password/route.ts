@@ -12,7 +12,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
-  // Verify current password via token endpoint
+  if (newPassword.length < 6) {
+    return NextResponse.json({ error: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" }, { status: 400 });
+  }
+
+  // Verify current password by attempting a sign-in
   const tokenRes = await fetch(
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
     {
@@ -23,11 +27,12 @@ export async function POST(req: NextRequest) {
   );
   if (!tokenRes.ok) return NextResponse.json({ error: "Joriy parol noto'g'ri" }, { status: 401 });
 
-  const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-  const targetUser = users.users.find(u => u.email === email);
-  if (!targetUser) return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 });
+  const tokenData = await tokenRes.json();
+  const userId = tokenData.user?.id;
+  if (!userId) return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 });
 
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(targetUser.id, { password: newPassword });
+  // Update password directly using the verified user ID (no listUsers needed)
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, { password: newPassword });
   if (error) return NextResponse.json({ error: 'Xatolik yuz berdi' }, { status: 500 });
 
   return NextResponse.json({ success: true });

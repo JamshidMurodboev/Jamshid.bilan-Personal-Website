@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Analytics } from '@vercel/analytics/react';
+import Script from 'next/script';
 import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -80,13 +81,6 @@ export default async function LocaleLayout({
             `,
           }}
         />
-        {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPFHNX4SWG" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TPFHNX4SWG');`,
-          }}
-        />
       </head>
       <body className={`${inter.className} bg-[#f0f9f8] dark:bg-[#0d1117] text-[#0f172a] dark:text-[#e6edf3] transition-colors duration-200`}>
         <NextIntlClientProvider messages={messages}>
@@ -95,6 +89,8 @@ export default async function LocaleLayout({
             <FloatingSocialRail />
             <main>{children}</main>
             <Footer />
+            <Script src="https://www.googletagmanager.com/gtag/js?id=G-TPFHNX4SWG" strategy="afterInteractive" />
+            <Script id="gtag-init" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TPFHNX4SWG');`}</Script>
             <ScrollWidgets />
             <Toast />
           </AuthProvider>

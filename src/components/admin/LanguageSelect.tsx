@@ -27,7 +27,7 @@ export default function LanguageSelect({ value, onChange, className }: Props) {
 
   useEffect(() => {
     setShowCustom(value && !PRESET_VALUES.includes(value) ? true : false)
-  }, [])
+  }, [value])
 
   const inp = className || 'w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
 

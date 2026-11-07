@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 const USER_KEY = '__jb_user__';
+const TOKEN_KEY = '__jb_token__';
 
 export interface LanguageCertificate {
   type: string;
@@ -58,6 +59,18 @@ async function compressPhoto(dataUrl: string, maxDim = 300): Promise<string> {
 
 function saveUser(u: AuthUser) {
   try { localStorage.setItem(USER_KEY, JSON.stringify(u)); } catch {}
+}
+
+function saveToken(t: string) {
+  try { localStorage.setItem(TOKEN_KEY, t); } catch {}
+}
+
+function loadToken(): string | null {
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
+}
+
+function clearToken() {
+  try { localStorage.removeItem(TOKEN_KEY); } catch {}
 }
 
 function loadUser(): AuthUser | null {
@@ -127,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (photo) authUser.photoDataUrl = photo;
 
     saveUser(authUser);
+    if (json.accessToken) saveToken(json.accessToken);
     setUser(authUser);
     return null;
   }
@@ -171,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearUser();
     setUser(null);
     // Best-effort signOut — don't block on it
+    clearToken();
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch {}
@@ -179,9 +194,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function updateProfile(data: Partial<Omit<AuthUser, 'id' | 'email'>>): Promise<void> {
     if (!user) return;
 
+    const token = loadToken();
     await fetch('/api/auth/update-profile', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({
         userId: user.id,
         email: user.email,

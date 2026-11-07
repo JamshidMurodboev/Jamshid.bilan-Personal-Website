@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
@@ -82,6 +83,32 @@ const FUNDING_COLORS: Record<string, string> = {
   partially_funded: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
   self_funded: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
 };
+
+export async function generateMetadata({ params: { locale, id } }: { params: { locale: string; id: string } }): Promise<Metadata> {
+  const { createClient } = await import('@/lib/supabase/server');
+  const { isUUID: checkUUID } = await import('@/lib/slugify');
+  const supabase = createClient();
+  let scholarship: any = null;
+  try {
+    const query = checkUUID(id)
+      ? supabase.from('scholarships').select('title,description_uz,description_ru,description_en,photo_urls,slug').eq('id', id).single()
+      : supabase.from('scholarships').select('title,description_uz,description_ru,description_en,photo_urls,slug').eq('slug', id).single();
+    const { data } = await query;
+    scholarship = data;
+  } catch {}
+  if (!scholarship) return { title: 'Grant' };
+  const description = scholarship[`description_${locale}`] || scholarship.description_uz || '';
+  const cover = scholarship.photo_urls?.[0];
+  return {
+    title: `${scholarship.title} — Jamshid Murodboev`,
+    description: description.slice(0, 160),
+    openGraph: {
+      title: scholarship.title,
+      description: description.slice(0, 160),
+      images: cover ? [cover] : [],
+    },
+  };
+}
 
 export default async function ScholarshipDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);

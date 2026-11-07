@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -20,6 +21,35 @@ function priceDisplay(s: Service, freeLabel: string) {
   if (!s.price) return null;
   const cur = s.currency === 'OTHER' ? (s.currency_custom || '') : (s.currency || '');
   return `${s.price.toLocaleString()} ${cur}`;
+}
+
+export async function generateMetadata({ params: { locale, id } }: { params: { locale: string; id: string } }): Promise<Metadata> {
+  const { createClient: createAdminClientMeta } = await import('@supabase/supabase-js');
+  const { isUUID: checkUUID } = await import('@/lib/slugify');
+  const supabase = createAdminClientMeta(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  let svc: any = null;
+  try {
+    const query = checkUUID(id)
+      ? supabase.from('services').select('name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url').eq('id', id).single()
+      : supabase.from('services').select('name_uz,name_ru,name_en,description_uz,description_ru,description_en,photo_url').eq('slug', id).single();
+    const { data } = await query;
+    svc = data;
+  } catch {}
+  if (!svc) return { title: 'Xizmat' };
+  const name = svc[`name_${locale}`] || svc.name_uz;
+  const description = svc[`description_${locale}`] || svc.description_uz || '';
+  return {
+    title: `${name} — Jamshid Murodboev`,
+    description: description.slice(0, 160),
+    openGraph: {
+      title: name,
+      description: description.slice(0, 160),
+      images: svc.photo_url ? [svc.photo_url] : [],
+    },
+  };
 }
 
 export default async function ServiceDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {

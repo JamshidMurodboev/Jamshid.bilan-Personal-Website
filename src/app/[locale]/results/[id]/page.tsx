@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -13,6 +14,36 @@ import { isUUID } from '@/lib/slugify';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import ShareButton from '@/components/shared/ShareButton';
 import ResultPhotoGallery from '@/components/results/ResultPhotoGallery';
+
+export async function generateMetadata({ params: { locale, id } }: { params: { locale: string; id: string } }): Promise<Metadata> {
+  const { createClient } = await import('@/lib/supabase/server');
+  const { isUUID: checkUUID } = await import('@/lib/slugify');
+  const supabase = await createClient();
+  let r: any = null;
+  try {
+    const query = checkUUID(id)
+      ? supabase.from('student_results').select('student_name,university_name,country,year,photo_url').eq('id', id).single()
+      : supabase.from('student_results').select('student_name,university_name,country,year,photo_url').eq('slug', id).single();
+    const { data } = await query;
+    r = data;
+  } catch {}
+  if (!r) return { title: 'Natija' };
+  const descriptions: Record<string, string> = {
+    uz: `${r.student_name} — ${r.university_name || ''} ${r.country ? `(${r.country})` : ''} ${r.year || ''}`.trim(),
+    ru: `${r.student_name} — ${r.university_name || ''} ${r.country ? `(${r.country})` : ''} ${r.year || ''}`.trim(),
+    en: `${r.student_name} — ${r.university_name || ''} ${r.country ? `(${r.country})` : ''} ${r.year || ''}`.trim(),
+  };
+  const description = descriptions[locale] || descriptions.uz;
+  return {
+    title: `${r.student_name} — Jamshid Murodboev`,
+    description,
+    openGraph: {
+      title: r.student_name,
+      description,
+      images: r.photo_url ? [r.photo_url] : [],
+    },
+  };
+}
 
 export default async function ResultDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);

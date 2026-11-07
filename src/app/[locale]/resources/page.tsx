@@ -1,6 +1,21 @@
+import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const titles: Record<string, string> = {
+    uz: "Resurslar — Jamshid Murodboev",
+    ru: "Ресурсы — Jamshid Murodboev",
+    en: "Resources — Jamshid Murodboev",
+  };
+  const descriptions: Record<string, string> = {
+    uz: "Bepul yuklab olish mumkin bo'lgan CV shablonlari, motivatsion xat namuналари va boshqa resurslar.",
+    ru: "Бесплатные шаблоны CV, образцы мотивационных писем и другие ресурсы для скачивания.",
+    en: "Free downloadable CV templates, motivation letter samples and other scholarship resources.",
+  };
+  return { title: titles[locale] ?? titles.uz, description: descriptions[locale] ?? descriptions.uz, robots: { index: false } };
+}
 import DownloadButton from '@/components/resources/DownloadButton';
 
 interface Resource {

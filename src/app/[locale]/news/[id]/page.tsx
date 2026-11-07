@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
@@ -12,6 +13,30 @@ import MediaLinksSection from '@/components/shared/MediaLinksSection';
 import { isUUID } from '@/lib/slugify';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 import ShareButton from '@/components/shared/ShareButton';
+
+export async function generateMetadata({ params: { locale, id } }: { params: { locale: string; id: string } }): Promise<Metadata> {
+  const supabase = createClient();
+  let post: NewsPost | null = null;
+  try {
+    const query = isUUID(id)
+      ? supabase.from('news_posts').select('*').eq('id', id).eq('published', true).single()
+      : supabase.from('news_posts').select('*').eq('slug', id).eq('published', true).single();
+    const { data } = await query;
+    post = data as NewsPost | null;
+  } catch {}
+  if (!post) return { title: 'Yangilik' };
+  const title = (post as any)[`title_${locale}`] || post.title_uz;
+  const body = (post as any)[`body_${locale}`] || post.body_uz || '';
+  return {
+    title: `${title} — Jamshid Murodboev`,
+    description: body.slice(0, 160),
+    openGraph: {
+      title,
+      description: body.slice(0, 160),
+      images: post.cover_url ? [post.cover_url] : [],
+    },
+  };
+}
 
 export default async function NewsPostPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);

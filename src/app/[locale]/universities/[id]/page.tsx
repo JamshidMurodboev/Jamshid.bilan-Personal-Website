@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -43,6 +44,32 @@ const TYPE_COLORS = {
   private: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
 };
 // DEGREE_LABELS replaced with t('universities.degreeMap.*') below
+
+export async function generateMetadata({ params: { locale, id } }: { params: { locale: string; id: string } }): Promise<Metadata> {
+  const { createClient } = await import('@/lib/supabase/server');
+  const { isUUID: checkUUID } = await import('@/lib/slugify');
+  const supabase = createClient();
+  let u: any = null;
+  try {
+    const query = checkUUID(id)
+      ? supabase.from('universities').select('name,description_uz,description_ru,description_en,logo_url,photo_urls').eq('id', id).single()
+      : supabase.from('universities').select('name,description_uz,description_ru,description_en,logo_url,photo_urls').eq('slug', id).single();
+    const { data } = await query;
+    u = data;
+  } catch {}
+  if (!u) return { title: 'Universitet' };
+  const description = u[`description_${locale}`] || u.description_uz || '';
+  const cover = u.logo_url || u.photo_urls?.[0];
+  return {
+    title: `${u.name} — Jamshid Murodboev`,
+    description: description.slice(0, 160),
+    openGraph: {
+      title: u.name,
+      description: description.slice(0, 160),
+      images: cover ? [cover] : [],
+    },
+  };
+}
 
 export default async function UniversityDetailPage({ params: { locale, id } }: { params: { locale: string; id: string } }) {
   setRequestLocale(locale);
