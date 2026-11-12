@@ -13,6 +13,7 @@ const inp = 'w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 
 
 export default function BookingModal({ isOpen, onClose, locale }: Props) {
   const t = useTranslations('contact');
+  const tb = useTranslations('booking');
   const today = new Date().toISOString().split('T')[0];
 
   const [form, setForm] = useState({
@@ -65,6 +66,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
         <button
+          type="button"
           onClick={handleClose}
           className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
         >
@@ -78,7 +80,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
             <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center text-3xl">✅</div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('bookingSuccess')}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">{t('bookingSuccessDesc')}</p>
-            <button onClick={handleClose} className="mt-2 bg-teal-700 hover:bg-teal-800 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition">OK</button>
+            <button type="button" onClick={handleClose} className="mt-2 bg-teal-700 hover:bg-teal-800 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition">OK</button>
           </div>
         ) : (
           <>
@@ -99,7 +101,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  {locale === 'ru' ? 'Полное имя' : locale === 'en' ? 'Full name' : 'To\'liq ism'} *
+                  {tb('name')} *
                 </label>
                 <input
                   type="text"
@@ -112,20 +114,20 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  {locale === 'ru' ? 'Телефон' : locale === 'en' ? 'Phone' : 'Telefon'} *
+                  {tb('phone')} *
                 </label>
                 <PhoneInput onChange={(val, valid) => setForm(f => ({ ...f, phone: val, phoneValid: valid }))} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  {locale === 'ru' ? 'Цель / Вопрос' : locale === 'en' ? 'Goal / Question' : 'Maqsad / Savol'}
+                  {tb('topic')}
                 </label>
                 <textarea
                   rows={3}
                   value={form.topic}
                   onChange={e => setForm(f => ({ ...f, topic: e.target.value }))}
-                  placeholder={locale === 'ru' ? 'Например: хочу поступить в Türkiye Burslari' : locale === 'en' ? 'e.g. I want to apply for Türkiye Burslari' : 'Masalan: Türkiye Burslari uchun maslahat olmoqchiman'}
+                  placeholder={tb('topicPlaceholder')}
                   className={inp}
                 />
               </div>
@@ -133,7 +135,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    {locale === 'ru' ? 'Удобная дата' : locale === 'en' ? 'Preferred date' : 'Qulay sana'}
+                    {tb('preferredDate')}
                   </label>
                   <input
                     type="date"
@@ -145,7 +147,7 @@ export default function BookingModal({ isOpen, onClose, locale }: Props) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                    {locale === 'ru' ? 'Удобное время' : locale === 'en' ? 'Preferred time' : 'Qulay vaqt'}
+                    {tb('preferredTime')}
                   </label>
                   <input
                     type="text"

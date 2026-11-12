@@ -1,5 +1,20 @@
+import type { Metadata } from 'next';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const titles: Record<string, string> = {
+    uz: "Yangiliklar — Jamshid Murodboev",
+    ru: "Новости — Jamshid Murodboev",
+    en: "News — Jamshid Murodboev",
+  };
+  const descriptions: Record<string, string> = {
+    uz: "Xorijda tahsil olish bo'yicha eng so'nggi yangiliklar va grantlar haqida ma'lumot.",
+    ru: "Последние новости и гранты для обучения за рубежом.",
+    en: "Latest news and grants for studying abroad.",
+  };
+  return { title: titles[locale] ?? titles.uz, description: descriptions[locale] ?? descriptions.uz };
+}
 import NewsCard from '@/components/news/NewsCard';
 import PageNav from '@/components/shared/PageNav';
 import type { NewsPost } from '@/lib/supabase/types';

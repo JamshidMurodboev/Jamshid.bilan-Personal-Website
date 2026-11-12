@@ -3,12 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 
 const MAX_ATTEMPTS = 10;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export async function POST(req: NextRequest) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { email: rawEmail, code: rawCode } = await req.json();
   if (!rawEmail || !rawCode) {
     return NextResponse.json({ error: 'Email and code required' }, { status: 400 });

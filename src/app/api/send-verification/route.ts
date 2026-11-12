@@ -3,12 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { z } from 'zod';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const schema = z.object({
   email: z.string().email(),
@@ -25,6 +19,11 @@ function esc(str: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const resend = new Resend(process.env.RESEND_API_KEY);
   let body: unknown;
   try {
     body = await req.json();

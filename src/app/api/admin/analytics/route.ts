@@ -4,12 +4,11 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
   const adminCookie = req.cookies.get('admin_logged_in')?.value;
   if (!adminCookie) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

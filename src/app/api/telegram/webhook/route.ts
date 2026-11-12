@@ -4,10 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || '';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 async function requestPhoneContact(chatId: number) {
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -61,6 +63,7 @@ export async function POST(req: NextRequest) {
   if (text.startsWith('/start ')) {
     const sessionId = text.slice(7).trim();
 
+    const supabase = getSupabase();
     const { data: session, error } = await supabase
       .from('telegram_otp_sessions')
       .select('*')
