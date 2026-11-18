@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
   const safeCode = esc(code);
 
   const { error: emailError } = await resend.emails.send({
-    from: 'Jamshid.bilan <onboarding@resend.dev>',
+    from: 'Jamshid.bilan <noreply@jamshidbilan.uz>',
     to: email,
     subject: "Ro'yxatdan o'tishni tasdiqlang — Jamshid.bilan",
     html: `
